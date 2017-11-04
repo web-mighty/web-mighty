@@ -1,0 +1,48 @@
+digraph dep {
+  signup [label="Sign Up\nfeature"];
+  signin [label="Sign In\nfeature"];
+  userlookup [label="User Lookup\nfeature"];
+  profileedit [label="Profile Edit\nfeature"];
+  profilepicture [label="Upload Profile\nPicture feature"];
+  ranking [label="Ranking feature"];
+  UserService [shape=box];
+  MenuBarComponent [shape=box];
+  SignUpComponent [shape=box];
+  SignInComponent [shape=box];
+  ProfileViewComponent [shape=box];
+  ProfileEditComponent [shape=box];
+  HallOfFameComponent [shape=box];
+  roomlist [label="Room List\nfeature"];
+  roomcreate [label="Room Create\nfeature"];
+  gameplay [label="Gameplay\nfeature"];
+  LobbyComponent [shape=box];
+  GameService [shape=box];
+  GameCreateComponent [shape=box];
+  TableComponent [shape=box];
+  websocket [label="WebSocket\nfeature"];
+  verification [label="Play Verification\nfeature"];
+  Backend [shape=box];
+
+  UserService -> { signup; signin; userlookup; profileedit; profilepicture; ranking; } [style=dotted];
+  GameService -> { roomlist; roomcreate; gameplay; } [style=dotted constraint=false];
+  { roomlist; roomcreate; gameplay; } -> GameService [style=invis];
+  Backend -> { websocket; verification; } [style=dotted constraint=false];
+  { websocket; verification; } -> Backend [style=invis];
+
+  signup -> SignUpComponent;
+  signin -> SignInComponent;
+  userlookup -> ProfileViewComponent;
+  userlookup -> MenuBarComponent;
+  { profileedit; profilepicture; } -> ProfileEditComponent;
+  ranking -> HallOfFameComponent;
+  roomlist -> LobbyComponent [constraint=false];
+  roomcreate -> GameCreateComponent [constraint=false];
+  { gameplay; websocket; verification; } -> TableComponent [constraint=false];
+  LobbyComponent -> roomlist [style=invis];
+  GameCreateComponent -> roomcreate [style=invis];
+  TableComponent -> { gameplay; websocket; verification; } [style=invis];
+  TableComponent -> { LobbyComponent; GameCreateComponent; } [style=invis];
+  userlookup -> TableComponent;
+
+  { rank=same; gameplay roomlist roomcreate websocket verification; }
+}
