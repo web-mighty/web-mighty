@@ -1,0 +1,50 @@
+sudo: required
+
+matrix:
+  include:
+    - language: python
+      python: 3.6
+      cache:
+        pip: true
+      install:
+        - pip install django coverage coveralls
+      before_script:
+        - export PROJECT_PATH=$(pwd)/backend/backend
+        - python3 util/secret-key-gen.py
+        - cd backend
+        - python3 manage.py migrate
+      script:
+        - coverage run --branch --source="./example" manage.py test
+      after_success:
+        - coveralls
+      after_script:
+        - cd ..
+
+    - language: node_js
+      node_js: 8.8
+      addons:
+        apt:
+          sources:
+            - google-chrome
+          packages:
+            - google-chrome-stable
+      cache:
+        npm: true
+        directories:
+          - frontend/node_modules
+      before_install:
+        - export CHROME_BIN=/usr/bin/google-chrome
+        - export DISPLAY=:99.0
+        - sh -e /etc/init.d/xvfb start
+        - cd frontend
+      install:
+        - npm install
+        - npm install coveralls
+        - npm install -g @angular/cli
+      script:
+        - ng test --code-coverage --watch false
+        - ng e2e
+      after_success:
+        - cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js
+      after_script:
+        - cd ..
