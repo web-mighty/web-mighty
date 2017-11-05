@@ -1,0 +1,13 @@
+<div>Sign in</div>
+<button (click)="gotoSignUp()" class="sign-up-button">Sign up</button>
+<form>
+  <div>
+    <label>Username</label>
+    <input [(ngModel)]="username" name="username" type="text">
+  </div>
+  <div>
+    <label>Password</label>
+    <input [(ngModel)]="password" name="password" type="password">
+  </div>
+  <button (click)="signIn()">Sign in</button>
+</form>
