@@ -13,7 +13,10 @@ matrix:
         - export PROJECT_PATH=$(pwd)/backend/backend
         - python3 util/secret-key-gen.py
       script:
-        - coverage run --branch --source="./backend/api,./backend/websocket" ./backend/manage.py test
+        - cd backend
+        - coverage run --branch --source="./api,./websocket" manage.py test
+        - cp .coverage ..
+        - cd ..
       after_success:
         - coveralls
 
