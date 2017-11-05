@@ -14,7 +14,7 @@ matrix:
         - cd backend
         - python3 manage.py migrate
       script:
-        - coverage run --branch --source="./example" manage.py test
+        - coverage run --branch --source="./api,./websocket" manage.py test
       after_success:
         - coveralls
       after_script:
