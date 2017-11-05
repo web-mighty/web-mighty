@@ -1,16 +1,12 @@
-<div>Sign up</div>
+<div>Edit Profile</div>
 <form>
   <div>
-    <label>E-mail</label>
-    <input [(ngModel)]="email" name="email" type="text">
+    <label>Current Password</label>
+    <input [(ngModel)]="currentPassword" name="currentPassword" type="password">
   </div>
   <div>
-    <label>Username</label>
-    <input [(ngModel)]="username" name="username" type="text">
-  </div>
-  <div>
-    <label>Password</label>
-    <input [(ngModel)]="password" name="password" type="password">
+    <label>New Password</label>
+    <input [(ngModel)]="newPassword" name="newPassword" type="password">
   </div>
   <div>
     <label>Confirm Password</label>
@@ -20,6 +16,6 @@
     <label>Nickname</label>
     <input [(ngModel)]="nickname" name="nickname" type="text" [placeholder]="username">
   </div>
-  <button (click)="signUp()">Sign up</button>
+  <button (click)="submit()">Submit changes</button>
 </form>
 <span *ngIf="retry">Passwords don't match. Try again.</span>

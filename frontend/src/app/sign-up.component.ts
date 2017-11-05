@@ -11,9 +11,10 @@ export class SignUpComponent {
     private userService: UserService,
   ) {}
   email: string;
-  username: string;
+  username: string = '';
   password: string;
   confirmPassword: string;
+  nickname: string = '';
   retry: boolean = false;
 
   signUp() {
@@ -24,6 +25,9 @@ export class SignUpComponent {
       this.retry = true;
     }
     else {
+      if(this.nickname === '') {
+        this.nickname = this.username;
+      }
       this.userService.signUp(this.email, this.username, this.password);
     }
   }

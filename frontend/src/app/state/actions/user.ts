@@ -1,6 +1,6 @@
 import { Action } from '@ngrx/store';
 
-import { User } from '../../user';
+import { Profile } from '../../profile';
 
 export const SIGN_UP_START = 'User: Sign up: start';
 export const SIGN_UP_DONE = 'User: Sign up: done';
@@ -45,7 +45,7 @@ export namespace SignIn {
   export class Done implements Action {
     readonly type = SIGN_IN_DONE;
 
-    constructor(public user: User) {}
+    constructor(public user: Profile) {}
   }
   export class Failed implements Action {
     readonly type = SIGN_IN_FAILED;
