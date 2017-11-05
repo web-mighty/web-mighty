@@ -1,5 +1,8 @@
 import { Component } from '@angular/core';
 import { Router } from '@angular/router';
+import { Store } from '@ngrx/store';
+
+import * as RouterActions from './state/actions/router';
 
 import { UserService } from './user.service';
 
@@ -12,6 +15,7 @@ export class SignInComponent {
   constructor(
     private router: Router,
     private userService: UserService,
+    private store: Store<void>,
   ) {}
   username: string;
   password: string;
@@ -21,6 +25,6 @@ export class SignInComponent {
   }
 
   gotoSignUp() {
-    this.router.navigateByUrl('sign_up');
+    this.store.dispatch(new RouterActions.GoByUrl('sign_up'));
   }
 }

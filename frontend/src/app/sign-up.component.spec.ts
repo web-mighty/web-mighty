@@ -1,5 +1,6 @@
 import { ComponentFixture, TestBed, async, inject } from '@angular/core/testing';
 import { RouterTestingModule } from '@angular/router/testing';
+import { AppStateModule } from './state/app-state.module';
 
 import { FormsModule } from '@angular/forms';
 import { APP_BASE_HREF } from '@angular/common'
@@ -18,6 +19,9 @@ describe('SignUpComponent', () => {
       ],
       imports: [
         FormsModule,
+        RouterTestingModule.withRoutes([
+        ]),
+        AppStateModule,
       ],
       providers: [
         UserService,
