@@ -1,6 +1,7 @@
 from django.http import HttpResponse, JsonResponse
 from django.http import HttpResponseNotAllowed, HttpResponseForbidden
 from django.http import HttpResponseBadRequest
+from django.contrib.auth import authenticate, login, logout
 from .models import create_user, User, Profile, GameHistory
 import json
 
@@ -30,3 +31,34 @@ def sign_up(request):
 
     else:
         return HttpResponseNotAllowed(['POST'])
+
+
+def sign_in(request):
+    if request.method == 'POST':
+        request_data = json.loads(request.body.decode())
+        username = request_data.get('username', None)
+        password = request_data.get('password', None)
+
+        user = authenticate(username=username, password=password)
+
+        if user is not None:
+            login(request, user)
+            response_data = {
+                'id': user.id,
+                'username': user.username,
+            }
+            return JsonResponse(response_data)
+        else:
+            return HttpResponse(status=401) # Unauthorized
+
+    else:
+        return HttpResponseNotAllowed(['POST'])
+
+
+def sign_out(request):
+    if request.method == 'GET':
+        logout(request)
+        return HttpResponse()
+
+    else:
+        return HttpResponseNotAllowed(['GET'])
