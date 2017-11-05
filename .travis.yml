@@ -3,11 +3,12 @@ sudo: required
 matrix:
   include:
     - language: python
-      python: 3.6
+      python: 3.5
       cache:
         pip: true
       install:
         - pip install django coverage coveralls
+        - pip install -r $(pwd)/backend/requirements.txt
       before_script:
         - export PROJECT_PATH=$(pwd)/backend/backend
         - python3 util/secret-key-gen.py
