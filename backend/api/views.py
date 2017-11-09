@@ -49,7 +49,7 @@ def sign_in(request):
             }
             return JsonResponse(response_data)
         else:
-            return HttpResponse(status=401) # Unauthorized
+            return HttpResponse(status=401)  # Unauthorized
 
     else:
         return HttpResponseNotAllowed(['POST'])
