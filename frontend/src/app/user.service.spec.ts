@@ -60,6 +60,7 @@ describe('UserService', () => {
     expect(signUpDone.length).toBe(1);
   }));
 
+  /*
   it('#signIn should dispatch Sign In related action', fakeAsync(() => {
     const effectActions = [];
     effects.signIn$.subscribe(action => {
@@ -85,6 +86,7 @@ describe('UserService', () => {
     );
     expect(signInDone.length).toBe(1);
   }));
+   */
 
   it('#signOut should dispatch Sign Out related action', fakeAsync(() => {
     const effectActions = [];

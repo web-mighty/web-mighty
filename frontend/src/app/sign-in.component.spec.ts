@@ -1,16 +1,31 @@
 import { ComponentFixture, TestBed, async, inject } from '@angular/core/testing';
 import { RouterTestingModule } from '@angular/router/testing';
-import { AppStateModule } from './state/app-state.module';
+import { StoreModule } from '@ngrx/store';
+import { EffectsModule } from '@ngrx/effects';
 
+import { Observable } from 'rxjs/Observable';
+import { never as observableNever } from 'rxjs/observable/never';
 import { Component } from '@angular/core'
 import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { APP_BASE_HREF } from '@angular/common'
 import { Store } from '@ngrx/store';
 
+// Actions
+import { AppActions } from './state/app-actions';
+import * as RouterActions from './state/actions/router';
+import * as UserActions from './state/actions/user';
+
+// Reducers
+import { userReducer } from './state/reducers/user';
+
+// Effects
+import { RouterEffects } from './state/effects/router';
+
+import { provideMockActions } from '@ngrx/effects/testing';
+
 import { State } from './state/reducer';
 import { SignInComponent } from './sign-in.component'
-import { UserService } from './user.service';
 
 @Component({
     template: ''
@@ -20,16 +35,20 @@ class MockSignUpComponent {}
 const routerStub = {
   navigateByUrl: jasmine.createSpy('navigateByUrl'),
 };
-const userStub = {
-  signUp: jasmine.createSpy('signUp'),
-  signIn: jasmine.createSpy('signIn'),
-  signOut: jasmine.createSpy('signOut'),
-};
+
+function filterCallByAction<T extends AppActions>(
+  spy: any,
+  ty: { new(...args): T; }
+): T[] {
+  const args: AppActions[] = spy.calls.allArgs().map(args => args[0]);
+  return args.filter(action => action instanceof ty) as T[];
+}
 
 describe('SignInComponent', () => {
   let comp: SignInComponent;
   let fixture: ComponentFixture<SignInComponent>;
   let store: Store<State>;
+  let dispatchSpy;
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
@@ -42,18 +61,24 @@ describe('SignInComponent', () => {
         RouterTestingModule.withRoutes([
           { path: 'sign_up', component: MockSignUpComponent },
         ]),
-        AppStateModule,
+        StoreModule.forRoot({
+          user: userReducer,
+        }),
+        EffectsModule.forRoot([
+          RouterEffects,
+        ]),
       ],
       providers: [
-        UserService,
         { provide: APP_BASE_HREF, useValue: '/' },
         { provide: Router, useValue: routerStub },
-        { provide: UserService, useValue: userStub },
+        provideMockActions(observableNever),
       ],
     }).compileComponents()
     .then(() => {
       fixture = TestBed.createComponent(SignInComponent);
       comp = fixture.componentInstance;
+      store = fixture.debugElement.injector.get(Store);
+      dispatchSpy = spyOn(store, 'dispatch');
       fixture.detectChanges();
     });
   }));
@@ -62,13 +87,14 @@ describe('SignInComponent', () => {
     expect(comp).not.toBeNull();
   });
 
-  it('should navigate to "/sign_up" when Sign up button is clicked', async(() => {
+  it('should try to navigate to "/sign_up" when Sign up button is clicked', async(() => {
     const signUpButton = fixture.debugElement.nativeElement.querySelector('.sign-up-button');
     signUpButton.click();
-    fixture.whenStable().then(() => {
-      expect(routerStub.navigateByUrl).toHaveBeenCalledWith('sign_up');
-      expect(routerStub.navigateByUrl).toHaveBeenCalledTimes(1);
-    });
+
+    const gotoSignUp = filterCallByAction(dispatchSpy, RouterActions.GoByUrl);
+    expect(gotoSignUp.length).toBe(1);
+    const payload = gotoSignUp.map(action => action.url);
+    expect(payload.some(url => url == 'sign_up')).toBeTruthy();
   }));
 
   it('should try to sign in when Sign in button is clicked', async(() => {
@@ -80,6 +106,13 @@ describe('SignInComponent', () => {
     passwordBox.dispatchEvent(new Event('input'));
     const signInButton = fixture.debugElement.nativeElement.querySelector('.sign-in-button');
     signInButton.click();
-    expect(userStub.signIn).toHaveBeenCalledWith('foo', 'bar');
+
+    const signInStart = filterCallByAction(dispatchSpy, UserActions.SignIn.Start);
+    expect(signInStart.length).toBe(1);
+    const payload = signInStart.map(action => action.payload);
+    expect(payload.some(({ username, password }) =>
+      username === 'foo' &&
+      password === 'bar'
+    )).toBeTruthy();
   }));
 });

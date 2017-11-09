@@ -23,7 +23,6 @@ export class SignInComponent implements OnInit {
 
   constructor(
     private router: Router,
-    private userService: UserService,
     private store: Store<State>,
   ) {
     this.error = this.store.select('user').map(user => user.currentError);
