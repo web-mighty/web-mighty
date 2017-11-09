@@ -1,4 +1,5 @@
 from django.db import models
+from django.db.utils import Error as ModelError
 from django.contrib.auth.models import User
 
 
@@ -44,5 +45,5 @@ def create_user(**kwargs):
             nickname=kwargs['nickname'],
         )
         return new_user
-    except:
+    except ModelError:
         return None

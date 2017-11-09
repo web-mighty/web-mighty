@@ -8,12 +8,13 @@ matrix:
         pip: true
       install:
         - pip install django coverage coveralls
-        - pip install -r $(pwd)/backend/requirements.txt
+        - pip install -r $(pwd)/backend/requirements-dev.txt
       before_script:
         - export PROJECT_PATH=$(pwd)/backend/backend
         - python3 util/secret-key-gen.py
       script:
         - cd backend
+        - flake8 --config ./flake8
         - coverage run --branch --source="./api,./websocket" manage.py test
         - cp .coverage ..
         - cd ..

@@ -17,7 +17,7 @@ class ApiSignUpTest(TestCase):
             'nickname': 'nicknick',
             'email': 'asdf@asdf.com',
         }
-        response = client.post(
+        client.post(
             reverse('sign_up'),
             json.dumps(post_data),
             content_type='application/json',
