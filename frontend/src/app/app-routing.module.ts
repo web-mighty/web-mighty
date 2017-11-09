@@ -8,7 +8,8 @@ import { ProfileViewComponent } from './profile-view.component';
 import { ProfileEditComponent } from './profile-edit.component';
 
 const routes: Routes = [
-  { path: '', component: LobbyComponent },
+  { path: '', redirectTo: '/lobby', pathMatch: 'full' },
+  { path: 'lobby', component: LobbyComponent },
   { path: 'sign_up', component: SignUpComponent },
   { path: 'sign_in', component: SignInComponent },
   { path: 'profile/:username', component: ProfileViewComponent },

@@ -1,5 +1,6 @@
 import { Action } from '@ngrx/store';
 
+import { User } from '../../user';
 import { Profile } from '../../profile';
 
 export const SIGN_UP_START = 'User: Sign up: start';
@@ -12,6 +13,8 @@ export const SIGN_IN_FAILED = 'User: Sign in: failed';
 
 export const SIGN_OUT_START = 'User: Sign out: start';
 export const SIGN_OUT_DONE = 'User: Sign out: done';
+
+export const REDIRECT_IF_SIGNED_IN = 'User: Redirect if signed in';
 
 export namespace SignUp {
   export class Start implements Action {
@@ -45,7 +48,7 @@ export namespace SignIn {
   export class Done implements Action {
     readonly type = SIGN_IN_DONE;
 
-    constructor(public user: Profile) {}
+    constructor(public user: User) {}
   }
   export class Failed implements Action {
     readonly type = SIGN_IN_FAILED;
@@ -63,6 +66,10 @@ export namespace SignOut {
   }
 }
 
+export class RedirectIfSignedIn implements Action {
+  readonly type = REDIRECT_IF_SIGNED_IN;
+}
+
 export type Actions
   = SignUp.Start
   | SignUp.Done
@@ -71,4 +78,6 @@ export type Actions
   | SignIn.Done
   | SignIn.Failed
   | SignOut.Start
-  | SignOut.Done;
+  | SignOut.Done
+  | RedirectIfSignedIn
+;
