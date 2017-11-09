@@ -2,14 +2,16 @@ import { ComponentFixture, TestBed, async, inject } from '@angular/core/testing'
 import { RouterTestingModule } from '@angular/router/testing';
 import { StoreModule } from '@ngrx/store';
 import { EffectsModule } from '@ngrx/effects';
+import { provideMockActions } from '@ngrx/effects/testing';
+import { MockComponent, filterCallByAction } from './testing';
 
 import { Observable } from 'rxjs/Observable';
 import { never as observableNever } from 'rxjs/observable/never';
-import { Component } from '@angular/core'
 import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { APP_BASE_HREF } from '@angular/common'
 import { Store } from '@ngrx/store';
+import { State } from './state/reducer';
 
 // Actions
 import { AppActions } from './state/app-actions';
@@ -22,27 +24,12 @@ import { userReducer } from './state/reducers/user';
 // Effects
 import { RouterEffects } from './state/effects/router';
 
-import { provideMockActions } from '@ngrx/effects/testing';
-
-import { State } from './state/reducer';
 import { SignInComponent } from './sign-in.component'
 
-@Component({
-    template: ''
-})
-class MockSignUpComponent {}
 
 const routerStub = {
   navigateByUrl: jasmine.createSpy('navigateByUrl'),
 };
-
-function filterCallByAction<T extends AppActions>(
-  spy: any,
-  ty: { new(...args): T; }
-): T[] {
-  const args: AppActions[] = spy.calls.allArgs().map(args => args[0]);
-  return args.filter(action => action instanceof ty) as T[];
-}
 
 describe('SignInComponent', () => {
   let comp: SignInComponent;
@@ -54,12 +41,12 @@ describe('SignInComponent', () => {
     TestBed.configureTestingModule({
       declarations: [
         SignInComponent,
-        MockSignUpComponent,
+        MockComponent,
       ],
       imports: [
         FormsModule,
         RouterTestingModule.withRoutes([
-          { path: 'sign_up', component: MockSignUpComponent },
+          { path: 'sign_up', component: MockComponent },
         ]),
         StoreModule.forRoot({
           user: userReducer,
