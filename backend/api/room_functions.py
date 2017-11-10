@@ -15,11 +15,12 @@ def get_room(room_id):
 
 
 def create_room(**kwargs):
-
     id = str(uuid.uuid4())
     title = kwargs.get('title', None)
-    password = hashlib.sha256(
-        bytes(kwargs.get('password', None), encoding='utf=8')).hexdigest()
+    password = kwargs.get('password', None)
+    if password is not None:
+        password = hashlib.sha256(
+            bytes(password, encoding='utf=8')).hexdigest()
 
     if not all([title, ]):
         return False

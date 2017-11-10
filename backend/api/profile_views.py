@@ -12,12 +12,12 @@ def profile(request):
         profile = request.user.profile
         response_data = {
             'nickname': profile.nickname,
-            # 'avatar': profile.avatar.url,
+            'avatar': profile.avatar.url,
             'created': str(profile.created),
         }
         return JsonResponse(response_data)
 
-    elif request.method == 'POST':
+    elif request.method == 'PUT':
         profile = request.user.profile
         data = json.loads(request.body.decode())
 
@@ -27,7 +27,7 @@ def profile(request):
         return HttpResponse(status=204)
 
     else:
-        return HttpResponseNotAllowed(['GET', 'POST'])
+        return HttpResponseNotAllowed(['GET', 'PUT'])
 
 
 def avatar(request):
