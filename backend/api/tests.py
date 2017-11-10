@@ -2,7 +2,9 @@ from django.test import TestCase, Client
 from .models import User, create_user
 from django.contrib.auth import authenticate
 from django.urls import reverse
+from io import BytesIO
 import json
+import os
 
 
 class ApiRoomListTest(TestCase):
@@ -22,7 +24,7 @@ class ApiRoomListTest(TestCase):
             reverse('room')
         )
 
-        data = json.loads(response.content.decode())
+        data = response.json()
 
         self.assertEqual(len(data), 0)
 
@@ -43,7 +45,7 @@ class ApiRoomListTest(TestCase):
             reverse('room')
         )
 
-        data = json.loads(response.content.decode())
+        data = response.json()
 
         self.assertEqual(data[0]['title'], 'doge room')
 
@@ -57,7 +59,7 @@ class ApiProfileTest(TestCase):
             email='asdf@asdf.com'
         )
 
-    def test_not_authenticated(self):
+    def test_profile_not_authenticated(self):
         client = Client()
 
         response = client.get(
@@ -74,7 +76,7 @@ class ApiProfileTest(TestCase):
             reverse('profile')
         )
 
-        data = json.loads(response.content.decode())
+        data = response.json()
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(data['nickname'], 'usezmap')
@@ -97,6 +99,54 @@ class ApiProfileTest(TestCase):
 
         self.assertEqual(response.status_code, 204)
         self.assertEqual(user.profile.nickname, 'new_nick')
+
+    def test_avatar_not_authenticated(self):
+        client = Client()
+
+        response = client.get(
+            reverse('avatar')
+        )
+
+        self.assertEqual(response.status_code, 401)
+
+    def test_avatar_valid_image(self):
+        client = Client()
+        client.login(username='skystar', password='doge')
+
+        user = User.objects.get(id=1)
+
+        with open('api/test_data/test_image.png', 'rb') as f:
+            response = client.post(
+                reverse('avatar'),
+                {'avatar': f}
+            )
+
+        os.remove(user.profile.avatar.path)
+        self.assertEqual(response.status_code, 204)
+
+    def test_avatar_invalid_image(self):
+        client = Client()
+        client.login(username='skystar', password='doge')
+
+        f = BytesIO(os.urandom(100))
+        response = client.post(
+            reverse('avatar'),
+            {'avatar': f}
+        )
+
+        self.assertEqual(response.status_code, 400)
+
+    def test_avatar_large_image(self):
+        client = Client()
+        client.login(username='skystar', password='doge')
+
+        f = BytesIO(os.urandom(1024 * 1024 * 2))
+        response = client.post(
+            reverse('avatar'),
+            {'avatar': f}
+        )
+
+        self.assertEqual(response.status_code, 413)
 
 
 class ApiSignUpTest(TestCase):
@@ -162,7 +212,7 @@ class ApiSignInTest(TestCase):
             json.dumps(post_data),
             content_type='application/json',
         )
-        data = json.loads(response.content.decode())
+        data = response.json()
         self.assertEqual(data['id'], 1)
         self.assertEqual(data['username'], 'skystar')
 

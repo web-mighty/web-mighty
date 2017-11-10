@@ -6,5 +6,6 @@ urlpatterns = [
     url(r'^signin/$', sign_views.sign_in, name='sign_in'),
     url(r'^signout/$', sign_views.sign_out, name='sign_out'),
     url(r'^profile/$', profile_views.profile, name='profile'),
+    url(r'^profile/avatar/$', profile_views.avatar, name='avatar'),
     url(r'^room/$', room_views.room, name='room'),
 ]
