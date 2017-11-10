@@ -7,9 +7,10 @@ import { provideMockActions } from '@ngrx/effects/testing';
 import { filterCallByAction } from '../../testing';
 
 import { ReplaySubject } from 'rxjs/ReplaySubject';
-import { Http, XHRBackend, XSRFStrategy, CookieXSRFStrategy } from '@angular/http';
+import { Http, XHRBackend, XSRFStrategy } from '@angular/http';
 import { Store } from '@ngrx/store';
 import { Actions } from '@ngrx/effects';
+import { xsrfFactory } from '../../xsrf-factory';
 
 // Actions
 import { AppActions } from '../app-actions';
@@ -37,7 +38,7 @@ describe('UserEffects', () => {
       ],
       providers: [
         { provide: XHRBackend, useClass: MockBackend },
-        { provide: XSRFStrategy, useValue: new CookieXSRFStrategy('csrftoken', 'X-CSRFToken') },
+        { provide: XSRFStrategy, useFactory: xsrfFactory },
         provideMockActions(() => actions),
       ],
     });
