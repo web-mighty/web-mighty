@@ -107,8 +107,14 @@ class ApiProfileTest(TestCase):
     def test_profile_not_authenticated(self):
         client = Client()
 
-        response = client.get(
-            reverse('profile')
+        post_data = {
+            'nickname': 'new_nick',
+        }
+
+        response = client.put(
+            reverse('profile', kwargs={'username': 'skystar'}),
+            json.dumps(post_data),
+            content_type='application/json',
         )
 
         self.assertEqual(response.status_code, 401)
@@ -118,7 +124,7 @@ class ApiProfileTest(TestCase):
         client.login(username='skystar', password='doge')
 
         response = client.get(
-            reverse('profile')
+            reverse('profile', kwargs={'username': 'skystar'})
         )
 
         data = response.json()
@@ -135,7 +141,7 @@ class ApiProfileTest(TestCase):
         }
 
         response = client.put(
-            reverse('profile'),
+            reverse('profile', kwargs={'username': 'skystar'}),
             json.dumps(post_data),
             content_type='application/json',
         )
@@ -260,7 +266,6 @@ class ApiSignInTest(TestCase):
             content_type='application/json',
         )
         data = response.json()
-        self.assertEqual(data['id'], 1)
         self.assertEqual(data['username'], 'skystar')
 
     def test_sign_in_fail(self):
@@ -299,6 +304,49 @@ class ApiSignOutTest(TestCase):
             json.dumps(post_data),
             content_type='application/json',
         )
+        self.assertEqual(response.status_code, 405)
+
+
+class ApiSessionTest(TestCase):
+    def setUp(self):
+        create_user(
+            username='skystar',
+            password='doge',
+            nickname='usezmap',
+            email='asdf@asdf.com'
+        )
+
+    def test_verify_session_success(self):
+        client = Client()
+        client.login(username='skystar', password='doge')
+
+        response = client.get(
+            reverse('verify_session'),
+        )
+
+        data = response.json()
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(data['username'], 'skystar')
+
+    def test_verify_session_unauthorized(self):
+        client = Client()
+
+        response = client.get(
+            reverse('verify_session'),
+        )
+
+        self.assertEqual(response.status_code, 401)
+
+    def test_verify_session_not_allowed(self):
+        client = Client()
+
+        response = client.post(
+            reverse('verify_session'),
+            json.dumps({}),
+            content_type='application/json',
+        )
+
         self.assertEqual(response.status_code, 405)
 
 

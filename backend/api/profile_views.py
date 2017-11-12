@@ -1,15 +1,20 @@
 from django.http import HttpResponse, JsonResponse
 from django.http import HttpResponseNotAllowed, HttpResponseBadRequest
+from django.http import HttpResponseForbidden, HttpResponseNotFound
+from .models import Profile
 from PIL import Image
 import json
 
 
-def profile(request):
-    if not request.user.is_authenticated:
-        return HttpResponse(status=401)
-
+def profile(request, username=None):
     if request.method == 'GET':
-        profile = request.user.profile
+        try:
+            profile = Profile.objects.get(
+                user__username=username
+            )
+        except Profile.DoesNotExist:
+            return HttpResponseNotFound()
+
         response_data = {
             'nickname': profile.nickname,
             'avatar': profile.avatar.url,
@@ -18,6 +23,12 @@ def profile(request):
         return JsonResponse(response_data)
 
     elif request.method == 'PUT':
+        if not request.user.is_authenticated:
+            return HttpResponse(status=401)
+
+        if request.user.username != username:
+            return HttpResponseForbidden()
+
         profile = request.user.profile
         data = json.loads(request.body.decode())
 

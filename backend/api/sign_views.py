@@ -1,5 +1,5 @@
 from django.http import HttpResponse, JsonResponse
-from django.http import HttpResponseNotAllowed, HttpResponseForbidden
+from django.http import HttpResponseNotAllowed
 from django.http import HttpResponseBadRequest
 from django.contrib.auth import authenticate, login, logout
 from .models import create_user, User, Profile, GameHistory
@@ -44,7 +44,6 @@ def sign_in(request):
         if user is not None:
             login(request, user)
             response_data = {
-                'id': user.id,
                 'username': user.username,
             }
             return JsonResponse(response_data)
@@ -60,5 +59,18 @@ def sign_out(request):
         logout(request)
         return HttpResponse()
 
+    else:
+        return HttpResponseNotAllowed(['GET'])
+
+
+def verify_session(request):
+    if request.method == 'GET':
+        if request.user.is_authenticated:
+            response_data = {
+                'username': request.user.username,
+            }
+            return JsonResponse(response_data)
+        else:
+            return HttpResponse(status=401)
     else:
         return HttpResponseNotAllowed(['GET'])
