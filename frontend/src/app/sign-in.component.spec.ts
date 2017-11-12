@@ -58,14 +58,13 @@ describe('SignInComponent', () => {
       providers: [
         { provide: APP_BASE_HREF, useValue: '/' },
         { provide: Router, useValue: routerStub },
-        provideMockActions(observableNever),
       ],
     }).compileComponents()
     .then(() => {
       fixture = TestBed.createComponent(SignInComponent);
       comp = fixture.componentInstance;
       store = fixture.debugElement.injector.get(Store);
-      dispatchSpy = spyOn(store, 'dispatch');
+      dispatchSpy = spyOn(store, 'dispatch').and.callThrough();
       fixture.detectChanges();
     });
   }));
@@ -74,17 +73,24 @@ describe('SignInComponent', () => {
     expect(comp).not.toBeNull();
   });
 
-  it('should try to navigate to "/sign_up" when Sign up button is clicked', async(() => {
+  it('should check whether the user is signed in', () => {
+    const redirect = filterCallByAction(dispatchSpy, UserActions.RedirectWithSignInState);
+    expect(redirect.length).toBe(1);
+    const payload = redirect[0].payload;
+    expect(payload).toEqual({ when: 'signed-in', target: 'lobby' });
+  });
+
+  it('should try to navigate to "/sign_up" when Sign up button is clicked', () => {
     const signUpButton = fixture.debugElement.nativeElement.querySelector('.sign-up-button');
     signUpButton.click();
 
     const gotoSignUp = filterCallByAction(dispatchSpy, RouterActions.GoByUrl);
     expect(gotoSignUp.length).toBe(1);
-    const payload = gotoSignUp.map(action => action.url);
-    expect(payload.some(url => url === 'sign_up')).toBeTruthy();
-  }));
+    const payload = gotoSignUp[0].url;
+    expect(payload).toBe('sign_up');
+  });
 
-  it('should try to sign in when Sign in button is clicked', async(() => {
+  it('should try to sign in when Sign in button is clicked', () => {
     const usernameBox = fixture.debugElement.nativeElement.querySelector('input[name="username"]');
     usernameBox.value = 'foo';
     usernameBox.dispatchEvent(new Event('input'));
@@ -96,10 +102,17 @@ describe('SignInComponent', () => {
 
     const signInStart = filterCallByAction(dispatchSpy, UserActions.SignIn.Start);
     expect(signInStart.length).toBe(1);
-    const payload = signInStart.map(action => action.payload);
-    expect(payload.some(({ username, password }) =>
-      username === 'foo' &&
-      password === 'bar'
-    )).toBeTruthy();
+    const payload = signInStart.map(action => action.payload)[0];
+    expect(payload).toEqual({ username: 'foo', password: 'bar' });
+  });
+
+  it('should display error messages', async(() => {
+    store.dispatch(new UserActions.SignIn.Failed('Foobar error.'));
+    fixture.detectChanges();
+    fixture.whenStable().then(() => {
+      fixture.detectChanges();
+      const message = fixture.nativeElement.querySelector('form > div:last-child').textContent;
+      expect(message).toBe('Foobar error.');
+    });
   }));
 });
