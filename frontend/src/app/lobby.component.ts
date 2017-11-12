@@ -4,6 +4,7 @@ import { Store } from '@ngrx/store';
 import { Observable } from 'rxjs/Observable';
 import { State } from './state/reducer';
 import { User } from './user';
+import { Room } from './room';
 
 // Actions
 import * as RouterActions from './state/actions/router';
@@ -17,6 +18,7 @@ export class LobbyComponent implements OnInit {
 
   signedIn: Observable<boolean>;
   username: Observable<string>;
+  rooms: Room[];
 
   constructor(private store: Store<State>) {
     const user = this.store.select('user').map(user => user.authUser);
@@ -28,19 +30,17 @@ export class LobbyComponent implements OnInit {
   }
 
   gotoCreateGame() {
-    if(!this.signedIn) {
+    if (!this.signedIn) {
       this.store.dispatch(new RouterActions.GoByUrl('sign_in'));
-    }
-    else {
+    } else {
       this.store.dispatch(new RouterActions.GoByUrl('create_game'));
     }
   }
 
   gotoHallOfFame() {
-    if(!this.signedIn) {
+    if (!this.signedIn) {
       this.store.dispatch(new RouterActions.GoByUrl('sign_in'));
-    }
-    else {
+    } else {
       this.store.dispatch(new RouterActions.GoByUrl('hall_of_fame'));
     }
   }
