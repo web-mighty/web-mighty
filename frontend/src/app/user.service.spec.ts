@@ -60,34 +60,6 @@ describe('UserService', () => {
     expect(signUpDone.length).toBe(1);
   }));
 
-  /*
-  it('#signIn should dispatch Sign In related action', fakeAsync(() => {
-    const effectActions = [];
-    effects.signIn$.subscribe(action => {
-      effectActions.push(action);
-    });
-    const dispatchSpy = spyOn(store, 'dispatch').and.callThrough();
-    service.signIn('foo', 'bar');
-    tick();
-
-    const args = dispatchSpy.calls.allArgs().map(args => args[0]);
-    const signInStart = args.filter(action =>
-      action.type === UserActions.SIGN_IN_START
-    );
-    expect(signInStart.length).toBe(1);
-    const payload = signInStart.map(action => action.payload);
-    expect(payload.some(({ username, password }) =>
-      username === 'foo' &&
-      password === 'bar'
-    )).toBeTruthy();
-
-    const signInDone = effectActions.filter(action =>
-      action.type === UserActions.SIGN_IN_DONE
-    );
-    expect(signInDone.length).toBe(1);
-  }));
-   */
-
   it('#signOut should dispatch Sign Out related action', fakeAsync(() => {
     const effectActions = [];
     effects.signOut$.subscribe(action => {
