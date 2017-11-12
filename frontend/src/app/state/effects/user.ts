@@ -45,7 +45,7 @@ export class UserEffects {
         JSON.stringify(params),
         { headers: UserEffects.jsonHeaders }
       ).mergeMap((response): Observable<Action> => {
-        if (response.status !== 200) {
+        if (!response.ok) {
           return Observable.throw(response);
         }
         const user: User = response.json();
@@ -102,7 +102,7 @@ export class UserEffects {
     .mergeMap(() =>
       this.http.get('/api/verify_session/')
       .mergeMap((response): Observable<Action> => {
-        if (response.status !== 200) {
+        if (!response.ok) {
           return Observable.throw(response);
         }
         const user: User = response.json();
