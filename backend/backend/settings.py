@@ -37,6 +37,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'channels',
 ]
 
 MIDDLEWARE = [
@@ -75,8 +76,17 @@ WSGI_APPLICATION = 'backend.wsgi.application'
 
 DATABASES = {
     'default': {
+        # TODO: change to PostgreSQL later
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+    }
+}
+
+CHANNEL_LAYERS = {
+    'default': {
+        # TODO: change to Redis later
+        'BACKEND': 'asgiref.inmemory.ChannelLayer',
+        'ROUTING': 'backend.routings.channel_routings'
     }
 }
 
