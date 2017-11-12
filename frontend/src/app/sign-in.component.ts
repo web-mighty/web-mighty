@@ -11,7 +11,7 @@ import { State } from './state/reducer';
 import { UserService } from './user.service';
 
 @Component({
-  selector: 'sign-in',
+  selector: 'app-sign-in',
   templateUrl: './sign-in.component.html',
   styleUrls: ['./sign-in.component.css']
 })

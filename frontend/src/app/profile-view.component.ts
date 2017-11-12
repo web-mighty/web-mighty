@@ -6,7 +6,7 @@ import { Profile } from './profile';
 import { UserService } from './user.service';
 
 @Component({
-  selector: 'profile-view',
+  selector: 'app-profile-view',
   templateUrl: './profile-view.component.html',
   styleUrls: ['./profile-view.component.css']
 })
@@ -24,7 +24,7 @@ export class ProfileViewComponent implements OnInit {
   ranking: number;
 
   ngOnInit(): void {
-    this.getProfile()
+    this.getProfile();
   }
 
   getProfile() {

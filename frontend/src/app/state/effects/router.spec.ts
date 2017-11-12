@@ -7,7 +7,7 @@ import { filterCallByAction } from '../../testing';
 
 import { ReplaySubject } from 'rxjs/ReplaySubject';
 import { Router } from '@angular/router';
-import { Location, APP_BASE_HREF } from '@angular/common'
+import { Location, APP_BASE_HREF } from '@angular/common';
 import { Store } from '@ngrx/store';
 import { Actions } from '@ngrx/effects';
 

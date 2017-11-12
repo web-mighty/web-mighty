@@ -9,7 +9,7 @@ import { Observable } from 'rxjs/Observable';
 import { never as observableNever } from 'rxjs/observable/never';
 import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import { APP_BASE_HREF } from '@angular/common'
+import { APP_BASE_HREF } from '@angular/common';
 import { Store } from '@ngrx/store';
 import { State } from './state/reducer';
 
@@ -24,7 +24,7 @@ import { userReducer } from './state/reducers/user';
 // Effects
 import { RouterEffects } from './state/effects/router';
 
-import { SignInComponent } from './sign-in.component'
+import { SignInComponent } from './sign-in.component';
 
 
 const routerStub = {
@@ -81,7 +81,7 @@ describe('SignInComponent', () => {
     const gotoSignUp = filterCallByAction(dispatchSpy, RouterActions.GoByUrl);
     expect(gotoSignUp.length).toBe(1);
     const payload = gotoSignUp.map(action => action.url);
-    expect(payload.some(url => url == 'sign_up')).toBeTruthy();
+    expect(payload.some(url => url === 'sign_up')).toBeTruthy();
   }));
 
   it('should try to sign in when Sign in button is clicked', async(() => {
