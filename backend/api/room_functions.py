@@ -18,6 +18,7 @@ def create_room(**kwargs):
     id = str(uuid.uuid4())
     title = kwargs.get('title', None)
     password = kwargs.get('password', None)
+
     if password is not None:
         password = hashlib.sha256(
             bytes(password, encoding='utf=8')).hexdigest()

@@ -3,6 +3,17 @@ from django.db.utils import Error as ModelError
 from django.contrib.auth.models import User
 
 
+class Room(models.Model):
+    room_id = models.CharField(max_length=40, unique=True)
+    title = models.CharField(max_length=100)
+    is_private = models.BooleanField()
+    password = models.CharField(max_length=64)
+    created = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ('created',)
+
+
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     nickname = models.CharField(max_length=100)
