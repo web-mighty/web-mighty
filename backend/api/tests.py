@@ -1,5 +1,5 @@
 from django.test import TestCase, Client
-from .models import User, create_user
+from .models import User, create_user, Room
 from django.contrib.auth import authenticate
 from django.core.cache import cache
 from django.urls import reverse
@@ -48,7 +48,12 @@ class ApiRoomListTest(TestCase):
             content_type='application/json',
         )
 
+        data = response.json()
+        room_data = cache.get('room:' + data['room_id'])
+
         self.assertEqual(response.status_code, 201)
+        self.assertEqual(data['room_id'], room_data['room_id'])
+        self.assertIs(data['is_private'], False)
 
         response = client.get(
             reverse('room')
@@ -57,7 +62,7 @@ class ApiRoomListTest(TestCase):
         data = response.json()
 
         self.assertEqual(data[0]['title'], 'doge room')
-        self.assertEqual(data[0]['password'], None)
+        self.assertEqual(data[0]['is_private'], False)
 
     def test_room_create_with_password(self):
         client = Client()
@@ -74,6 +79,13 @@ class ApiRoomListTest(TestCase):
             content_type='application/json',
         )
 
+        data = response.json()
+        room_data = cache.get('room:' + data['room_id'])
+
+        self.assertEqual(response.status_code, 201)
+        self.assertEqual(data['room_id'], room_data['room_id'])
+        self.assertIs(data['is_private'], True)
+
         self.assertEqual(response.status_code, 201)
 
         response = client.get(
@@ -81,11 +93,13 @@ class ApiRoomListTest(TestCase):
         )
 
         data = response.json()
+        room = Room.objects.get(id=1)
 
         hashed_password = hashlib.sha256(b'dogecoin').hexdigest()
 
         self.assertEqual(data[0]['title'], 'doge room')
-        self.assertEqual(data[0]['password'], hashed_password)
+        self.assertEqual(data[0]['is_private'], True)
+        self.assertEqual(room.password, hashed_password)
 
 
 class ApiProfileTest(TestCase):

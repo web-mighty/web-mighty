@@ -1,29 +1,15 @@
-from django.core.cache import cache
-from datetime import datetime
 from .models import Room
-from django.dispatch import receiver
-from django.db.models.signals import pre_save, post_delete
 import hashlib
 import uuid
 
 
-@receiver(pre_save, sender=Room)
-def room_save_handler(sender, **kwargs):
-    pass
-
-
-@receiver(post_delete, sender=Room)
-def room_delete_handler(sender, **kwargs):
-    pass
-
-
 def get_room_list(page, count_per_page):
     rooms = Room.objects.all()
-    start = page * count_per_page
-    end = (page + 1) * count_per_page
+    start = (page - 1) * count_per_page
+    end = page * count_per_page
     selected_rooms = rooms[start:end].values('room_id', 'title', 'is_private')
 
-    return selected_rooms
+    return list(selected_rooms)
 
 
 def create_room(**kwargs):
@@ -38,7 +24,7 @@ def create_room(**kwargs):
         password = ''
 
     if not all([title, ]):
-        return False
+        return None
 
     new_room = Room(
         room_id=room_id,

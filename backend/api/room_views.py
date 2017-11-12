@@ -17,10 +17,10 @@ def room(request):
             return HttpResponse(status=401)
 
         request_data = json.loads(request.body.decode())
-        success = create_room(**request_data)
+        result_data = create_room(**request_data)
 
-        if success:
-            return HttpResponse(status=201)
+        if result_data is not None:
+            return JsonResponse(result_data, status=201)
         else:
             return HttpResponseBadRequest()
 

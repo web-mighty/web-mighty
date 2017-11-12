@@ -1,6 +1,9 @@
 from django.db import models
 from django.db.utils import Error as ModelError
 from django.contrib.auth.models import User
+from django.dispatch import receiver
+from django.db.models.signals import pre_save, post_delete
+from django.core.cache import cache
 
 
 class Room(models.Model):
@@ -12,6 +15,21 @@ class Room(models.Model):
 
     class Meta:
         ordering = ('created',)
+
+    @classmethod
+    @receiver(pre_save, sender='api.Room')
+    def room_save_handler(sender, instance, **kwargs):
+        room_id = instance.room_id
+        room_data = {
+            'room_id': room_id,
+            'users': [],
+        }
+        cache.set('room:' + room_id, room_data)
+
+    @classmethod
+    @receiver(post_delete, sender='api.Room')
+    def room_delete_handler(sender, instance, **kwargs):
+        cache.delete('room:' + instance.room_id)
 
 
 class Profile(models.Model):
