@@ -1,3 +1,12 @@
-<button (click)="gotoLobby()">Web Mighty</button>
-<button *ngIf="!(signedIn | async)" (click)="gotoSignIn()">Sign in</button>
-<button *ngIf="signedIn | async" (click)="signOut()">Sign out</button>
+<div (click)="gotoLobby()" style="cursor: pointer">
+  <img src={{imagePath}}>
+  <span>Web Mighty</span>
+</div>
+<div *ngIf="!(signedIn | async)">
+  <button (click)="gotoSignIn()">Sign in</button>
+</div>
+<hr>
+<div *ngIf="signedIn | async">
+  <span (click)="gotoProfile()">{{username}}</span>
+  <button (click)="signOut()">Sign out</button>
+</div>

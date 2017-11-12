@@ -28,6 +28,7 @@ export namespace SignUp {
       email: string;
       username: string;
       password: string;
+      nickname: string;
     }) {}
   }
   export class Done implements Action {

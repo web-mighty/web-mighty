@@ -1,9 +1,12 @@
 import { Component, OnInit } from '@angular/core';
+import { Store } from '@ngrx/store';
 
 import { Observable } from 'rxjs/Observable';
-import { Store } from '@ngrx/store';
 import { State } from './state/reducer';
 import { User } from './user';
+
+// Actions
+import * as RouterActions from './state/actions/router';
 
 @Component({
   selector: 'app-lobby',
@@ -22,6 +25,27 @@ export class LobbyComponent implements OnInit {
   }
 
   ngOnInit() {
+  }
+
+  gotoCreateGame() {
+    if(!this.signedIn) {
+      this.store.dispatch(new RouterActions.GoByUrl('sign_in'));
+    }
+    else {
+      this.store.dispatch(new RouterActions.GoByUrl('create_game'));
+    }
+  }
+
+  gotoHallOfFame() {
+    if(!this.signedIn) {
+      this.store.dispatch(new RouterActions.GoByUrl('sign_in'));
+    }
+    else {
+      this.store.dispatch(new RouterActions.GoByUrl('hall_of_fame'));
+    }
+  }
+
+  joinGame(id: string) {
   }
 
 }

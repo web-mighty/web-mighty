@@ -10,12 +10,6 @@ import { Profile } from './profile';
 export class UserService {
   constructor(private store: Store<void>) {}
 
-  signUp(email: string, username: string, password: string) {
-    this.store.dispatch(
-      new UserActions.SignUp.Start({email, username, password})
-    );
-  }
-
   signOut() {
     this.store.dispatch(
       new UserActions.SignOut.Start()

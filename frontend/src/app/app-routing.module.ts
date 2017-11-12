@@ -6,6 +6,8 @@ import { SignUpComponent } from './sign-up.component';
 import { SignInComponent } from './sign-in.component';
 import { ProfileViewComponent } from './profile-view.component';
 import { ProfileEditComponent } from './profile-edit.component';
+import { GameCreateComponent } from './game-create.component';
+import { HallOfFameComponent } from './hall-of-fame.component';
 
 const routes: Routes = [
   { path: '', redirectTo: '/lobby', pathMatch: 'full' },
@@ -14,6 +16,8 @@ const routes: Routes = [
   { path: 'sign_in', component: SignInComponent },
   { path: 'profile/:username', component: ProfileViewComponent },
   { path: 'profile/:username/edit', component: ProfileEditComponent },
+  { path: 'create_game', component: GameCreateComponent },
+  { path: 'hall_of_fame', component: HallOfFameComponent },
 ];
 
 @NgModule({

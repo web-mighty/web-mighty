@@ -1,7 +1,6 @@
 import { Observable } from 'rxjs/Observable';
 import 'rxjs/add/operator/map';
 import { Component, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
 import { Store } from '@ngrx/store';
 
 import * as RouterActions from './state/actions/router';
@@ -22,7 +21,6 @@ export class SignInComponent implements OnInit {
   error: Observable<string | null>;
 
   constructor(
-    private router: Router,
     private store: Store<State>,
   ) {
     const user = this.store.select('user');

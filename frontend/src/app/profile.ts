@@ -1,7 +1,4 @@
-export class User {
-  username: string;
-  id: number;
-}
+import { User } from './user';
 
 export class Profile {
   user: User;
