@@ -1,6 +1,7 @@
 import { TestBed, fakeAsync, tick, inject } from '@angular/core/testing';
 import { RouterTestingModule } from '@angular/router/testing';
 import { AppStateModule } from './state/app-state.module';
+import { MockComponent } from './testing';
 
 import { Store } from '@ngrx/store';
 import { State } from './state/reducer';
@@ -16,9 +17,14 @@ describe('UserService', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
+      declarations: [
+        MockComponent,
+      ],
       imports: [
         AppStateModule,
-        RouterTestingModule.withRoutes([]),
+        RouterTestingModule.withRoutes([
+          { path: 'lobby', component: MockComponent },
+        ]),
       ],
     });
   });
