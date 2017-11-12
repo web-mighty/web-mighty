@@ -42,6 +42,7 @@ matrix:
         - npm install
         - npm install coveralls
       script:
+        - npm run lint
         - npm run test -- --code-coverage --watch false
         - npm run e2e
       after_success:
