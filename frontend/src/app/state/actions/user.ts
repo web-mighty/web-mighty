@@ -89,7 +89,7 @@ export class RedirectWithSignInState implements Action {
 
   constructor(public payload: {
     when: 'signed-in' | 'not-signed-in',
-    target: string,
+    goTo: string,
   }) {}
 }
 

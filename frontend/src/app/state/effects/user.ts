@@ -79,18 +79,18 @@ export class UserEffects {
   redirectWith$: Observable<Action> =
     this.actions$.ofType(UserActions.REDIRECT_WITH_SIGN_IN_STATE)
     .map((action: UserActions.RedirectWithSignInState) => action.payload)
-    .mergeMap(({ when, target }) => {
+    .mergeMap(({ when, goTo }) => {
       const signedIn = this.store.select('user').map(user => user.authUser).first();
       if (when === 'signed-in') {
         return signedIn.mergeMap(user =>
           user === null ?
           Observable.never() :
-          Observable.of(new RouterActions.GoByUrl(target))
+          Observable.of(new RouterActions.GoByUrl(goTo))
         );
       } else {
         return signedIn.mergeMap(user =>
           user === null ?
-          Observable.of(new RouterActions.GoByUrl(target)) :
+          Observable.of(new RouterActions.GoByUrl(goTo)) :
           Observable.never()
         );
       }

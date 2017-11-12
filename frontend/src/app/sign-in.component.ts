@@ -34,7 +34,7 @@ export class SignInComponent implements OnInit {
   ngOnInit() {
     this.store.dispatch(new UserActions.RedirectWithSignInState({
       when: 'signed-in',
-      target: 'lobby',
+      goTo: 'lobby',
     }));
   }
 

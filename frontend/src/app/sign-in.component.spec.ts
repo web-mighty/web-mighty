@@ -77,7 +77,7 @@ describe('SignInComponent', () => {
     const redirect = filterCallByAction(dispatchSpy, UserActions.RedirectWithSignInState);
     expect(redirect.length).toBe(1);
     const payload = redirect[0].payload;
-    expect(payload).toEqual({ when: 'signed-in', target: 'lobby' });
+    expect(payload).toEqual({ when: 'signed-in', goTo: 'lobby' });
   });
 
   it('should try to navigate to "/sign_up" when Sign up button is clicked', () => {
