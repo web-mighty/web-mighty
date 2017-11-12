@@ -1,4 +1,5 @@
 import { NgModule } from '@angular/core';
+import { HttpModule } from '@angular/http';
 import { CommonModule } from '@angular/common';
 
 import { StoreModule } from '@ngrx/store';
@@ -15,6 +16,7 @@ import { RouterEffects } from './effects/router';
 @NgModule({
   imports: [
     CommonModule,
+    HttpModule,
     StoreModule.forRoot({
       router: routerReducer,
       user: userReducer,

@@ -1,10 +1,11 @@
 import { AppActions } from '../app-actions';
 import * as UserActions from '../actions/user';
 
+import { User } from '../../user';
 import { Profile } from '../../profile';
 
 export type UserState = {
-  authUser: Profile | null;
+  authUser: User | null;
   currentError: string | null;
 };
 

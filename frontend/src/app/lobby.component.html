@@ -1,3 +1,6 @@
-<p>
-  lobby works!
+<p *ngIf="!(signedIn | async)">
+  Please sign in.
+</p>
+<p *ngIf="signedIn | async">
+  Hello, {{username | async}}!
 </p>

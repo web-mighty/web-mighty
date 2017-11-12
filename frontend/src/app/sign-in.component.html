@@ -10,4 +10,5 @@
     <input [(ngModel)]="password" name="password" type="password">
   </div>
   <button (click)="signIn()" class="sign-in-button">Sign in</button>
+  <div *ngIf="error | async">{{error | async}}</div>
 </form>

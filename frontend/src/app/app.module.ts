@@ -15,6 +15,9 @@ import { AppRoutingModule } from './app-routing.module';
 import { AppStateModule } from './state/app-state.module';
 import { UserService } from './user.service';
 
+import { XSRFStrategy } from '@angular/http';
+import { xsrfFactory } from './xsrf-factory';
+
 @NgModule({
   declarations: [
     AppComponent,
@@ -35,6 +38,7 @@ import { UserService } from './user.service';
   providers: [
     UserService,
     { provide: APP_BASE_HREF, useValue: '/' },
+    { provide: XSRFStrategy, useFactory: xsrfFactory },
   ],
   bootstrap: [AppComponent]
 })
