@@ -18,10 +18,10 @@ import * as UserActions from '../actions/user';
 // FIXME: Make effects communicate with backend
 @Injectable()
 export class UserEffects {
-  private static SignInFailedMessage =
+  private static signInFailedMessage =
     'Username and password does not match.';
 
-  private static JsonHeaders = new Headers({
+  private static jsonHeaders = new Headers({
     'Content-Type': 'application/json',
   });
 
@@ -41,7 +41,7 @@ export class UserEffects {
       this.http.post(
         '/api/signin/',
         JSON.stringify(params),
-        { headers: UserEffects.JsonHeaders }
+        { headers: UserEffects.jsonHeaders }
       ).mergeMap((response): Observable<Action> => {
         if (response.status !== 200) {
           return observableThrow(response);
@@ -53,7 +53,7 @@ export class UserEffects {
       }).catch((response): Observable<Action> => {
         if (response.status === 401) {
           return observableOf(
-            new UserActions.SignIn.Failed(UserEffects.SignInFailedMessage)
+            new UserActions.SignIn.Failed(UserEffects.signInFailedMessage)
           );
         }
         return observableOf(
