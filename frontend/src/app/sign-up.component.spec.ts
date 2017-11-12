@@ -3,9 +3,9 @@ import { RouterTestingModule } from '@angular/router/testing';
 import { AppStateModule } from './state/app-state.module';
 
 import { FormsModule } from '@angular/forms';
-import { APP_BASE_HREF } from '@angular/common'
+import { APP_BASE_HREF } from '@angular/common';
 
-import { SignUpComponent } from './sign-up.component'
+import { SignUpComponent } from './sign-up.component';
 import { UserService } from './user.service';
 
 let comp: SignUpComponent;

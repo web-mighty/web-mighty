@@ -4,10 +4,10 @@ import * as UserActions from '../actions/user';
 import { User } from '../../user';
 import { Profile } from '../../profile';
 
-export type UserState = {
+export interface UserState {
   authUser: User | null;
   currentError: string | null;
-};
+}
 
 const initialState: UserState = {
   authUser: null,

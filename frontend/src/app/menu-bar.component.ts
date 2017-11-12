@@ -4,7 +4,7 @@ import { Router } from '@angular/router';
 import { UserService } from './user.service';
 
 @Component({
-  selector: 'menu-bar',
+  selector: 'app-menu-bar',
   templateUrl: './menu-bar.component.html',
   styleUrls: ['./menu-bar.component.css']
 })

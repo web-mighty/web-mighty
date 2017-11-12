@@ -6,7 +6,7 @@ import { Profile } from './profile';
 import { UserService } from './user.service';
 
 @Component({
-  selector: 'profile-edit',
+  selector: 'app-profile-edit',
   templateUrl: './profile-edit.component.html',
   styleUrls: ['./profile-edit.component.css']
 })
@@ -18,15 +18,15 @@ export class ProfileEditComponent implements OnInit {
   ) {}
 
   profile: Profile;
-  currentPassword: string = '';
-  newPassword: string = '';
+  currentPassword = '';
+  newPassword = '';
   confirmPassword: string;
   nickname: string;
-  retry: boolean = false;
+  retry = false;
 
 
   ngOnInit(): void {
-    this.getProfile()
+    this.getProfile();
   }
 
   getProfile() {
@@ -40,12 +40,11 @@ export class ProfileEditComponent implements OnInit {
 
   submit() {
     this.retry = false;
-    if(this.newPassword !== this.confirmPassword) {
+    if (this.newPassword !== this.confirmPassword) {
       this.newPassword = '';
       this.confirmPassword = '';
       this.retry = true;
-    }
-    else {
+    } else {
       this.userService.editProfile(this.profile, this.currentPassword, this.newPassword, this.nickname);
     }
   }
