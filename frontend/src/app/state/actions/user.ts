@@ -14,7 +14,11 @@ export const SIGN_IN_FAILED = 'User: Sign in: failed';
 export const SIGN_OUT_START = 'User: Sign out: start';
 export const SIGN_OUT_DONE = 'User: Sign out: done';
 
-export const REDIRECT_IF_SIGNED_IN = 'User: Redirect if signed in';
+export const VERIFY_SESSION = 'User: Verify session';
+export const VERIFIED = 'User: Verified';
+export const NEED_SIGN_IN = 'User: Need sign in';
+
+export const REDIRECT_WITH_SIGN_IN_STATE = 'User: Redirect with sign in state';
 
 export namespace SignUp {
   export class Start implements Action {
@@ -66,8 +70,27 @@ export namespace SignOut {
   }
 }
 
-export class RedirectIfSignedIn implements Action {
-  readonly type = REDIRECT_IF_SIGNED_IN;
+export class VerifySession implements Action {
+  readonly type = VERIFY_SESSION;
+}
+
+export class Verified implements Action {
+  readonly type = VERIFIED;
+
+  constructor(public user: User) {}
+};
+
+export class NeedSignIn implements Action {
+  readonly type = NEED_SIGN_IN;
+}
+
+export class RedirectWithSignInState implements Action {
+  readonly type = REDIRECT_WITH_SIGN_IN_STATE;
+
+  constructor(public payload: {
+    when: 'signed-in' | 'not-signed-in',
+    goTo: string,
+  }) {}
 }
 
 export type Actions
@@ -79,5 +102,8 @@ export type Actions
   | SignIn.Failed
   | SignOut.Start
   | SignOut.Done
-  | RedirectIfSignedIn
+  | VerifySession
+  | Verified
+  | NeedSignIn
+  | RedirectWithSignInState
 ;

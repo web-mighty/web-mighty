@@ -1,17 +1,19 @@
 import { Injectable } from '@angular/core';
 import { Http, Headers } from '@angular/http';
-import { Action } from '@ngrx/store';
+import { Store, Action } from '@ngrx/store';
 import { Effect, Actions } from '@ngrx/effects';
 
 import 'rxjs/add/operator/map';
 import 'rxjs/add/operator/mergeMap';
 import 'rxjs/add/operator/catch';
+import 'rxjs/add/operator/first';
 import { Observable } from 'rxjs/Observable';
-import { of as observableOf } from 'rxjs/observable/of';
-import { never as observableNever } from 'rxjs/observable/never';
-import { _throw as observableThrow } from 'rxjs/observable/throw';
+import 'rxjs/add/observable/of';
+import 'rxjs/add/observable/never';
+import 'rxjs/add/observable/throw';
 
 import { User } from '../../user';
+import { State } from '../reducer';
 import * as RouterActions from '../actions/router';
 import * as UserActions from '../actions/user';
 
@@ -30,7 +32,7 @@ export class UserEffects {
     this.actions$.ofType(UserActions.SIGN_UP_START)
     .map((action: UserActions.SignUp.Start) => action.payload)
     .mergeMap(({ email, username, password }) =>
-      observableOf(new UserActions.SignUp.Done())
+      Observable.of(new UserActions.SignUp.Done())
     );
 
   @Effect()
@@ -44,19 +46,17 @@ export class UserEffects {
         { headers: UserEffects.jsonHeaders }
       ).mergeMap((response): Observable<Action> => {
         if (response.status !== 200) {
-          return observableThrow(response);
+          return Observable.throw(response);
         }
         const user: User = response.json();
-        return observableOf(
-          new UserActions.SignIn.Done(user)
-        );
+        return Observable.of(new UserActions.SignIn.Done(user));
       }).catch((response): Observable<Action> => {
         if (response.status === 401) {
-          return observableOf(
+          return Observable.of(
             new UserActions.SignIn.Failed(UserEffects.signInFailedMessage)
           );
         }
-        return observableOf(
+        return Observable.of(
           new UserActions.SignIn.Failed('Unknown error.')
         );
       })
@@ -72,19 +72,60 @@ export class UserEffects {
   signOut$: Observable<Action> =
     this.actions$.ofType(UserActions.SIGN_OUT_START)
     .mergeMap(() =>
-      observableOf(new UserActions.SignOut.Done())
+      Observable.of(new UserActions.SignOut.Done())
     );
 
-  // TODO: Perform proper check
   @Effect()
-  redirectIfSignedIn$: Observable<Action> =
-    this.actions$.ofType(UserActions.REDIRECT_IF_SIGNED_IN)
+  redirectWith$: Observable<Action> =
+    this.actions$.ofType(UserActions.REDIRECT_WITH_SIGN_IN_STATE)
+    .map((action: UserActions.RedirectWithSignInState) => action.payload)
+    .mergeMap(({ when, goTo }) => {
+      const signedIn = this.store.select('user').map(user => user.authUser).first();
+      if (when === 'signed-in') {
+        return signedIn.mergeMap(user =>
+          user === null ?
+          Observable.never() :
+          Observable.of(new RouterActions.GoByUrl(goTo))
+        );
+      } else {
+        return signedIn.mergeMap(user =>
+          user === null ?
+          Observable.of(new RouterActions.GoByUrl(goTo)) :
+          Observable.never()
+        );
+      }
+    });
+
+  @Effect()
+  verifySession$: Observable<Action> =
+    this.actions$.ofType(UserActions.VERIFY_SESSION)
     .mergeMap(() =>
-      observableNever()
+      this.http.get('/api/verify_session/')
+      .mergeMap((response): Observable<Action> => {
+        if (response.status !== 200) {
+          return Observable.throw(response);
+        }
+        const user: User = response.json();
+        return Observable.of(new UserActions.Verified(user));
+      }).catch((response): Observable<Action> =>
+        Observable.of(new UserActions.NeedSignIn())
+      )
     );
+
+  @Effect()
+  verified$: Observable<Action> =
+    this.actions$.ofType(UserActions.VERIFIED)
+    .mergeMap(() =>
+      this.store.select('router').map(router => router.state.url).first()
+    ).mergeMap((url): Observable<Action> => {
+      return url === '/sign_in' ?
+      Observable.of(new RouterActions.GoByUrl('lobby')) :
+      Observable.never()
+    });
 
   constructor(
     private actions$: Actions,
     private http: Http,
+    private store: Store<State>,
   ) {}
 }
