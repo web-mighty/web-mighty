@@ -1,7 +1,12 @@
 import { Component, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
+import { Store } from '@ngrx/store';
 
-import { UserService } from './user.service';
+import { Observable } from 'rxjs/Observable';
+import { State } from './state/reducer';
+
+// Actions
+import * as RouterActions from './state/actions/router';
+import * as UserActions from './state/actions/user';
 
 @Component({
   selector: 'app-menu-bar',
@@ -10,25 +15,30 @@ import { UserService } from './user.service';
 })
 export class MenuBarComponent implements OnInit {
 
+  signedIn: Observable<boolean>;
+
   constructor(
-    private router: Router,
-    private userService: UserService
-  ) {}
+    private store: Store<State>
+  ) {
+    const user = this.store.select('user');
+    this.signedIn = user.map(user => user.authUser !== null);
+  }
 
   ngOnInit() {
+    this.store.dispatch(new UserActions.VerifySession());
   }
 
   gotoLobby() {
-    this.router.navigateByUrl('');
+    this.store.dispatch(new RouterActions.GoByUrl('lobby'));
   }
   gotoProfile() {
-    this.router.navigateByUrl('profile/someone');
+    // this.router.navigateByUrl('profile/someone');
   }
   gotoSignIn() {
-    this.router.navigateByUrl('sign_in');
+    this.store.dispatch(new RouterActions.GoByUrl('sign_in'));
   }
   signOut() {
-    this.userService.signOut();
+    this.store.dispatch(new UserActions.SignOut.Start());
   }
 
 }

@@ -1,3 +1,3 @@
 <button (click)="gotoLobby()">Web Mighty</button>
-<button (click)="gotoSignIn()">Sign in</button>
-<button (click)="signOut()">Sign out</button>
+<button *ngIf="!(signedIn | async)" (click)="gotoSignIn()">Sign in</button>
+<button *ngIf="signedIn | async" (click)="signOut()">Sign out</button>

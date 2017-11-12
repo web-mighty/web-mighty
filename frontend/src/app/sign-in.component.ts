@@ -19,17 +19,23 @@ export class SignInComponent implements OnInit {
   username: string;
   password: string;
 
+  verifying: Observable<boolean>;
   error: Observable<string | null>;
 
   constructor(
     private router: Router,
     private store: Store<State>,
   ) {
-    this.error = this.store.select('user').map(user => user.currentError);
+    const user = this.store.select('user');
+    this.verifying = user.map(user => user.verifying);
+    this.error = user.map(user => user.currentError);
   }
 
   ngOnInit() {
-    this.store.dispatch(new UserActions.RedirectIfSignedIn());
+    this.store.dispatch(new UserActions.RedirectWithSignInState({
+      when: 'signed-in',
+      target: 'lobby',
+    }));
   }
 
   signIn() {

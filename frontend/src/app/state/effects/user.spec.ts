@@ -1,9 +1,8 @@
 import { TestBed, fakeAsync, tick, inject } from '@angular/core/testing';
-import { HttpModule } from '@angular/http';
 import { MockBackend } from '@angular/http/testing';
-import { StoreModule } from '@ngrx/store';
-import { EffectsModule } from '@ngrx/effects';
+import { RouterTestingModule } from '@angular/router/testing';
 import { provideMockActions } from '@ngrx/effects/testing';
+import { AppStateModule } from '../app-state.module';
 import { filterCallByAction } from '../../testing';
 
 import { ReplaySubject } from 'rxjs/ReplaySubject';
@@ -11,6 +10,7 @@ import { Http, XHRBackend, XSRFStrategy } from '@angular/http';
 import { Store } from '@ngrx/store';
 import { Actions } from '@ngrx/effects';
 import { xsrfFactory } from '../../xsrf-factory';
+import { State } from '../reducer';
 
 // Actions
 import { AppActions } from '../app-actions';
@@ -30,10 +30,8 @@ describe('UserEffects', () => {
     TestBed.configureTestingModule({
       declarations: [],
       imports: [
-        HttpModule,
-        StoreModule.forRoot({}),
-        EffectsModule.forRoot([
-          UserEffects,
+        AppStateModule,
+        RouterTestingModule.withRoutes([
         ]),
       ],
       providers: [
@@ -45,10 +43,10 @@ describe('UserEffects', () => {
   });
 
   beforeEach(inject(
-    [Actions, Http, XHRBackend],
-    (actions$: Actions, http: Http, backend: MockBackend) => {
+    [Actions, Http, Store, XHRBackend],
+    (actions$: Actions, http: Http, store: Store<State>, backend: MockBackend) => {
       backend.connections.subscribe(connection => lastConnection = connection);
-      effects = new UserEffects(actions$, http);
+      effects = new UserEffects(actions$, http, store);
     }
   ));
 
