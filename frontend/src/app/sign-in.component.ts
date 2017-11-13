@@ -8,7 +8,6 @@ import * as RouterActions from './state/actions/router';
 import * as UserActions from './state/actions/user';
 
 import { State } from './state/reducer';
-import { UserService } from './user.service';
 
 @Component({
   selector: 'app-sign-in',

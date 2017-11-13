@@ -16,12 +16,6 @@ export class UserService {
     );
   }
 
-  signIn(username: string, password: string) {
-    this.store.dispatch(
-      new UserActions.SignIn.Start({username, password})
-    );
-  }
-
   signOut() {
     this.store.dispatch(
       new UserActions.SignOut.Start()
