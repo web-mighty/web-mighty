@@ -12,6 +12,8 @@ matrix:
       before_script:
         - export PROJECT_PATH=$(pwd)/backend/backend
         - python3 util/secret-key-gen.py
+        - python3 $(pwd)/backend/manage.py makemigrations
+        - python3 $(pwd)/backend/manage.py migrate
       script:
         - cd backend
         - flake8 --config ./flake8

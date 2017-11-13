@@ -1,6 +1,35 @@
 from django.db import models
 from django.db.utils import Error as ModelError
 from django.contrib.auth.models import User
+from django.dispatch import receiver
+from django.db.models.signals import pre_save, post_delete
+from django.core.cache import cache
+
+
+class Room(models.Model):
+    room_id = models.CharField(max_length=40, unique=True)
+    title = models.CharField(max_length=100)
+    is_private = models.BooleanField()
+    password = models.CharField(max_length=64)
+    created = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ('created',)
+
+    @classmethod
+    @receiver(pre_save, sender='api.Room')
+    def room_save_handler(sender, instance, **kwargs):
+        room_id = instance.room_id
+        room_data = {
+            'room_id': room_id,
+            'users': [],
+        }
+        cache.set('room:' + room_id, room_data)
+
+    @classmethod
+    @receiver(post_delete, sender='api.Room')
+    def room_delete_handler(sender, instance, **kwargs):
+        cache.delete('room:' + instance.room_id)
 
 
 class Profile(models.Model):
