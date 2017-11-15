@@ -21,5 +21,5 @@
     <input [(ngModel)]="nickname" name="nickname" type="text" [placeholder]="username">
   </div>
   <button (click)="signUp()">Sign up</button>
+  <div *ngIf="error | async">{{error | async}}</div>
 </form>
-<span *ngIf="retry">Passwords don't match. Try again.</span>

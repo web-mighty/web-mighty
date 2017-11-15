@@ -16,12 +16,13 @@ import * as UserActions from './state/actions/user';
 export class MenuBarComponent implements OnInit {
 
   signedIn: Observable<boolean>;
+  username: Observable<string>;
+  imagePath = '../favicon.ico';
 
-  constructor(
-    private store: Store<State>
-  ) {
-    const user = this.store.select('user');
-    this.signedIn = user.map(user => user.authUser !== null);
+  constructor(private store: Store<State>) {
+    const user = this.store.select('user').map(user => user.authUser);
+    this.username = user.map(user => user === null ? '' : user.username);
+    this.signedIn = user.map(user => user !== null);
   }
 
   ngOnInit() {
@@ -32,7 +33,9 @@ export class MenuBarComponent implements OnInit {
     this.store.dispatch(new RouterActions.GoByUrl('lobby'));
   }
   gotoProfile() {
-    // this.router.navigateByUrl('profile/someone');
+    this.username.first().subscribe(username =>
+      this.store.dispatch(new RouterActions.Go({ path: ['profile', username] }))
+    );
   }
   gotoSignIn() {
     this.store.dispatch(new RouterActions.GoByUrl('sign_in'));
