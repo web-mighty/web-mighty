@@ -33,9 +33,9 @@ export class MenuBarComponent implements OnInit {
     this.store.dispatch(new RouterActions.GoByUrl('lobby'));
   }
   gotoProfile() {
-    let usernameString: string;
-    this.username.subscribe(username => usernameString = username);
-    this.store.dispatch(new RouterActions.Go({path: ['profile', usernameString]}));
+    this.username.first().subscribe(username =>
+      this.store.dispatch(new RouterActions.Go({ path: ['profile', username] }))
+    );
   }
   gotoSignIn() {
     this.store.dispatch(new RouterActions.GoByUrl('sign_in'));

@@ -8,6 +8,7 @@ import { Room } from './room';
 
 // Actions
 import * as RouterActions from './state/actions/router';
+import * as UserActions from './state/actions/user';
 
 @Component({
   selector: 'app-lobby',
@@ -30,19 +31,25 @@ export class LobbyComponent implements OnInit {
   }
 
   gotoCreateGame() {
-    if (!this.signedIn) {
-      this.store.dispatch(new RouterActions.GoByUrl('sign_in'));
-    } else {
-      this.store.dispatch(new RouterActions.GoByUrl('create_game'));
-    }
+    this.store.dispatch(new UserActions.RedirectWithSignInState({
+      when: 'not-signed-in',
+      goTo: 'sign_in',
+    }));
+    this.store.dispatch(new UserActions.RedirectWithSignInState({
+      when: 'signed-in',
+      goTo: 'create_game',
+    }));
   }
 
   gotoHallOfFame() {
-    if (!this.signedIn) {
-      this.store.dispatch(new RouterActions.GoByUrl('sign_in'));
-    } else {
-      this.store.dispatch(new RouterActions.GoByUrl('hall_of_fame'));
-    }
+    this.store.dispatch(new UserActions.RedirectWithSignInState({
+      when: 'not-signed-in',
+      goTo: 'sign_in',
+    }));
+    this.store.dispatch(new UserActions.RedirectWithSignInState({
+      when: 'signed-in',
+      goTo: 'hall_of_fame',
+    }));
   }
 
   joinGame(id: string) {

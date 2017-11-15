@@ -20,6 +20,9 @@ import * as UserActions from '../actions/user';
 // FIXME: Make effects communicate with backend
 @Injectable()
 export class UserEffects {
+  private static passwordsMatchFailedMessage =
+    "Passwords don't match. Try again."
+
   private static signUpFailedMessage =
     'Sign up failed';
 
@@ -34,27 +37,34 @@ export class UserEffects {
   signUp$: Observable<Action> =
     this.actions$.ofType(UserActions.SIGN_UP_START)
     .map((action: UserActions.SignUp.Start) => action.payload)
-    .mergeMap(params =>
-      this.http.post(
-        '/api/signup/',
-        JSON.stringify(params),
-        { headers: UserEffects.jsonHeaders }
-      ).mergeMap((response): Observable<Action> => {
-        if(response.status !== 201) {
-          return Observable.throw(response);
-        }
-        return Observable.of(new UserActions.SignUp.Done());
-      }).catch((response): Observable<Action> => {
-        if(response.status === 400) {
-          return Observable.of(
-            new UserActions.SignUp.Failed(UserEffects.signUpFailedMessage)
-          );
-        }
+    .mergeMap(params => {
+      if (params.password !== params.confirmPassword) {
         return Observable.of(
-          new UserActions.SignIn.Failed('Unknown error.')
+          new UserActions.SignUp.Failed(UserEffects.passwordsMatchFailedMessage)
         );
-      })
-    );
+      } else {
+        delete params.confirmPassword;
+        return this.http.post(
+          '/api/signup/',
+          JSON.stringify(params),
+          { headers: UserEffects.jsonHeaders }
+        ).mergeMap((response): Observable<Action> => {
+          if(!response.ok) {
+            return Observable.throw(response);
+          }
+          return Observable.of(new UserActions.SignUp.Done());
+        }).catch((response): Observable<Action> => {
+          if(response.status === 400) {
+            return Observable.of(
+              new UserActions.SignUp.Failed(UserEffects.signUpFailedMessage)
+            );
+          }
+          return Observable.of(
+            new UserActions.SignIn.Failed('Unknown error.')
+          );
+        });
+      }
+    });
 
   @Effect()
   signUpDone$: Observable<Action> =

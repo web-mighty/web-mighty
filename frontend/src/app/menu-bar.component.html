@@ -5,8 +5,8 @@
 <div *ngIf="!(signedIn | async)">
   <button (click)="gotoSignIn()">Sign in</button>
 </div>
-<hr>
 <div *ngIf="signedIn | async">
   <button (click)="gotoProfile()">{{username | async}}</button>
   <button (click)="signOut()">Sign out</button>
 </div>
+<hr>

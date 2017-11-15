@@ -18,7 +18,7 @@ export class UserService {
 
   getProfile(username: string): Promise<Profile> {
     const profile: Profile = {
-      user: { username: 'swpp', id: 1 },
+      user: { username: 'swpp' },
       nickname: 'iluvswpp',
       gamesTotal: 10,
       gamesWon: 6,

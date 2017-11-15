@@ -19,7 +19,6 @@ export class SignUpComponent {
   password = '';
   confirmPassword = '';
   nickname = '';
-  retry = false;
 
   error: Observable<string | null>;
 
@@ -31,23 +30,19 @@ export class SignUpComponent {
   }
 
   signUp() {
-    this.retry = false;
-    if (this.password !== this.confirmPassword) {
-      this.password = '';
-      this.confirmPassword = '';
-      this.retry = true;
-    } else {
-      if (this.nickname === '') {
-        this.nickname = this.username;
-      }
-      this.store.dispatch(
-        new UserActions.SignUp.Start({
-          email: this.email,
-          username: this.username,
-          password: this.password,
-          nickname: this.nickname
-        })
-      );
+    if (this.nickname === '') {
+      this.nickname = this.username;
     }
+    this.store.dispatch(
+      new UserActions.SignUp.Start({
+        email: this.email,
+        username: this.username,
+        password: this.password,
+        confirmPassword: this.confirmPassword,
+        nickname: this.nickname
+      })
+    );
+    this.password = '';
+    this.confirmPassword = '';
   }
 }

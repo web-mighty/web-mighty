@@ -28,6 +28,7 @@ export namespace SignUp {
       email: string;
       username: string;
       password: string;
+      confirmPassword: string;
       nickname: string;
     }) {}
   }
