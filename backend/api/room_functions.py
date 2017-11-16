@@ -1,5 +1,5 @@
 from .models import Room
-import hashlib
+from django.contrib.auth.hashers import make_password
 import uuid
 
 
@@ -18,8 +18,7 @@ def create_room(**kwargs):
     password = kwargs.get('password', None)
 
     if password is not None:
-        password = hashlib.sha256(
-            bytes(password, encoding='utf=8')).hexdigest()
+        password = make_password(password)
     else:
         password = ''
 

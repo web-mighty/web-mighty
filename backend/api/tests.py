@@ -1,13 +1,13 @@
 from django.test import TestCase, Client
 from .models import User, create_user, Room
 from django.contrib.auth import authenticate
+from django.contrib.auth.hashers import check_password
 from django.core.cache import cache
 from django.urls import reverse
 from django.core.files import File
 from backend.settings import BASE_DIR
 from io import BytesIO
 import json
-import hashlib
 import os
 
 
@@ -95,11 +95,11 @@ class ApiRoomListTest(TestCase):
         data = response.json()
         room = Room.objects.get(id=1)
 
-        hashed_password = hashlib.sha256(b'dogecoin').hexdigest()
+        is_password_valid = check_password('dogecoin', room.password)
 
         self.assertEqual(data[0]['title'], 'doge room')
         self.assertEqual(data[0]['is_private'], True)
-        self.assertEqual(room.password, hashed_password)
+        self.assertTrue(is_password_valid)
 
 
 class ApiProfileTest(TestCase):
