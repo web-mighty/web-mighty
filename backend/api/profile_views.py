@@ -16,6 +16,9 @@ def profile(request, username=None):
             return HttpResponseNotFound()
 
         response_data = {
+            'user': {
+                'username': username,
+            },
             'nickname': profile.nickname,
             'avatar': profile.avatar.url,
             'created': str(profile.created),
