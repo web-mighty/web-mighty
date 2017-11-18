@@ -13,6 +13,7 @@ import { reducers } from './reducer';
 import { UserEffects } from './effects/user';
 import { RouterEffects } from './effects/router';
 import { ProfileEffects } from './effects/profile';
+import { RoomEffects } from './effects/room';
 
 @NgModule({
   imports: [
@@ -20,9 +21,10 @@ import { ProfileEffects } from './effects/profile';
     HttpModule,
     StoreModule.forRoot(reducers),
     EffectsModule.forRoot([
-      RouterEffects,
       UserEffects,
       ProfileEffects,
+      RouterEffects,
+      RoomEffects,
     ]),
     StoreRouterConnectingModule,
   ],

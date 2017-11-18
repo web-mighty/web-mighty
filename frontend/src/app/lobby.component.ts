@@ -7,8 +7,8 @@ import { User } from './user';
 import { Room } from './room';
 
 // Actions
-import * as RouterActions from './state/actions/router';
 import * as UserActions from './state/actions/user';
+import * as RoomActions from './state/actions/room';
 
 @Component({
   selector: 'app-lobby',
@@ -19,15 +19,25 @@ export class LobbyComponent implements OnInit {
 
   signedIn: Observable<boolean>;
   username: Observable<string>;
-  rooms: Room[];
+
+  rooms: Observable<Room[]>;
+  error: Observable<string | null>;
 
   constructor(private store: Store<State>) {
     const user = this.store.select('user').map(user => user.authUser);
     this.username = user.map(user => user === null ? '' : user.username);
     this.signedIn = user.map(user => user !== null);
+
+    const room = this.store.select('room');
+    this.rooms = room.map(room => room.rooms);
+    this.error = room.map(room => room.currentError);
   }
 
   ngOnInit() {
+    this.store.dispatch(new RoomActions.GetRooms.Start({
+      page: 1,
+      count_per_page: 10,
+    }));
   }
 
   gotoCreateGame() {
