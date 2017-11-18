@@ -34,7 +34,7 @@ export class ProfileEffects {
     this.actions$.ofType(ProfileActions.GET_START)
     .mergeMap((action: ProfileActions.Get.Start) => {
       const username = action.username;
-      return this.http.get(`/api/profile/${username}`)
+      return this.http.get(`/api/profile/${username}/`)
       .mergeMap((response): Observable<Action> => {
         if (!response.ok) {
           return Observable.throw(response);
@@ -67,7 +67,7 @@ export class ProfileEffects {
       const username = baseProfile.user.username;
       const nickname = ('nickname' in payload) ? payload.nickname : baseProfile.nickname;
       return this.http.post(
-        `/api/profile/${username}`,
+        `/api/profile/${username}/`,
         JSON.stringify({ nickname })
       )
       .mergeMap((response): Observable<Action> => {

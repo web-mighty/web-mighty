@@ -2,8 +2,7 @@ import { User } from './user';
 
 export class Profile {
   user: User;
+  created: string;
   nickname: string;
-  gamesTotal: number;
-  gamesWon: number;
-  ranking: number;
+  avatar: string;
 }

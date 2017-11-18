@@ -157,7 +157,10 @@ export class UserEffects {
   verified$: Observable<Action> =
     this.actions$.ofType(UserActions.VERIFIED)
     .mergeMap(() =>
-      this.store.select('router').map(router => router.state.url).first()
+      this.store.select('router').first().map(router => {
+        if (router == null) return '';
+        else return router.state.url;
+      })
     ).mergeMap((url): Observable<Action> => {
       return url === '/sign_in' ?
       Observable.of(new RouterActions.GoByUrl('lobby')) :
