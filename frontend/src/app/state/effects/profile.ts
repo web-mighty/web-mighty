@@ -66,7 +66,7 @@ export class ProfileEffects {
     .mergeMap(({baseProfile, payload}: ProfileActions.Edit.Start) => {
       const username = baseProfile.user.username;
       const nickname = ('nickname' in payload) ? payload.nickname : baseProfile.nickname;
-      return this.http.post(
+      return this.http.put(
         `/api/profile/${username}/`,
         JSON.stringify({ nickname })
       )
