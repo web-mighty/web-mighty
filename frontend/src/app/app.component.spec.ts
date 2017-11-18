@@ -5,7 +5,6 @@ import { AppStateModule } from './state/app-state.module';
 
 import { AppComponent } from './app.component';
 import { MenuBarComponent } from './menu-bar.component';
-import { UserService } from './user.service';
 
 let comp: AppComponent;
 let fixture: ComponentFixture<AppComponent>;
@@ -22,7 +21,6 @@ describe('AppComponent', () => {
         AppStateModule,
       ],
       providers: [
-        UserService
       ],
     }).compileComponents()
     .then(() => {

@@ -15,7 +15,6 @@ import { GameCreateComponent } from './game-create.component';
 import { HallOfFameComponent } from './hall-of-fame.component';
 import { AppRoutingModule } from './app-routing.module';
 import { AppStateModule } from './state/app-state.module';
-import { UserService } from './user.service';
 
 import { XSRFStrategy } from '@angular/http';
 import { xsrfFactory } from './xsrf-factory';
@@ -40,7 +39,6 @@ import { xsrfFactory } from './xsrf-factory';
     StoreRouterConnectingModule,
   ],
   providers: [
-    UserService,
     { provide: APP_BASE_HREF, useValue: '/' },
     { provide: XSRFStrategy, useFactory: xsrfFactory },
   ],

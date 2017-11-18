@@ -18,4 +18,4 @@
   </div>
   <button (click)="submit()">Submit changes</button>
 </form>
-<span *ngIf="retry">Passwords don't match. Try again.</span>
+<span *ngIf="error | async">{{error | async}}</span>

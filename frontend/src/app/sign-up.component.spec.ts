@@ -6,7 +6,6 @@ import { FormsModule } from '@angular/forms';
 import { APP_BASE_HREF } from '@angular/common';
 
 import { SignUpComponent } from './sign-up.component';
-import { UserService } from './user.service';
 
 let comp: SignUpComponent;
 let fixture: ComponentFixture<SignUpComponent>;
@@ -24,7 +23,6 @@ describe('SignUpComponent', () => {
         AppStateModule,
       ],
       providers: [
-        UserService,
         { provide: APP_BASE_HREF, useValue: '/' },
       ],
     }).compileComponents()
