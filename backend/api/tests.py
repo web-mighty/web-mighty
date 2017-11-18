@@ -174,6 +174,17 @@ class ApiProfileTest(TestCase):
 
         self.assertEqual(response.status_code, 401)
 
+    def test_avatar_valid_default_image(self):
+        user = create_user(
+            username='dogeman',
+            password='doge',
+            nickname='shiva',
+            email='asdfe@asdf.com'
+        )
+
+        self.assertTrue('dogeman' in user.profile.avatar.url)
+        self.assertTrue('dogeman' in user.profile.avatar.path)
+
     def test_avatar_valid_image(self):
         client = Client()
         client.login(username='skystar', password='doge')
