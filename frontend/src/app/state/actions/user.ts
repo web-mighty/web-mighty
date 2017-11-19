@@ -80,7 +80,7 @@ export class Verified implements Action {
   readonly type = VERIFIED;
 
   constructor(public user: User) {}
-};
+}
 
 export class NeedSignIn implements Action {
   readonly type = NEED_SIGN_IN;

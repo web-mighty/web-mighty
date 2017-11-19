@@ -17,7 +17,7 @@ export class MenuBarComponent implements OnInit {
 
   signedIn: Observable<boolean>;
   username: Observable<string>;
-  imagePath = '../favicon.ico';
+  logoPath = 'assets/img/logo.svg';
 
   constructor(private store: Store<State>) {
     const user = this.store.select('user').map(user => user.authUser);

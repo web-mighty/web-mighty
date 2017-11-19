@@ -1,3 +1,13 @@
-<p>
-  game-create works!
-</p>
+<p>Create new game</p>
+<form>
+  <div>
+    <label>Room title</label>
+    <input [(ngModel)]="title" name="title" type="text">
+  </div>
+  <div>
+    <label>Password(optional)</label>
+    <input [(ngModel)]="password" name="password" type="password">
+  </div>
+  <button (click)="create()">Create</button>
+  <div *ngIf="error | async">{{error | async}}</div>
+</form>

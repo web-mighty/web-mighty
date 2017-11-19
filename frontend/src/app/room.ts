@@ -1,4 +1,5 @@
 export class Room {
-  id: number;
+  room_id: number;
   title: string;
+  is_private: boolean;
 }
