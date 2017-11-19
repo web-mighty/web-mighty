@@ -17,18 +17,11 @@ import * as RoomActions from './state/actions/room';
 })
 export class LobbyComponent implements OnInit {
 
-  signedIn: Observable<boolean>;
-  username: Observable<string>;
-
   roomList: Observable<Room[]>;
   error: Observable<string | null>;
   lockImgPath = 'assets/img/lock.svg';
 
   constructor(private store: Store<State>) {
-    const user = this.store.select('user').map(user => user.authUser);
-    this.username = user.map(user => user === null ? '' : user.username);
-    this.signedIn = user.map(user => user !== null);
-
     const room = this.store.select('room');
     this.roomList = room.map(room => room.roomList);
     this.error = room.map(room => room.currentError);
@@ -63,7 +56,7 @@ export class LobbyComponent implements OnInit {
     }));
   }
 
-  joinGame(id: string) {
+  joinRoom(id: string) {
   }
 
 }
