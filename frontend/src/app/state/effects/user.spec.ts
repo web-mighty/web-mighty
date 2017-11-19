@@ -266,7 +266,6 @@ describe('UserEffects', () => {
 
       actions = new ReplaySubject(1);
       actions.next(verifiedAction);
-      const done = false;
       effects.verified$.subscribe(_ => {
         fail('Action fired');
       });

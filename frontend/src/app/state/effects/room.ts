@@ -35,7 +35,7 @@ export class RoomEffects {
       this.http.get('/api/room/',
         JSON.stringify(params)
       ).mergeMap((response): Observable<Action> => {
-        const roomList: Room[] = response.json();
+        const roomList: Room[] = response.json().rooms;
         return Observable.of(new RoomActions.GetRooms.Done(roomList));
       })
     );

@@ -47,8 +47,8 @@ export namespace CreateRoom {
 }
 
 export type Actions
- = GetRooms.Start
- | GetRooms.Done
- | CreateRoom.Start
- | CreateRoom.Done
- | CreateRoom.Failed;
+  = GetRooms.Start
+  | GetRooms.Done
+  | CreateRoom.Start
+  | CreateRoom.Done
+  | CreateRoom.Failed;
