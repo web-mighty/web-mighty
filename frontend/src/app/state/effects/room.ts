@@ -19,8 +19,11 @@ import * as RouterActions from '../actions/router';
 
 @Injectable()
 export class RoomEffects {
+  private static getRoomsFailedMessage =
+    'Internal server error.';
+
   private static createRoomFailedMessage =
-    'Creating new game failed';
+    'Creating new game failed.';
 
   private static jsonHeaders = new Headers({
     'Content-Type': 'application/json',
@@ -35,8 +38,20 @@ export class RoomEffects {
       this.http.get('/api/room/',
         JSON.stringify(params)
       ).mergeMap((response): Observable<Action> => {
+        if (!response.ok) {
+          return Observable.throw(response);
+        }
         const roomList: Room[] = response.json().rooms;
         return Observable.of(new RoomActions.GetRooms.Done(roomList));
+      }).catch((response): Observable<Action> => {
+        if (response.status === 500) {
+          return Observable.of(
+            new RoomActions.GetRooms.Failed(RoomEffects.getRoomsFailedMessage)
+          );
+        }
+        return Observable.of(
+          new RoomActions.GetRooms.Failed('Unknown error.')
+        );
       })
     );
 

@@ -24,6 +24,8 @@ export function roomReducer(
       return { ...state, currentError: null };
     case RoomActions.GET_ROOMS_DONE:
       return { ...state, roomList: action.roomList, currentError: null };
+    case RoomActions.GET_ROOMS_FAILED:
+      return { ...state, currentError: action.error };
     case RoomActions.CREATE_ROOM_START:
       return { ...state, currentError: null };
     case RoomActions.CREATE_ROOM_DONE:
