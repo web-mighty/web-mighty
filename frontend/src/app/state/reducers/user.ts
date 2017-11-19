@@ -5,12 +5,14 @@ import { User } from '../../user';
 import { Profile } from '../../profile';
 
 export interface UserState {
+  cold: boolean;
   verifying: boolean;
   authUser: User | null;
   currentError: string | null;
 }
 
 const initialState: UserState = {
+  cold: true,
   verifying: false,
   authUser: null,
   currentError: null,
@@ -20,9 +22,6 @@ export function userReducer(
   state: UserState = initialState,
   action: AppActions
 ) {
-  if (action.type !== UserActions.VERIFY_SESSION) {
-    state = { ...state, verifying: false };
-  }
   switch (action.type) {
     case UserActions.SIGN_UP_START:
       return { ...state, currentError: null };
@@ -40,8 +39,10 @@ export function userReducer(
       return { ...state, authUser: null, currentError: null };
     case UserActions.VERIFY_SESSION:
       return { ...state, verifying: true };
+    case UserActions.NEED_SIGN_IN:
+      return { ...state, cold: false, verifying: false };
     case UserActions.VERIFIED:
-      return { ...state, authUser: action.user, currentError: null };
+      return { ...state, cold: false, verifying: false, authUser: action.user, currentError: null };
     default:
       return state;
   }

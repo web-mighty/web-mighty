@@ -1,10 +1,12 @@
 import { Component, OnInit } from '@angular/core';
-import { Router, ActivatedRoute, ParamMap } from '@angular/router';
+import { ActivatedRoute, ParamMap } from '@angular/router';
 import { Store } from '@ngrx/store';
 import { Observable } from 'rxjs/Observable';
+import 'rxjs/add/operator/filter';
 import 'rxjs/add/operator/map';
 import 'rxjs/add/operator/switchMap';
-import 'rxjs/add/operator/combineLatest';
+import 'rxjs/add/operator/first';
+import 'rxjs/add/observable/combineLatest';
 
 import { Profile } from './profile';
 
@@ -19,25 +21,29 @@ import { State } from './state/reducer';
   styleUrls: ['./profile-edit.component.css']
 })
 export class ProfileEditComponent implements OnInit {
-  profile: Observable<Profile | null>;
+  profile: Profile | null;
   currentPassword: string;
   newPassword: string;
   confirmPassword: string;
   nickname: string;
-  error: Observable<string | null>;
+  error: string;
 
 
   constructor(
-    private router: Router,
     private route: ActivatedRoute,
     private store: Store<State>,
   ) {
     const username = this.route.paramMap
       .map((params: ParamMap) => params.get('username'));
-    const authUser = this.store.select('user').map(user => user.authUser);
+    username.subscribe((username: string) => {
+      this.store.dispatch(new ProfileActions.Get.Start(username));
+    });
 
     // redirect if the user does not have permission
-    username.combineLatest(authUser, (username, authUser) => {
+    const authUser = this.store.select('user')
+      .filter(user => user != null && !user.cold)
+      .map(user => user.authUser);
+    Observable.combineLatest(username.first(), authUser.first(), (username, authUser) => {
       if (authUser === null) {
         return { username, hasPermission: false };
       } else {
@@ -49,10 +55,7 @@ export class ProfileEditComponent implements OnInit {
       }
     });
 
-    username.subscribe((username: string) => {
-      this.store.dispatch(new ProfileActions.Get.Start(username));
-    });
-    this.profile = username.switchMap((username: string) =>
+    const profile = username.switchMap((username: string) =>
       this.store.select('profile').map(profile => {
         if (username in profile.profiles) {
           const currentProfile = profile.profiles[username];
@@ -66,20 +69,21 @@ export class ProfileEditComponent implements OnInit {
         }
       })
     );
-    this.error = this.store.select('profile').map(profile => profile.edit.currentError);
+    profile.subscribe(profile => this.profile = profile);
+
+    const error = this.store.select('profile').map(profile => profile.edit.currentError);
+    error.subscribe(error => this.error = error);
   }
 
   ngOnInit() {}
 
   submit() {
     // TODO: verify password?
-    this.profile.first().subscribe(profile => {
-      if (profile === null) {
-        return;
-      }
-      this.store.dispatch(
-        new ProfileActions.Edit.Start(profile, { nickname: this.nickname })
-      );
-    });
+    if (this.profile === null) {
+      return;
+    }
+    this.store.dispatch(
+      new ProfileActions.Edit.Start(this.profile, { nickname: this.nickname })
+    );
   }
 }
