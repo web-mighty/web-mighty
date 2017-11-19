@@ -31,8 +31,9 @@ class ApiRoomListTest(TestCase):
         )
 
         data = response.json()
+        rooms = data['rooms']
 
-        self.assertEqual(len(data), 0)
+        self.assertEqual(len(rooms), 0)
 
     def test_room_create_without_password(self):
         client = Client()
@@ -60,9 +61,10 @@ class ApiRoomListTest(TestCase):
         )
 
         data = response.json()
+        rooms = data['rooms']
 
-        self.assertEqual(data[0]['title'], 'doge room')
-        self.assertEqual(data[0]['is_private'], False)
+        self.assertEqual(rooms[0]['title'], 'doge room')
+        self.assertEqual(rooms[0]['is_private'], False)
 
     def test_room_create_with_password(self):
         client = Client()
@@ -93,12 +95,13 @@ class ApiRoomListTest(TestCase):
         )
 
         data = response.json()
+        rooms = data['rooms']
         room = Room.objects.get(id=1)
 
         is_password_valid = check_password('dogecoin', room.password)
 
-        self.assertEqual(data[0]['title'], 'doge room')
-        self.assertEqual(data[0]['is_private'], True)
+        self.assertEqual(rooms[0]['title'], 'doge room')
+        self.assertEqual(rooms[0]['is_private'], True)
         self.assertTrue(is_password_valid)
 
 

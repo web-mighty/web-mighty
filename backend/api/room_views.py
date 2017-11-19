@@ -3,6 +3,7 @@ from django.http import HttpResponseNotAllowed, HttpResponseBadRequest
 import json
 
 from .room_functions import get_room_list, create_room
+from .models import Room
 
 
 def room(request):
@@ -10,7 +11,13 @@ def room(request):
         page = request.GET.get('page', 1)
         count_per_page = request.GET.get('count_per_page', 10)
 
-        return JsonResponse(get_room_list(page, count_per_page), safe=False)
+        room_list = get_room_list(page, count_per_page)
+        result = {
+            'rooms': room_list,
+            'total_room': Room.objects.count(),
+        }
+
+        return JsonResponse(result)
 
     elif request.method == 'POST':
         if not request.user.is_authenticated:
