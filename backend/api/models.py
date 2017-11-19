@@ -4,6 +4,9 @@ from django.contrib.auth.models import User
 from django.dispatch import receiver
 from django.db.models.signals import pre_save, post_delete
 from django.core.cache import cache
+from backend.settings import BASE_DIR, DEFAULT_AVATAR_NAME
+from django.core.files import File
+import os
 
 
 class Room(models.Model):
@@ -69,10 +72,14 @@ def create_user(**kwargs):
             email=kwargs['email'],
         )
 
-        Profile.objects.create(
-            user=new_user,
-            nickname=kwargs['nickname'],
-        )
+        with open(os.path.join(BASE_DIR, 'static', DEFAULT_AVATAR_NAME), 'rb') as f:
+            avatar_file = File(f)
+            avatar_file.name = '_'.join([kwargs['username'], DEFAULT_AVATAR_NAME])
+            Profile.objects.create(
+                user=new_user,
+                nickname=kwargs['nickname'],
+                avatar=avatar_file,
+            )
         return new_user
     except ModelError:
         return None
