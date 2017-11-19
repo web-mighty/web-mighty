@@ -1,9 +1,3 @@
-<p *ngIf="!(signedIn | async)">
-  Please sign in.
-</p>
-<p *ngIf="signedIn | async">
-  Hello, {{username | async}}!
-</p>
 <button (click)="gotoCreateGame()">New Game</button>
 <button (click)="gotoHallOfFame()">Hall of Fame</button>
 <p>Game List</p>
@@ -18,7 +12,7 @@
       <img *ngIf="room.is_private" src={{lockImgPath}} height="40" width="40">
     </td>
     <td>
-      <button (click)="joinGame(room.id)">Join</button>
+      <button (click)="joinRoom(room.id)">Join</button>
     </td>
   </tr>
 </table>
