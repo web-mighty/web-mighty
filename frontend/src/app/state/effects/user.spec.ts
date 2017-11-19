@@ -133,7 +133,7 @@ describe('UserEffects', () => {
         count++;
       });
       tick();
-      if (count != 2) {
+      if (count !== 2) {
         fail('Action didn\'t fire twice');
       }
     }));
@@ -266,7 +266,7 @@ describe('UserEffects', () => {
 
       actions = new ReplaySubject(1);
       actions.next(verifiedAction);
-      let done = false;
+      const done = false;
       effects.verified$.subscribe(_ => {
         fail('Action fired');
       });

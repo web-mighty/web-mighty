@@ -21,7 +21,7 @@ import * as UserActions from '../actions/user';
 @Injectable()
 export class UserEffects {
   private static passwordsMatchFailedMessage =
-    "Passwords don't match. Try again."
+    'Passwords don\'t match. Try again.';
 
   private static signUpFailedMessage =
     'Sign up failed';
@@ -49,12 +49,12 @@ export class UserEffects {
           JSON.stringify(params),
           { headers: UserEffects.jsonHeaders }
         ).mergeMap((response): Observable<Action> => {
-          if(!response.ok) {
+          if (!response.ok) {
             return Observable.throw(response);
           }
           return Observable.of(new UserActions.SignUp.Done());
         }).catch((response): Observable<Action> => {
-          if(response.status === 400) {
+          if (response.status === 400) {
             return Observable.of(
               new UserActions.SignUp.Failed(UserEffects.signUpFailedMessage)
             );
@@ -167,7 +167,7 @@ export class UserEffects {
     ).mergeMap((url): Observable<Action> => {
       return url === '/sign_in' ?
       Observable.of(new RouterActions.GoByUrl('lobby')) :
-      Observable.never()
+      Observable.never();
     });
 
   constructor(

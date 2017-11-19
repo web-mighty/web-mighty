@@ -20,8 +20,9 @@ export class LobbyComponent implements OnInit {
   signedIn: Observable<boolean>;
   username: Observable<string>;
 
-  rooms: Observable<Room[]>;
+  roomList: Observable<Room[]>;
   error: Observable<string | null>;
+  lockImgPath = 'assets/img/lock.svg';
 
   constructor(private store: Store<State>) {
     const user = this.store.select('user').map(user => user.authUser);
@@ -29,7 +30,7 @@ export class LobbyComponent implements OnInit {
     this.signedIn = user.map(user => user !== null);
 
     const room = this.store.select('room');
-    this.rooms = room.map(room => room.rooms);
+    this.roomList = room.map(room => room.roomList);
     this.error = room.map(room => room.currentError);
   }
 

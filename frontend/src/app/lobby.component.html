@@ -7,12 +7,19 @@
 <button (click)="gotoCreateGame()">New Game</button>
 <button (click)="gotoHallOfFame()">Hall of Fame</button>
 <p>Game List</p>
-<div *ngIf="rooms | async">
-  <ul>
-    <li *ngFor="let room of rooms">
-      <span>{{room.title}}</span>
+<table>
+  <tr>
+    <th>Title</th>
+    <th>Private</th>
+  </tr>
+  <tr *ngFor="let room of roomList | async">
+    <td>{{room.title}}</td>
+    <td>
+      <img *ngIf="room.is_private" src={{lockImgPath}} height="40" width="40">
+    </td>
+    <td>
       <button (click)="joinGame(room.id)">Join</button>
-    </li>
-  </ul>
-</div>
+    </td>
+  </tr>
+</table>
 <div *ngIf="error | async">{{error | async}}</div>

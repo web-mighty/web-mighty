@@ -5,6 +5,10 @@ import { Room } from '../../room';
 export const GET_ROOMS_START = 'Room: Get rooms: start';
 export const GET_ROOMS_DONE = 'Room: Get rooms: done';
 
+export const CREATE_ROOM_START = 'Room: Create room: start';
+export const CREATE_ROOM_DONE = 'Room: Create room: done';
+export const CREATE_ROOM_FAILED = 'Room: Create room: failed';
+
 export namespace GetRooms {
   export class Start implements Action {
     readonly type = GET_ROOMS_START;
@@ -17,10 +21,34 @@ export namespace GetRooms {
   export class Done implements Action {
     readonly type = GET_ROOMS_DONE;
 
-    constructor(public rooms: Room[]) {}
+    constructor(public roomList: Room[]) {}
+  }
+}
+
+export namespace CreateRoom {
+  export class Start implements Action {
+    readonly type = CREATE_ROOM_START;
+
+    constructor(public payload: {
+      title: string;
+      password?: string;
+    }) {}
+  }
+  export class Done implements Action {
+    readonly type = CREATE_ROOM_DONE;
+
+    constructor(public room: Room) {}
+  }
+  export class Failed implements Action {
+    readonly type = CREATE_ROOM_FAILED;
+
+    constructor(public error: string) {}
   }
 }
 
 export type Actions
  = GetRooms.Start
  | GetRooms.Done
+ | CreateRoom.Start
+ | CreateRoom.Done
+ | CreateRoom.Failed;
