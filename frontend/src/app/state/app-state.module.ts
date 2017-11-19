@@ -7,24 +7,22 @@ import { EffectsModule } from '@ngrx/effects';
 import { StoreRouterConnectingModule } from '@ngrx/router-store';
 
 // Reducers
-import { userReducer } from './reducers/user';
-import { routerReducer } from '@ngrx/router-store';
+import { reducers } from './reducer';
 
 // Effects
 import { UserEffects } from './effects/user';
 import { RouterEffects } from './effects/router';
+import { ProfileEffects } from './effects/profile';
 
 @NgModule({
   imports: [
     CommonModule,
     HttpModule,
-    StoreModule.forRoot({
-      router: routerReducer,
-      user: userReducer,
-    }),
+    StoreModule.forRoot(reducers),
     EffectsModule.forRoot([
       RouterEffects,
       UserEffects,
+      ProfileEffects,
     ]),
     StoreRouterConnectingModule,
   ],
