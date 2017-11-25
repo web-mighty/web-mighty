@@ -4,6 +4,7 @@ from django.http import HttpResponseForbidden, HttpResponseNotFound
 from .models import Profile
 from PIL import Image
 import json
+import os
 
 
 def profile(request, username=None):
@@ -51,6 +52,8 @@ def avatar(request):
     if request.method != 'POST':
         return HttpResponseNotAllowed(['POST'])
 
+    previous_avatar_path = request.user.profile.avatar.path
+
     image = request.FILES.get('avatar', None)
 
     if image is None:
@@ -70,5 +73,10 @@ def avatar(request):
         return HttpResponseBadRequest()
 
     profile.save()
+
+    try:
+        os.remove(previous_avatar_path)
+    except OSError:
+        pass
 
     return HttpResponse(status=204)
