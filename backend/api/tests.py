@@ -22,6 +22,11 @@ class ApiRoomListTest(TestCase):
 
         cache.clear()
 
+    def tearDown(self):
+        users = User.objects.all()
+        for user in users:
+            os.remove(user.profile.avatar.path)
+
     def test_room_initially_no_rooms(self):
         client = Client()
         client.login(username='skystar', password='doge')
@@ -118,8 +123,18 @@ class ApiProfileTest(TestCase):
         with open(image_path, 'rb') as f:
             avatar_file = File(f)
             avatar_file.name = 'test_image.png'
+
+            previous_avatar_path = user.profile.avatar.path
+
             user.profile.avatar = avatar_file
             user.profile.save()
+
+            os.remove(previous_avatar_path)
+
+    def tearDown(self):
+        users = User.objects.all()
+        for user in users:
+            os.remove(user.profile.avatar.path)
 
     def test_profile_not_authenticated(self):
         client = Client()
@@ -192,8 +207,6 @@ class ApiProfileTest(TestCase):
         client = Client()
         client.login(username='skystar', password='doge')
 
-        user = User.objects.get(id=1)
-
         image_path = os.path.join(BASE_DIR, 'api/test_data/test_image.png')
 
         with open(image_path, 'rb') as f:
@@ -202,7 +215,6 @@ class ApiProfileTest(TestCase):
                 {'avatar': f}
             )
 
-        os.remove(user.profile.avatar.path)
         self.assertEqual(response.status_code, 204)
 
     def test_avatar_invalid_image(self):
@@ -233,6 +245,11 @@ class ApiProfileTest(TestCase):
 class ApiSignUpTest(TestCase):
     def setUp(self):
         pass
+
+    def tearDown(self):
+        users = User.objects.all()
+        for user in users:
+            os.remove(user.profile.avatar.path)
 
     def test_sign_up_success(self):
         client = Client()
@@ -281,6 +298,11 @@ class ApiSignInTest(TestCase):
             nickname='usezmap',
             email='asdf@asdf.com'
         )
+
+    def tearDown(self):
+        users = User.objects.all()
+        for user in users:
+            os.remove(user.profile.avatar.path)
 
     def test_sign_in_success(self):
         client = Client()
@@ -344,6 +366,11 @@ class ApiSessionTest(TestCase):
             email='asdf@asdf.com'
         )
 
+    def tearDown(self):
+        users = User.objects.all()
+        for user in users:
+            os.remove(user.profile.avatar.path)
+
     def test_verify_session_success(self):
         client = Client()
         client.login(username='skystar', password='doge')
@@ -386,6 +413,11 @@ class ModelTest(TestCase):
             nickname='usezmap',
             email='asdf@asdf.com'
         )
+
+    def tearDown(self):
+        users = User.objects.all()
+        for user in users:
+            os.remove(user.profile.avatar.path)
 
     def test_User_model(self):
         me = authenticate(username='skystar', password='doge')
