@@ -1,7 +1,12 @@
 from channels.test import ChannelTestCase, WSClient
+from websocket.consumers.consumer_utils import request
+from websocket.consumers.room_consumers import room_join_consumer
 from api.models import create_user
+from api.models import Room
 from django.contrib.auth.models import User
+from django.contrib.auth.hashers import make_password
 from django.core.cache import cache
+
 import os
 import json
 
@@ -145,3 +150,66 @@ class MultiplexerTest(ChannelTestCase):
         self.assertIn('error', response)
         self.assertEqual(response['error']['reason'], 'Invalid action')
         self.assertEqual(response['error']['type'], 'receive')
+
+
+class RoomJoinTest(ChannelTestCase):
+    def setUp(self):
+        cache.clear()
+
+        create_user(
+            username='skystar',
+            password='doge',
+            nickname='usezmap',
+            email='asdf@asdf.com'
+        )
+
+        Room.objects.create(
+            room_id='room',
+            title='doge room',
+            is_private=False,
+            password='',
+            player_number=2
+        )
+
+        Room.objects.create(
+            room_id='room2',
+            title='doge room2',
+            is_private=True,
+            password=make_password('pass'),
+            player_number=2
+        )
+
+    def tearDown(self):
+        users = User.objects.all()
+        for user in users:
+            os.remove(user.profile.avatar.path)
+
+    def test_room_join(self):
+        client = WSClient()
+        client.login(username='skystar', password='doge')
+        client.send_and_consume('websocket.connect', path='/api/websocket/')
+        client.receive()
+
+        data = {
+            'room_id': 'room',
+        }
+
+        req = request('room-join', data, nonce='test')
+
+        client.send_and_consume('websocket.receive', req, path='/api/websocket/')
+
+        room_join_consumer(self.get_next_message('room-join'))
+
+        response = client.receive()
+
+        room_cache = cache.get('room:room')
+        player_room_cache = cache.get('player-room:skystar')
+
+        self.assertTrue(response['success'])
+
+        result = response['result']
+
+        self.assertEqual(result['room_id'], 'room')
+        self.assertEqual(result['room_id'], player_room_cache)
+        self.assertEqual(len(room_cache['players']), 1)
+        self.assertEqual(room_cache['players'][0]['username'], 'skystar')
