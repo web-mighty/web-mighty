@@ -3,6 +3,7 @@ from channels.routing import route
 from channels.auth import channel_session_user, channel_session_user_from_http
 from .consumer_utils import error
 from django.core.cache import cache
+from urllib.parse import parse_qs
 import json
 
 
@@ -41,17 +42,31 @@ def websocket_connect(message):
 
     cache_key = 'session:' + message.user.username
     current_session = cache.get(cache_key)
+    try:
+        if isinstance(message.content['query_string'], bytes):
+            query_string = parse_qs(message.content['query_string'].decode('utf-8'))
+        elif isinstance(message.content['query_string'], str):
+            query_string = parse_qs(message.content['query_string'])
+        else:
+            query_string = {}
+    except UnicodeDecodeError:
+        query_string = {}
+    except KeyError:
+        query_string = {}
 
     # if user is connecting the websocket first time, set the session
     if current_session is None:
         cache.set(cache_key, message.reply_channel.name)
     else:
-        # TODO: relogin logic with Request structure
         if current_session != message.reply_channel.name:
-            message.reply_channel.send({'accept': True})
-            message.reply_channel.send(error('Session duplication detected'))
-            message.reply_channel.send({'close': True})
-            return
+            if 'force' in query_string and 'true' in query_string['force']:
+                Channel(current_session).send({'close': True})
+                cache.set(cache_key, message.reply_channel.name)
+            else:
+                message.reply_channel.send({'accept': True})
+                message.reply_channel.send(error('Session duplication detected'))
+                message.reply_channel.send({'close': True})
+                return
 
     message.reply_channel.send({'accept': True})
 
@@ -59,6 +74,14 @@ def websocket_connect(message):
 @channel_session_user
 def websocket_receive(message):
     if not message.user.is_authenticated:
+        message.reply_channel.send(error('Not Authenticated'))
+        message.reply_channel.send({'close': True})
+        return
+
+    cache_key = 'session:' + message.user.username
+    current_session = cache.get(cache_key)
+
+    if message.reply_channel.name != current_session:
         message.reply_channel.send(error('Not Authenticated'))
         message.reply_channel.send({'close': True})
         return
@@ -87,6 +110,9 @@ def websocket_receive(message):
 @channel_session_user
 def websocket_disconnect(message):
     if message.user.is_authenticated:
-        cache.delete('session:' + message.user.username)
+        cache_key = 'session:' + message.user.username
+        session = cache.get(cache_key)
+        if session == message.reply_channel.name:
+            cache.delete(cache_key)
         # TODO: clear more cache about specific user
         # TODO: broadcast disconnection event to user within same room
