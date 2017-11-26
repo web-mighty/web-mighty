@@ -6,6 +6,9 @@
     - `password`
     - `created`
 
+  - Options:
+    - `player_number`
+
 # Cache `Room`
-  - `users`
+  - `players`
   - more...

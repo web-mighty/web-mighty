@@ -16,6 +16,7 @@ def create_room(**kwargs):
     room_id = str(uuid.uuid4())
     title = kwargs.get('title', None)
     password = kwargs.get('password', None)
+    player_number = kwargs.get('player_number', 0)
 
     if password is not None:
         password = make_password(password)
@@ -30,6 +31,8 @@ def create_room(**kwargs):
         title=title,
         password=password,
         is_private=bool(password),
+
+        player_number=player_number,
     )
 
     new_room.save()
@@ -38,6 +41,7 @@ def create_room(**kwargs):
         'room_id': room_id,
         'title': title,
         'is_private': bool(password),
+        'player_number': player_number,
     }
 
     return result_data
