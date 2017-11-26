@@ -1,7 +1,7 @@
 from channels import Channel
 from channels.routing import route
 from channels.auth import channel_session_user, channel_session_user_from_http
-from .consumer_utils import error
+from .consumer_utils import reply_error, event_error
 from django.core.cache import cache
 from urllib.parse import parse_qs
 import json
@@ -36,7 +36,7 @@ multiplexer_routings = [
 def websocket_connect(message):
     if not message.user.is_authenticated:
         message.reply_channel.send({'accept': True})
-        message.reply_channel.send(error('Not Authenticated'))
+        message.reply_channel.send(event_error('Not authenticated', type='connection'))
         message.reply_channel.send({'close': True})
         return
 
@@ -64,7 +64,8 @@ def websocket_connect(message):
                 cache.set(cache_key, message.reply_channel.name)
             else:
                 message.reply_channel.send({'accept': True})
-                message.reply_channel.send(error('Session duplication detected'))
+                message.reply_channel.send(
+                    event_error('Session duplication detected', type='connection'))
                 message.reply_channel.send({'close': True})
                 return
 
@@ -73,8 +74,16 @@ def websocket_connect(message):
 
 @channel_session_user
 def websocket_receive(message):
+    try:
+        data = json.loads(message.content['text'])
+    except ValueError:
+        message.reply_channel.send(
+            reply_error('Invalid data', nonce='', type='receive'))
+        return
+
     if not message.user.is_authenticated:
-        message.reply_channel.send(error('Not Authenticated'))
+        message.reply_channel.send(
+            reply_error('Not authenticated', nonce=data.get('nonce', ''), type='receive'))
         message.reply_channel.send({'close': True})
         return
 
@@ -82,26 +91,29 @@ def websocket_receive(message):
     current_session = cache.get(cache_key)
 
     if message.reply_channel.name != current_session:
-        message.reply_channel.send(error('Not Authenticated'))
+        message.reply_channel.send(
+            reply_error('Session duplication detected', nonce=data.get('nonce', ''), type='receive'))
         message.reply_channel.send({'close': True})
         return
 
-    data = json.loads(message.content['text'])
-
     if 'nonce' not in data:
-        message.reply_channel.send(error('No nonce'))
+        message.reply_channel.send(
+            reply_error('No nonce', type='receive'))
         return
     if 'action' not in data:
-        message.reply_channel.send(error('No action'))
+        message.reply_channel.send(
+            reply_error('No action', nonce=data['nonce'], type='receive'))
         return
     if 'data' not in data:
-        message.reply_channel.send(error('No data'))
+        message.reply_channel.send(
+            reply_error('No data', nonce=data['nonce'], type='receive'))
         return
 
     channel = data['action']
 
     if channel not in available_channels:
-        message.reply_channel.send(error('Invalid action'))
+        message.reply_channel.send(
+            reply_error('Invalid action', nonce=data['nonce'], type='receive'))
         return
 
     Channel(channel).send({'text': json.dumps(data['data'])})
