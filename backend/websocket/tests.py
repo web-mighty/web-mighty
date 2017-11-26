@@ -1,9 +1,7 @@
 from channels.test import ChannelTestCase, WSClient
 from api.models import create_user
 from django.contrib.auth.models import User
-from django.contrib.auth import logout
 from django.core.cache import cache
-from django.http.cookie import SimpleCookie
 import os
 import json
 
@@ -26,7 +24,7 @@ class MultiplexerTest(ChannelTestCase):
 
     def test_connection_not_authenticated(self):
         client = WSClient()
-        client.send_and_consume('websocket.connect')
+        client.send_and_consume('websocket.connect', path='/api/websocket/')
         response = client.receive()
         self.assertIn('error', response)
         self.assertEqual(response['error']['reason'], 'Not Authenticated')
@@ -36,7 +34,7 @@ class MultiplexerTest(ChannelTestCase):
 
         client = WSClient()
         client.login(username='skystar', password='doge')
-        client.send_and_consume('websocket.connect')
+        client.send_and_consume('websocket.connect', path='/api/websocket/')
 
         self.assertIsNotNone(cache.get('session:skystar'))
 
@@ -47,11 +45,11 @@ class MultiplexerTest(ChannelTestCase):
         first_client.login(username='skystar', password='doge')
         second_client.login(username='skystar', password='doge')
 
-        first_client.send_and_consume('websocket.connect')
+        first_client.send_and_consume('websocket.connect', path='/api/websocket/')
         session_cache = cache.get('session:skystar')
         self.assertIsNotNone(session_cache)
 
-        second_client.send_and_consume('websocket.connect')
+        second_client.send_and_consume('websocket.connect', path='/api/websocket/')
 
         response = second_client.receive()
 
@@ -63,7 +61,7 @@ class MultiplexerTest(ChannelTestCase):
     def test_receive_malformed_data(self):
         client = WSClient()
         client.login(username='skystar', password='doge')
-        client.send_and_consume('websocket.connect')
+        client.send_and_consume('websocket.connect', path='/api/websocket/')
 
         session_cache = cache.get('session:skystar')
         self.assertIsNotNone(session_cache)
@@ -72,7 +70,7 @@ class MultiplexerTest(ChannelTestCase):
             'text': json.dumps({'action': 'room-join', 'data': {}})
         }
 
-        client.send_and_consume('websocket.receive', data)
+        client.send_and_consume('websocket.receive', data, path='/api/websocket/')
         response = client.receive()
         self.assertIn('error', response)
         self.assertEqual(response['error']['reason'], 'No nonce')
@@ -81,7 +79,7 @@ class MultiplexerTest(ChannelTestCase):
             'text': json.dumps({'nonce': 'asdf', 'data': {}})
         }
 
-        client.send_and_consume('websocket.receive', data)
+        client.send_and_consume('websocket.receive', data, path='/api/websocket/')
         response = client.receive()
         self.assertIn('error', response)
         self.assertEqual(response['error']['reason'], 'No action')
@@ -90,7 +88,7 @@ class MultiplexerTest(ChannelTestCase):
             'text': json.dumps({'action': 'room-join', 'nonce': 'asdf'})
         }
 
-        client.send_and_consume('websocket.receive', data)
+        client.send_and_consume('websocket.receive', data, path='/api/websocket/')
         response = client.receive()
         self.assertIn('error', response)
         self.assertEqual(response['error']['reason'], 'No data')
@@ -99,7 +97,7 @@ class MultiplexerTest(ChannelTestCase):
             'text': json.dumps({'action': 'doge-action', 'nonce': 'asdf', 'data': {}})
         }
 
-        client.send_and_consume('websocket.receive', data)
+        client.send_and_consume('websocket.receive', data, path='/api/websocket/')
         response = client.receive()
         self.assertIn('error', response)
         self.assertEqual(response['error']['reason'], 'Invalid action')
