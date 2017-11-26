@@ -31,7 +31,6 @@ export class WebSocketMock {
 
   accept() {
     const cbs = this.cbtable['open'];
-    console.log(cbs);
     for (const cb of cbs) {
       cb(new Event('open'));
     }

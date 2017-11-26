@@ -7,15 +7,11 @@ import 'rxjs/add/operator/filter';
 import 'rxjs/add/operator/map';
 import 'rxjs/add/operator/switchMap';
 import 'rxjs/add/operator/mergeMap';
-import 'rxjs/add/operator/catch';
 import 'rxjs/add/operator/concat';
 import 'rxjs/add/operator/do';
 import 'rxjs/add/operator/delay';
 import { Observable } from 'rxjs/Observable';
-import { WebSocketSubject } from 'rxjs/observable/dom/WebSocketSubject';
 import 'rxjs/add/observable/of';
-import 'rxjs/add/observable/never';
-import 'rxjs/add/observable/dom/webSocket';
 
 import { State } from '../reducer';
 import * as UserActions from '../actions/user';
@@ -41,7 +37,6 @@ export class WebSocketEffects {
   @Effect()
   connect$: Observable<Action> =
     this.actions$.ofType(WebSocketActions.CONNECT)
-    .do(action => console.log('Connect', action))
     .switchMap((action: WebSocketActions.Connect) => {
       const { force } = action;
       const path = `/api/websocket${force ? '?force=true' : ''}`;
@@ -71,8 +66,7 @@ export class WebSocketEffects {
           }
         });
       });
-    })
-    .do(console.log);
+    });
 
   @Effect({ dispatch: false })
   disconnect$ =
@@ -87,7 +81,6 @@ export class WebSocketEffects {
   request$ =
     this.actions$.ofType(WebSocketActions.REQUEST)
     .do((action: WebSocketActions.Request) => {
-      console.log('Request', action);
       if (this.socket != null) {
         this.socket.send(JSON.stringify(action.payload));
       }
@@ -96,7 +89,6 @@ export class WebSocketEffects {
   @Effect()
   disconnected$: Observable<Action> =
     this.actions$.ofType(WebSocketActions.DISCONNECTED)
-    .do(() => console.log('Disconnected'))
     .do(() => this.socket = null)
     .mergeMap(() => this.store.select('user', 'authUser').first())
     .filter(user => user != null)
