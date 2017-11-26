@@ -1,8 +1,11 @@
 import { TestBed, fakeAsync, tick, inject } from '@angular/core/testing';
+import { CommonModule } from '@angular/common';
+import { HttpModule } from '@angular/http';
 import { MockBackend } from '@angular/http/testing';
 import { RouterTestingModule } from '@angular/router/testing';
+import { StoreModule } from '@ngrx/store';
 import { provideMockActions } from '@ngrx/effects/testing';
-import { AppStateModule } from '../app-state.module';
+import { StoreRouterConnectingModule } from '@ngrx/router-store';
 import { MockComponent, filterCallByAction } from '../../testing';
 
 import { ReplaySubject } from 'rxjs/ReplaySubject';
@@ -12,6 +15,9 @@ import { Store } from '@ngrx/store';
 import { Actions } from '@ngrx/effects';
 import { xsrfFactory } from '../../xsrf-factory';
 import { State } from '../reducer';
+
+// Reducers
+import { reducers } from '../reducer';
 
 // Actions
 import { AppActions } from '../app-actions';
@@ -35,12 +41,15 @@ describe('UserEffects', () => {
         MockComponent,
       ],
       imports: [
-        AppStateModule,
+        CommonModule,
+        HttpModule,
         RouterTestingModule.withRoutes([
           { path: '', component: MockComponent },
           { path: 'lobby', component: MockComponent },
           { path: 'sign_in', component: MockComponent },
         ]),
+        StoreModule.forRoot(reducers),
+        StoreRouterConnectingModule,
       ],
       providers: [
         { provide: XHRBackend, useClass: MockBackend },

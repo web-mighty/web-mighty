@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Store, Action } from '@ngrx/store';
 import { Effect, Actions } from '@ngrx/effects';
+import { WebSocketService } from '../websocket.service';
 
 import 'rxjs/add/operator/filter';
 import 'rxjs/add/operator/map';
@@ -29,6 +30,7 @@ function relativeWebSocketUri(path: string): string {
 @Injectable()
 export class WebSocketEffects {
   socket: WebSocket | null = null;
+  // for testing
   delay: boolean = true;
 
   @Effect()
@@ -43,7 +45,7 @@ export class WebSocketEffects {
     .switchMap((action: WebSocketActions.Connect) => {
       const { force } = action;
       const path = `/api/websocket${force ? '?force=true' : ''}`;
-      this.socket = new WebSocket(relativeWebSocketUri(path));
+      this.socket = this.webSocket.connect(relativeWebSocketUri(path));
       return new Observable(obs => {
         this.socket.addEventListener('open', () => {
           obs.next(new WebSocketActions.Connected());
@@ -103,5 +105,6 @@ export class WebSocketEffects {
   constructor(
     private actions$: Actions,
     private store: Store<State>,
+    private webSocket: WebSocketService,
   ) {}
 }

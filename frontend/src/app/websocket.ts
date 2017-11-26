@@ -1,11 +1,11 @@
 import * as v4 from 'uuid/v4';
 
-export interface RoomJoinRequest {
-  action: 'room-join';
-  data: {
+export class RoomJoinRequest {
+  action = 'room-join';
+  constructor(public data: {
     'room-id': string;
     password?: string;
-  };
+  }) {}
 }
 
 export type Request

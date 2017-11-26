@@ -6,6 +6,8 @@ import { StoreModule } from '@ngrx/store';
 import { EffectsModule } from '@ngrx/effects';
 import { StoreRouterConnectingModule } from '@ngrx/router-store';
 
+import { WebSocketService } from './websocket.service';
+
 // Reducers
 import { reducers } from './reducer';
 
@@ -31,6 +33,9 @@ import { WebSocketEffects } from './effects/websocket';
     StoreRouterConnectingModule,
   ],
   declarations: [],
+  providers: [
+    WebSocketService,
+  ],
   exports: [
     StoreModule,
     EffectsModule,
