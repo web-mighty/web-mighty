@@ -61,7 +61,14 @@ export class WebSocketEffects {
           obs.complete();
         });
         this.socket.addEventListener('message', message => {
-          // TODO: Convert message
+          const data = JSON.parse(message.data);
+          if ('event' in data) {
+            // event
+            obs.next(new WebSocketActions.Event(data));
+          } else if ('nonce' in data) {
+            // response
+            obs.next(new WebSocketActions.Response(data));
+          }
         });
       });
     })

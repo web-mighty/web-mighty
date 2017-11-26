@@ -185,6 +185,66 @@ describe('WebSocketEffects', () => {
       expect(errorFound).toBeTruthy();
       expect(closeFound).toBeTruthy();
     }));
+
+    it('should fire Event if it received an event', fakeAsync(() => {
+      const ev = {
+        event: 'room-join',
+        data: {
+          player: 'foo'
+        },
+      };
+
+      actions = new ReplaySubject(1);
+      actions.next(
+        new WebSocketActions.Connect()
+      );
+      let found = false;
+      effects.connect$.subscribe((action: WebSocketActions.Event) => {
+        if (action.type === WebSocketActions.EVENT) {
+          expect(action.payload as any).toEqual(ev);
+          found = true;
+        }
+      });
+      tick();
+
+      webSocket.accept();
+      tick();
+
+      webSocket.reply(JSON.stringify(ev));
+      tick();
+
+      expect(found).toBeTruthy();
+    }));
+
+    it('should fire Response if it received a nonce', fakeAsync(() => {
+      const nonce = 'asdf';
+      const resp = {
+        success: true,
+        result: {},
+      };
+
+      actions = new ReplaySubject(1);
+      actions.next(
+        new WebSocketActions.Connect()
+      );
+      let found = false;
+      effects.connect$.subscribe((action: WebSocketActions.Response) => {
+        if (action.type === WebSocketActions.RESPONSE) {
+          expect(action.nonce).toBe(nonce);
+          expect(action.response as any).toEqual(resp);
+          found = true;
+        }
+      });
+      tick();
+
+      webSocket.accept();
+      tick();
+
+      webSocket.reply(JSON.stringify({ nonce, ...resp }));
+      tick();
+
+      expect(found).toBeTruthy();
+    }));
   });
 
   describe('disconnect$', () => {
