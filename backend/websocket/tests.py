@@ -58,6 +58,33 @@ class MultiplexerTest(ChannelTestCase):
 
         self.assertEqual(cache.get('session:skystar'), session_cache)
 
+    def test_connection_force_login(self):
+        first_client = WSClient()
+        second_client = WSClient()
+
+        first_client.login(username='skystar', password='doge')
+        second_client.login(username='skystar', password='doge')
+
+        first_client.send_and_consume('websocket.connect', path='/api/websocket/')
+        session_cache = cache.get('session:skystar')
+        self.assertIsNotNone(session_cache)
+
+        second_client.send_and_consume('websocket.connect', path='/api/websocket/?force=true')
+        first_client.receive()
+
+        data = {
+            'text': json.dumps({'action': 'room-join', 'data': {}})
+        }
+
+        first_client.send_and_consume('websocket.receive', data, path='/api/websocket/')
+
+        response = first_client.receive()
+
+        self.assertIn('error', response)
+        self.assertEqual(response['error']['reason'], 'Not Authenticated')
+
+        self.assertNotEqual(cache.get('session:skystar'), session_cache)
+
     def test_receive_malformed_data(self):
         client = WSClient()
         client.login(username='skystar', password='doge')
