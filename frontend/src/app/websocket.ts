@@ -7,9 +7,14 @@ export class RoomJoinRequest {
     password?: string;
   }) {}
 }
+export class RoomLeaveRequest {
+  action = 'room-leave';
+  data = {};
+}
 
 export type Request
   = RoomJoinRequest
+  | RoomLeaveRequest
 ;
 
 export class RequestWithNonce {
@@ -24,7 +29,8 @@ export class RequestWithNonce {
   }
 }
 
-export interface ResponseError {
+export interface GenericError {
+  type: string;
   reason: string;
 }
 
@@ -36,7 +42,7 @@ export interface SuccessResponseWithNonce {
 export interface FailureResponseWithNonce {
   nonce: string;
   success: false;
-  error: ResponseError;
+  error: GenericError;
 }
 export type ResponseWithNonce
   = SuccessResponseWithNonce
@@ -49,7 +55,7 @@ export interface SuccessResponse<T> {
 }
 export interface FailureResponse {
   success: false;
-  error: ResponseError;
+  error: GenericError;
 }
 
 export type Response
@@ -57,6 +63,10 @@ export type Response
   | FailureResponse
 ;
 
+export interface ErrorEvent {
+  event: 'error';
+  data: GenericError;
+}
 export interface RoomJoinEvent {
   event: 'room-join';
   data: {
@@ -64,5 +74,6 @@ export interface RoomJoinEvent {
   };
 }
 export type Event
-  = RoomJoinEvent
+  = ErrorEvent
+  | RoomJoinEvent
 ;
