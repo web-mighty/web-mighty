@@ -1,5 +1,6 @@
 import { AppActions } from '../app-actions';
 import * as UserActions from '../actions/user';
+import { ROUTER_NAVIGATION, RouterNavigationAction } from '@ngrx/router-store';
 
 import { User } from '../../user';
 import { Profile } from '../../profile';
@@ -23,6 +24,8 @@ export function userReducer(
   action: AppActions
 ) {
   switch (action.type) {
+    case ROUTER_NAVIGATION:
+      return { ...state, currentError: null };
     case UserActions.SIGN_UP_START:
       return { ...state, currentError: null };
     case UserActions.SIGN_UP_DONE:
