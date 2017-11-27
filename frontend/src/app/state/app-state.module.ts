@@ -6,6 +6,8 @@ import { StoreModule } from '@ngrx/store';
 import { EffectsModule } from '@ngrx/effects';
 import { StoreRouterConnectingModule } from '@ngrx/router-store';
 
+import { WebSocketService } from './websocket.service';
+
 // Reducers
 import { reducers } from './reducer';
 
@@ -14,6 +16,7 @@ import { UserEffects } from './effects/user';
 import { RouterEffects } from './effects/router';
 import { ProfileEffects } from './effects/profile';
 import { RoomEffects } from './effects/room';
+import { WebSocketEffects } from './effects/websocket';
 
 @NgModule({
   imports: [
@@ -25,10 +28,14 @@ import { RoomEffects } from './effects/room';
       ProfileEffects,
       RouterEffects,
       RoomEffects,
+      WebSocketEffects,
     ]),
     StoreRouterConnectingModule,
   ],
   declarations: [],
+  providers: [
+    WebSocketService,
+  ],
   exports: [
     StoreModule,
     EffectsModule,

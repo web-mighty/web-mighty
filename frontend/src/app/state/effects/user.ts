@@ -16,6 +16,7 @@ import { User } from '../../user';
 import { State } from '../reducer';
 import * as RouterActions from '../actions/router';
 import * as UserActions from '../actions/user';
+import * as WebSocketActions from '../actions/websocket';
 
 // FIXME: Make effects communicate with backend
 @Injectable()
@@ -108,9 +109,12 @@ export class UserEffects {
   signOut$: Observable<Action> =
     this.actions$.ofType(UserActions.SIGN_OUT_START)
     .mergeMap(() =>
-      this.http.get('/api/signout/')
-      .mergeMap((response): Observable<Action> =>
-        Observable.of(new UserActions.SignOut.Done())
+      Observable.of(new WebSocketActions.Disconnect())
+      .concat(
+        this.http.get('/api/signout/')
+        .mergeMap((response): Observable<Action> =>
+          Observable.of(new UserActions.SignOut.Done())
+        )
       )
     );
 

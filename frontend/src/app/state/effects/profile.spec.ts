@@ -1,8 +1,9 @@
 import { TestBed, fakeAsync, tick, inject } from '@angular/core/testing';
+import { CommonModule } from '@angular/common';
+import { HttpModule } from '@angular/http';
 import { MockBackend } from '@angular/http/testing';
 import { RouterTestingModule } from '@angular/router/testing';
 import { provideMockActions } from '@ngrx/effects/testing';
-import { AppStateModule } from '../app-state.module';
 import { MockComponent, filterCallByAction } from '../../testing';
 
 import { ReplaySubject } from 'rxjs/ReplaySubject';
@@ -36,7 +37,8 @@ describe('ProfileEffects', () => {
         MockComponent,
       ],
       imports: [
-        AppStateModule,
+        CommonModule,
+        HttpModule,
         RouterTestingModule.withRoutes([
           { path: '', component: MockComponent },
           { path: 'sign_in', component: MockComponent },
@@ -51,11 +53,11 @@ describe('ProfileEffects', () => {
   });
 
   beforeEach(inject(
-    [Actions, Http, Store, XHRBackend],
-    (actions$: Actions, http: Http, store: Store<State>, _backend: MockBackend) => {
+    [Actions, Http, XHRBackend],
+    (actions$: Actions, http: Http, _backend: MockBackend) => {
       backend = _backend;
       backend.connections.subscribe(connection => lastConnection = connection);
-      effects = new ProfileEffects(actions$, http, store);
+      effects = new ProfileEffects(actions$, http);
     }
   ));
 

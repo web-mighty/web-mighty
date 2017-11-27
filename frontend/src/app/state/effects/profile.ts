@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Http, Headers } from '@angular/http';
-import { Store, Action } from '@ngrx/store';
+import { Action } from '@ngrx/store';
 import { Effect, Actions } from '@ngrx/effects';
 
 import 'rxjs/add/operator/map';
@@ -104,6 +104,5 @@ export class ProfileEffects {
   constructor(
     private actions$: Actions,
     private http: Http,
-    private store: Store<State>,
   ) {}
 }

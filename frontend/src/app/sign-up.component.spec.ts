@@ -1,9 +1,12 @@
 import { ComponentFixture, TestBed, async, inject } from '@angular/core/testing';
 import { RouterTestingModule } from '@angular/router/testing';
-import { AppStateModule } from './state/app-state.module';
+import { StoreModule } from '@ngrx/store';
 
 import { FormsModule } from '@angular/forms';
 import { APP_BASE_HREF } from '@angular/common';
+
+// Reducers
+import { userReducer } from './state/reducers/user';
 
 import { SignUpComponent } from './sign-up.component';
 
@@ -18,12 +21,11 @@ describe('SignUpComponent', () => {
       ],
       imports: [
         FormsModule,
-        RouterTestingModule.withRoutes([
-        ]),
-        AppStateModule,
+        StoreModule.forRoot({
+          user: userReducer,
+        }),
       ],
       providers: [
-        { provide: APP_BASE_HREF, useValue: '/' },
       ],
     }).compileComponents()
     .then(() => {
