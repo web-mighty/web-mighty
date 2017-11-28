@@ -274,7 +274,7 @@ class RoomLeaveTest(ChannelTestCase):
     def setUp(self):
         cache.clear()
 
-        for i in range(2):
+        for i in range(3):
             create_user(
                 username='skystar{}'.format(i + 1),
                 password='doge',
@@ -287,15 +287,7 @@ class RoomLeaveTest(ChannelTestCase):
             title='doge room',
             is_private=False,
             password='',
-            player_number=2
-        )
-
-        Room.objects.create(
-            room_id='room2',
-            title='doge room2',
-            is_private=True,
-            password=make_password('pass'),
-            player_number=2
+            player_number=3
         )
 
     def tearDown(self):
@@ -313,6 +305,11 @@ class RoomLeaveTest(ChannelTestCase):
         client2.login(username='skystar2', password='doge')
         client2.send_and_consume('websocket.connect', path='/api/websocket/')
         client2.receive()
+
+        client3 = WSClient()
+        client3.login(username='skystar3', password='doge')
+        client3.send_and_consume('websocket.connect', path='/api/websocket/')
+        client3.receive()
 
         data = {
             'room_id': 'room',
@@ -335,6 +332,15 @@ class RoomLeaveTest(ChannelTestCase):
         client2.receive()
         client1.receive()
 
+        client3.send_and_consume('websocket.receive', req, path='/api/websocket/')
+
+        room_join_consumer(self.get_next_message('room-join'))
+
+        client3.receive()
+        client3.receive()
+        client1.receive()
+        client2.receive()
+
         req = request('room-leave', {}, nonce='test')
         client1.send_and_consume('websocket.receive', req, path='/api/websocket/')
 
@@ -349,16 +355,33 @@ class RoomLeaveTest(ChannelTestCase):
         self.assertIsNone(player_room_cache)
 
         room_cache = cache.get('room:room')
-        self.assertEqual(len(room_cache['players']), 1)
+        self.assertEqual(len(room_cache['players']), 2)
 
         response = client2.receive()
+        client3.receive()
 
         self.assertEqual(response['event'], 'room-leave')
         self.assertEqual(response['data']['player'], 'skystar1')
         self.assertEqual(room_cache['players'][0]['username'], 'skystar2')
+        self.assertIsNotNone(cache.get('session:skystar1'))
+        self.assertIsNone(cache.get('player-room:skystar1'))
+
+        client2.send_and_consume('websocket.disconnect', path='/api/websocket')
+
+        room_leave_consumer(self.get_next_message('room-leave'))
+
+        room_cache = cache.get('room:room')
+
+        response = client3.receive()
+
+        self.assertEqual(response['event'], 'room-leave')
+        self.assertEqual(response['data']['player'], 'skystar2')
+        self.assertEqual(room_cache['players'][0]['username'], 'skystar3')
+        self.assertIsNone(cache.get('session:skystar2'))
+        self.assertIsNone(cache.get('player-room:skystar2'))
 
         req = request('room-leave', {}, nonce='test')
-        client2.send_and_consume('websocket.receive', req, path='/api/websocket/')
+        client3.send_and_consume('websocket.receive', req, path='/api/websocket/')
 
         room_leave_consumer(self.get_next_message('room-leave'))
 
@@ -366,6 +389,3 @@ class RoomLeaveTest(ChannelTestCase):
 
         self.assertIsNone(room_cache)
         self.assertFalse(Room.objects.filter(room_id='room').exists())
-
-    def test_room_leave_disconnected(self):
-        pass

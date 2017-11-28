@@ -121,7 +121,10 @@ def room_leave_consumer(message):
         reply_channel.send(
             response({}, nonce=nonce))
 
-    Channel('room-reset').send({'room_id': room_id})
+    # only when game is playing
+    if room_cache['is_playing']:
+        Channel('room-reset').send({'room_id': room_id})
+
     Group(room_id).discard(reply_channel)
     Group(room_id).send(event('room-leave', event_data))
 
