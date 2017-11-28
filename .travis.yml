@@ -2,29 +2,9 @@ sudo: required
 
 matrix:
   include:
-    - language: python
-      python: 3.5
-      cache:
-        pip: true
-      install:
-        - pip install django coverage coveralls
-        - pip install -r $(pwd)/backend/requirements-dev.txt
-      before_script:
-        - export PROJECT_PATH=$(pwd)/backend/backend
-        - python3 util/secret-key-gen.py
-        - python3 $(pwd)/backend/manage.py makemigrations
-        - python3 $(pwd)/backend/manage.py migrate
-      script:
-        - cd backend
-        - flake8 --config ./flake8
-        - coverage run --branch --source="./api,./websocket" manage.py test
-        - cp .coverage ..
-        - cd ..
-      after_success:
-        - coveralls
-
     - language: node_js
       node_js: 8.8
+      env: TEST=FRONTEND_UNIT
       addons:
         apt:
           sources:
@@ -32,22 +12,29 @@ matrix:
           packages:
             - google-chrome-stable
       cache:
-        npm: true
         directories:
           - frontend/node_modules
-      before_install:
-        - export CHROME_BIN=/usr/bin/google-chrome
-        - export DISPLAY=:99.0
-        - sh -e /etc/init.d/xvfb start
-        - cd frontend
-      install:
-        - npm install
-        - npm install coveralls
-      script:
-        - npm run lint
-        - npm run test -- --code-coverage --watch false
-        - npm run e2e
-      after_success:
-        - cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js ..
-      after_script:
-        - cd ..
+    - language: node_js
+      node_js: 8.8
+      env: TEST=INTEGRATION
+      addons:
+        apt:
+          sources:
+            - google-chrome
+          packages:
+            - google-chrome-stable
+      cache:
+        pip: true
+        directories:
+          - frontend/node_modules
+    - language: python
+      python: 3.5
+      env: TEST=BACKEND_UNIT
+      cache:
+        pip: true
+
+before_install: ./util/ci.sh before_install
+install: ./util/ci.sh install
+before_script: ./util/ci.sh before_script
+script: ./util/ci.sh script
+after_success: ./util/ci.sh after_success
