@@ -1,19 +1,32 @@
-<div *ngIf="verifying | async">
-  Verifying current session. Please wait...
+<div class="mdl-grid">
+  <div class="mdl-cell mdl-cell--3-col"></div>
+  <div class="mdl-cell mdl-cell--6-col">
+    <h3 style="display: inline">Sign in</h3>
+    <button class="sign-up-button mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent" (click)="gotoSignUp()" style="float: right">
+      Sign up
+    </button>
+  </div>
 </div>
-<div *ngIf="!(verifying | async)">
-  <div>Sign in</div>
-  <button (click)="gotoSignUp()" class="sign-up-button">Sign up</button>
-  <form>
-    <div>
-      <label>Username</label>
-      <input [(ngModel)]="username" name="username" type="text">
+<div class="mdl-grid">
+  <div class="mdl-cell mdl-cell--3-col"></div>
+  <div class="mdl-cell mdl-cell--6-col">
+    <div *ngIf="verifying | async">
+      <h3>Verifying current session. Please wait...</h3>
     </div>
-    <div>
-      <label>Password</label>
-      <input [(ngModel)]="password" name="password" type="password">
+    <div *ngIf="!(verifying | async)">
+      <form>
+        <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+          <label class="mdl-textfield__label" for="username">Username</label>
+          <input class="mdl-textfield__input" [(ngModel)]="username" name="username" type="text">
+        </div>
+        <br>
+        <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+          <label class="mdl-textfield__label" for="password">Password</label>
+          <input class="mdl-textfield__input" [(ngModel)]="password" name="password" type="password">
+        </div>
+        <button (click)="signIn()" class="sign-in-button">Sign in</button>
+        <div *ngIf="error | async">{{error | async}}</div>
+      </form>
     </div>
-    <button (click)="signIn()" class="sign-in-button">Sign in</button>
-    <div *ngIf="error | async">{{error | async}}</div>
-  </form>
+  </div>
 </div>

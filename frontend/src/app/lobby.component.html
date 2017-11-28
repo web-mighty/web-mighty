@@ -1,21 +1,51 @@
-<button (click)="gotoCreateGame()">New Game</button>
-<button (click)="gotoHallOfFame()">Hall of Fame</button>
-<p>Game List</p>
-<div *ngIf="loading | async">Loading...</div>
-<table>
-  <tr>
-    <th>Title</th>
-    <th>Private</th>
-  </tr>
-  <tr *ngFor="let room of roomList | async">
-    <td>{{room.player_number}}</td>
-    <td>{{room.title}}</td>
-    <td>
-      <img *ngIf="room.is_private" src={{lockImgPath}} height="40" width="40">
-    </td>
-    <td>
-      <button (click)="joinRoom(room.room_id)">Join</button>
-    </td>
-  </tr>
-</table>
-<div *ngIf="error | async">{{error | async}}</div>
+<div class="mdl-grid">
+  <div class="mdl-layout-spacer"></div>
+  <div class="mdl-cell mdl-cell--6-col">
+    <button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent" (click)="gotoCreateGame()" style="float: right">
+      <i class="material-icons">add</i>
+      New Game
+    </button>
+    <div *ngIf="loading | async">Loading...</div>
+  </div>
+  <div class="mdl-layout-spacer"></div>
+</div>
+<div class="mdl-grid">
+  <div class="mdl-cell mdl-cell--3-col">
+    <div *ngIf="error | async">{{error | async}}</div>
+  </div>
+  <table class="mdl-data-table mdl-js-data-table mdl-cell mdl-cell--6-col">
+    <thead>
+      <tr>
+        <th class="mdl-data-table__cell--non-numeric">Title</th>
+        <th class="mdl-data-table__cell--non-numeric">Private</th>
+        <th class="mdl-data-table__cell--non-numeric"></th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let room of roomList | async">
+        <td class="mdl-data-table__cell--non-numeric">{{room.title}}</td>
+        <td class="mdl-data-table__cell--non-numeric">
+          <img *ngIf="room.is_private" src={{lockImgPath}} height="40" width="40">
+        </td>
+        <td class="mdl-data-table__cell--non-numeric">
+          <button (click)="joinRoom(room.id)">Join</button>
+        </td>
+      </tr>
+    <tbody>
+  </table>
+  <div class="mdl-cell mdl-cell--3-col">
+    <div class="mdl-card mdl-shadow--2dp">
+      <div class="mdl-card__title">
+        <h2 class="mdl-card__title-text">Hall of Fame</h2>
+      </div>
+      <div class="mdl-card__supporting-text">
+        Standing in the hall of fame
+        <br>
+        And the world's gonna know your name
+      </div>
+      <div class="mdl-card__actions mdl-card--border">
+        <button class="mdl-button mdl-js-button mdl-button--accent" (click)="gotoHallOfFame()">View Rankings</button>
+      </div>
+    </div>
+  </div>
+</div>
