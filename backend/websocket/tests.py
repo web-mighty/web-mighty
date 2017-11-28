@@ -216,6 +216,89 @@ class RoomJoinTest(ChannelTestCase):
         self.assertEqual(len(room_cache['players']), 1)
         self.assertEqual(room_cache['players'][0]['username'], 'skystar1')
 
+    def test_room_join_with_password(self):
+        client = WSClient()
+        client.login(username='skystar1', password='doge')
+        client.send_and_consume('websocket.connect', path='/api/websocket/')
+        client.receive()
+
+        data = {
+            'room_id': 'room2',
+            'password': 'pass'
+        }
+
+        req = request('room-join', data, nonce='test')
+
+        client.send_and_consume('websocket.receive', req, path='/api/websocket/')
+
+        room_join_consumer(self.get_next_message('room-join'))
+
+        response = client.receive()
+
+        room_cache = cache.get('room:room2')
+        player_room_cache = cache.get('player-room:skystar1')
+
+        self.assertTrue(response['success'])
+
+        result = response['result']
+
+        self.assertEqual(result['room_id'], 'room2')
+        self.assertEqual(result['room_id'], player_room_cache)
+        self.assertEqual(len(room_cache['players']), 1)
+        self.assertEqual(room_cache['players'][0]['username'], 'skystar1')
+
+    def test_room_join_with_wrong_password(self):
+        client = WSClient()
+        client.login(username='skystar1', password='doge')
+        client.send_and_consume('websocket.connect', path='/api/websocket/')
+        client.receive()
+
+        data = {
+            'room_id': 'room2',
+            'password': 'not pass'
+        }
+
+        req = request('room-join', data, nonce='test')
+
+        client.send_and_consume('websocket.receive', req, path='/api/websocket/')
+
+        room_join_consumer(self.get_next_message('room-join'))
+
+        response = client.receive()
+
+        room_cache = cache.get('room:room2')
+        player_room_cache = cache.get('player-room:skystar1')
+
+        self.assertFalse(response['success'])
+        self.assertEqual(response['error']['reason'], 'Password mismatch')
+
+        self.assertIsNone(player_room_cache)
+        self.assertEqual(len(room_cache['players']), 0)
+
+    def test_room_join_with_wrong_room_id(self):
+        client = WSClient()
+        client.login(username='skystar1', password='doge')
+        client.send_and_consume('websocket.connect', path='/api/websocket/')
+        client.receive()
+
+        data = {
+            'room_id': 'room3',
+        }
+
+        req = request('room-join', data, nonce='test')
+
+        client.send_and_consume('websocket.receive', req, path='/api/websocket/')
+
+        room_join_consumer(self.get_next_message('room-join'))
+
+        response = client.receive()
+
+        player_room_cache = cache.get('player-room:skystar1')
+
+        self.assertFalse(response['success'])
+        self.assertEqual(response['error']['reason'], 'Room does not exists')
+        self.assertIsNone(player_room_cache)
+
     def test_room_join_broadcast(self):
         client1 = WSClient()
         client1.login(username='skystar1', password='doge')
