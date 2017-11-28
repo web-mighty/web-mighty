@@ -2,6 +2,7 @@ from django.http import HttpResponse, JsonResponse
 from django.http import HttpResponseNotAllowed
 from django.http import HttpResponseBadRequest
 from django.contrib.auth import authenticate, login, logout
+from django.views.decorators.csrf import ensure_csrf_cookie
 from .models import create_user, User, Profile, GameHistory
 import json
 
@@ -63,6 +64,7 @@ def sign_out(request):
         return HttpResponseNotAllowed(['GET'])
 
 
+@ensure_csrf_cookie
 def verify_session(request):
     if request.method == 'GET':
         if request.user.is_authenticated:
