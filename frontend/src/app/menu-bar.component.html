@@ -1,6 +1,5 @@
 <div (click)="gotoLobby()" style="cursor: pointer">
-  <img src={{logoPath}} height="40" width="40">
-  <span>Web Mighty</span>
+  <img src={{logoPath}} height="100" width="250">
 </div>
 <div *ngIf="!(signedIn | async)">
   <button (click)="gotoSignIn()">Sign in</button>
