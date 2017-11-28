@@ -4,6 +4,7 @@ from websocket.consumers.room_consumers import room_join_consumer
 from websocket.consumers.room_consumers import room_leave_consumer
 from websocket.consumers.room_consumers import room_ready_consumer
 from websocket.consumers.room_consumers import room_start_consumer
+from websocket.consumers.room_consumers import room_reset_consumer
 from api.models import create_user
 from api.models import Room
 from django.contrib.auth.models import User
@@ -679,3 +680,104 @@ class RoomStartTest(ChannelTestCase):
         room_cache = cache.get('room:room')
 
         self.assertTrue(room_cache['is_playing'])
+
+
+class RoomResetTest(ChannelTestCase):
+    def setUp(self):
+        cache.clear()
+
+        for i in range(2):
+            create_user(
+                username='skystar{}'.format(i + 1),
+                password='doge',
+                nickname='usezmap',
+                email='asdf@asdf.com'
+            )
+
+        Room.objects.create(
+            room_id='room',
+            title='doge room',
+            is_private=False,
+            password='',
+            player_number=2
+        )
+
+    def tearDown(self):
+        users = User.objects.all()
+        for user in users:
+            os.remove(user.profile.avatar.path)
+
+    def test_room_reset(self):
+        client1 = WSClient()
+        client1.login(username='skystar1', password='doge')
+        client1.send_and_consume('websocket.connect', path='/api/websocket/')
+        client1.receive()
+
+        client2 = WSClient()
+        client2.login(username='skystar2', password='doge')
+        client2.send_and_consume('websocket.connect', path='/api/websocket/')
+        client2.receive()
+
+        data = {
+            'room_id': 'room',
+        }
+
+        req = request('room-join', data, nonce='test')
+
+        client1.send_and_consume('websocket.receive', req, path='/api/websocket/')
+
+        room_join_consumer(self.get_next_message('room-join'))
+
+        client1.receive()
+        client1.receive()
+
+        req = request('room-join', data, nonce='test')
+        client2.send_and_consume('websocket.receive', req, path='/api/websocket/')
+
+        room_join_consumer(self.get_next_message('room-join'))
+
+        client2.receive()
+        client2.receive()
+        client1.receive()
+
+        room_cache = cache.get('room:room')
+        room_cache['is_playing'] = True
+        cache.set('room:room', room_cache)
+
+        req = request('room-leave', {}, nonce='test')
+        client2.send_and_consume('websocket.receive', req, path='/api/websocket/')
+
+        room_leave_consumer(self.get_next_message('room-leave'))
+
+        response = client1.receive()
+
+        self.assertEqual(response['event'], 'room-leave')
+        self.assertEqual(response['data']['player'], 'skystar2')
+
+        room_reset_consumer(self.get_next_message('room-reset'))
+
+        response = client1.receive()
+
+        self.assertEqual(response['event'], 'room-reset')
+        players = response['data']['players']
+        self.assertEqual(players[0]['username'], 'skystar1')
+
+        room_cache = cache.get('room:room')
+
+        new_room_data = {
+            'room_id': 'room',
+            'players': players,
+            'options': {
+                'player_number': 2,
+            },
+            'state': {
+                'round': 0,
+                'turn': 0,
+                'giruda': '',
+                'joker_call': False,
+                'joker_suit': '',
+                'table_cards': [],
+            },
+        }
+
+        self.assertEqual(room_cache, new_room_data)
