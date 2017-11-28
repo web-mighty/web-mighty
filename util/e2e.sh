@@ -15,7 +15,7 @@ echo "*** Angular exit code: $ANGULAR_EXIT_CODE"
 cd ..
 
 echo -n "*** Stopping Django server..."
-kill -s SIGTERM $DJANGO_PID
+pkill --signal SIGTERM -P $DJANGO_PID
 wait $DJANGO_PID
 echo " Done"
 
