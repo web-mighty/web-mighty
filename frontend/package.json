@@ -8,7 +8,7 @@
     "build": "ng build",
     "test": "ng test",
     "lint": "tslint src/**/*.ts e2e/**/*.ts",
-    "e2e": "ng e2e"
+    "e2e": "ng e2e --proxy-config proxy.conf.json"
   },
   "private": true,
   "dependencies": {
