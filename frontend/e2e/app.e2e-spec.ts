@@ -6,4 +6,9 @@ describe('frontend App', () => {
   beforeEach(() => {
     page = new AppPage();
   });
+
+  it('should display logo', () => {
+    page.navigateTo('/');
+    expect(page.getLogoUrl()).toMatch(/\/assets\/img\/logo.svg$/);
+  });
 });
