@@ -223,8 +223,12 @@ class RoomJoinTest(ChannelTestCase):
         client2 = WSClient()
         client2.login(username='skystar2', password='doge')
         client2.send_and_consume('websocket.connect', path='/api/websocket/')
+        client3 = WSClient()
+        client3.login(username='skystar3', password='doge')
+        client3.send_and_consume('websocket.connect', path='/api/websocket/')
         client1.receive()
         client2.receive()
+        client3.receive()
 
         data = {
             'room_id': 'room',
@@ -258,7 +262,12 @@ class RoomJoinTest(ChannelTestCase):
 
         self.assertEqual(result['player'], 'skystar2')
 
-        # TODO: full room
+        client3.send_and_consume('websocket.receive', req, path='/api/websocket/')
+        room_join_consumer(self.get_next_message('room-join'))
+
+        response = client3.receive()
+        self.assertFalse(response['success'])
+        self.assertEqual(response['error']['reason'], 'Room is full')
 
 
 class RoomLeaveTest(ChannelTestCase):
