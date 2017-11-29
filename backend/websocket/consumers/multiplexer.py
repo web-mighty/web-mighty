@@ -12,6 +12,7 @@ available_channels = [
     'room-leave',
     'room-ready',
     'room-start',
+    'room-reset',
     'gameplay-bid',
     'gameplay-deal-miss',
     'gameplay-friend-select',
@@ -23,6 +24,7 @@ multiplexer_routings = [
     route('room-leave', 'websocket.consumers.room_consumers.room_leave_consumer'),
     route('room-ready', 'websocket.consumers.room_consumers.room_ready_consumer'),
     route('room-start', 'websocket.consumers.room_consumers.room_start_consumer'),
+    route('room-reset', 'websocket.consumers.room_consumers.room_reset_consumer'),
     route('gameplay-bid', 'websocket.consumers.gameplay_consumers.gameplay_bid_consumer'),
     route('gameplay-deal-miss',
           'websocket.consumers.gameplay_consumers.gameplay_deal_miss_consumer'),
@@ -116,15 +118,29 @@ def websocket_receive(message):
             reply_error('Invalid action', nonce=data['nonce'], type='receive'))
         return
 
-    Channel(channel).send({'text': json.dumps(data['data'])})
+    data['data']['nonce'] = data['nonce']
+    data['data']['username'] = message.user.username
+    data['data']['reply'] = message.reply_channel.name
+    Channel(channel).send(data['data'])
 
 
 @channel_session_user
 def websocket_disconnect(message):
     if message.user.is_authenticated:
-        cache_key = 'session:' + message.user.username
-        session = cache.get(cache_key)
+        session_cache_key = 'session:' + message.user.username
+        session = cache.get(session_cache_key)
         if session == message.reply_channel.name:
-            cache.delete(cache_key)
-        # TODO: clear more cache about specific user
-        # TODO: broadcast disconnection event to user within same room
+            cache.delete(session_cache_key)
+
+        player_room_cache_key = 'player-room:' + message.user.username
+        room_id = cache.get(player_room_cache_key)
+
+        if room_id is not None:
+            data = {
+                'nonce': '',
+                'username': message.user.username,
+                'disconnected': True,
+                'reply': message.reply_channel.name,
+            }
+
+            Channel('room-leave').send(data)

@@ -16,6 +16,9 @@ class Room(models.Model):
     password = models.CharField(max_length=120)
     created = models.DateTimeField(auto_now=True)
 
+    # Options
+    player_number = models.SmallIntegerField(default=0)
+
     class Meta:
         ordering = ('created',)
 
@@ -23,9 +26,22 @@ class Room(models.Model):
     @receiver(pre_save, sender='api.Room')
     def room_save_handler(sender, instance, **kwargs):
         room_id = instance.room_id
+        player_number = instance.player_number
         room_data = {
             'room_id': room_id,
-            'users': [],
+            'is_playing': False,
+            'players': [],
+            'options': {
+                'player_number': player_number,
+            },
+            'state': {
+                'round': 0,
+                'turn': 0,
+                'giruda': '',
+                'joker_call': False,
+                'joker_suit': '',
+                'table_cards': [],
+            },
         }
         cache.set('room:' + room_id, room_data)
 
