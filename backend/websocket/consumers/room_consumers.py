@@ -65,17 +65,25 @@ def room_join_consumer(message):
         ready=False,
     )
 
-    response_data = {
-        'room_id': room_id,
-        'title': room.title,
-        'players': room_cache['players'],
-    }
-
     event_data = {
         'player': username,
     }
 
     room_cache['players'].append(player_data)
+
+    response_players = []
+
+    for player in room_cache['players']:
+        response_players.append({
+            'username': player['username'],
+            'ready': player['ready'],
+        })
+
+    response_data = {
+        'room_id': room_id,
+        'title': room.title,
+        'players': response_players,
+    }
 
     cache.set(room_cache_key, room_cache)
     cache.set(player_room_cache_key, room_id)
@@ -256,6 +264,9 @@ def room_start_consumer(message):
 
     reply_channel.send(response({}, nonce=nonce))
     Group(room_id).send(event('room-start', {}))
+
+    # yeah, start it!
+    Channel('gameplay-start').send({'room_id': room_id})
 
 
 def room_reset_consumer(message):

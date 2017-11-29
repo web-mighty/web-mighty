@@ -66,24 +66,14 @@ def reset_room_data(room_data):
     for player in room_data['players']:
         player['ready'] = False
 
-    new_room_data = {
-        'room_id': room_data['room_id'],
-        'is_playing': False,
-        'players': room_data['players'],
-        'options': {
-            'player_number': room_data['options']['player_number'],
-        },
-        'state': {
-            'round': 0,
-            'turn': 0,
-            'giruda': '',
-            'joker_call': False,
-            'joker_suit': '',
-            'table_cards': [],
-        },
-    }
+    new_room_data_ = new_room_data(
+        room_id=room_data['room_id'],
+        player_number=room_data['options']['player_number'],
+    )
 
-    return new_room_data
+    new_room_data_['players'] = room_data['players']
+
+    return new_room_data_
 
 
 def new_room_data(**kwargs):
@@ -97,10 +87,19 @@ def new_room_data(**kwargs):
         'state': {
             'round': 0,
             'turn': 0,
+            'president': '',
+            'friend': '',
+            'bid_score': 0,
+            'current_bid': {
+                'bidder': '',
+                'score': 0,
+                'giruda': '',
+            },
             'giruda': '',
             'joker_call': False,
             'joker_suit': '',
             'table_cards': [],
+            'floor_cards': [],
         },
     }
 

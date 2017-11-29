@@ -77,6 +77,7 @@ class RoomJoinTest(ChannelTestCase):
         self.assertEqual(result['room_id'], player_room_cache)
         self.assertEqual(len(room_cache['players']), 1)
         self.assertEqual(room_cache['players'][0]['username'], 'skystar1')
+        self.assertNotIn('reply', result['players'][0])
 
     def test_room_join_with_password(self):
         client = WSClient()
