@@ -1,32 +1,33 @@
-<div class="mdl-grid">
-  <div class="mdl-cell mdl-cell--3-col"></div>
-  <div class="mdl-cell mdl-cell--6-col">
-    <h3 style="display: inline">Sign in</h3>
-    <button class="sign-up-button mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent" (click)="gotoSignUp()" style="float: right">
-      Sign up
-    </button>
+<div class="mdl-card mdl-shadow--3dp">
+  <div class="mdl-card__title">
+    <h2 class="mdl-card__title-text">Sign in</h2>
   </div>
-</div>
-<div class="mdl-grid">
-  <div class="mdl-cell mdl-cell--3-col"></div>
-  <div class="mdl-cell mdl-cell--6-col">
+  <div class="mdl-card__supporting-text">
     <div *ngIf="verifying | async">
-      <h3>Verifying current session. Please wait...</h3>
+      <div class="mdl-spinner mdl-spinner--single-color mdl-js-spinner is-active"></div>
     </div>
     <div *ngIf="!(verifying | async)">
       <form>
         <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
-          <label class="mdl-textfield__label" for="username">Username</label>
+          <label class="mdl-textfield__label">Username</label>
           <input class="mdl-textfield__input" [(ngModel)]="username" name="username" type="text">
         </div>
-        <br>
         <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
-          <label class="mdl-textfield__label" for="password">Password</label>
+          <label class="mdl-textfield__label">Password</label>
           <input class="mdl-textfield__input" [(ngModel)]="password" name="password" type="password">
         </div>
-        <button (click)="signIn()" class="sign-in-button">Sign in</button>
-        <div *ngIf="error | async">{{error | async}}</div>
       </form>
+      <div class="mdl-color-text--red" *ngIf="error | async">{{error | async}}</div>
     </div>
+  </div>
+  <div class="mdl-card__actions mdl-card--border">
+    <button class="sign-in-button mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent" (click)="signIn()">
+      Submit
+    </button>
+  </div>
+  <div class="mdl-card__menu">
+    <button class="sign-up-button mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect" (click)="gotoSignUp()">
+      Sign up
+    </button>
   </div>
 </div>
