@@ -46,6 +46,9 @@ class ApiRoomListTest(TestCase):
 
         post_data = {
             'title': 'doge room',
+            'options': {
+                'player_number': 5,
+            }
         }
 
         response = client.post(
@@ -78,6 +81,9 @@ class ApiRoomListTest(TestCase):
         post_data = {
             'title': 'doge room',
             'password': 'dogecoin',
+            'options': {
+                'player_number': 5,
+            }
         }
 
         response = client.post(
