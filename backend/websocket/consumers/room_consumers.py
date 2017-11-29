@@ -2,7 +2,8 @@ from channels import Channel, Group
 from django.core.cache import cache
 from django.contrib.auth.hashers import check_password
 from api.models import Room
-from .consumer_utils import reply_error, response, event
+from .consumer_utils import reply_error, response, event, reset_room_data
+from .consumer_utils import new_player_data
 
 
 def room_join_consumer(message):
@@ -58,10 +59,11 @@ def room_join_consumer(message):
             reply_error('Room is full', nonce=nonce, type='room'))
         return
 
-    player_data = {
-        'username': username,
-        'ready': False,
-    }
+    player_data = new_player_data(
+        username=username,
+        reply=reply_channel.name,
+        ready=False,
+    )
 
     response_data = {
         'room_id': room_id,
@@ -269,24 +271,7 @@ def room_reset_consumer(message):
     if len(room_cache['players']) == 0:
         return
 
-    for player in room_cache['players']:
-        player['ready'] = False
-
-    new_room_data = {
-        'room_id': room_id,
-        'players': room_cache['players'],
-        'options': {
-            'player_number': room_cache['options']['player_number'],
-        },
-        'state': {
-            'round': 0,
-            'turn': 0,
-            'giruda': '',
-            'joker_call': False,
-            'joker_suit': '',
-            'table_cards': [],
-        },
-    }
+    new_room_data = reset_room_data(room_cache)
 
     cache.set(room_cache_key, new_room_data)
 

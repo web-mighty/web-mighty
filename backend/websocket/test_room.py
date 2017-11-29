@@ -10,6 +10,7 @@ from django.contrib.auth.models import User
 from django.core.cache import cache
 from api.models import Room
 from api.models import create_user
+from websocket.consumers.consumer_utils import reset_room_data
 
 import os
 
@@ -622,20 +623,6 @@ class RoomResetTest(ChannelTestCase):
 
         room_cache = cache.get('room:room')
 
-        new_room_data = {
-            'room_id': 'room',
-            'players': players,
-            'options': {
-                'player_number': 2,
-            },
-            'state': {
-                'round': 0,
-                'turn': 0,
-                'giruda': '',
-                'joker_call': False,
-                'joker_suit': '',
-                'table_cards': [],
-            },
-        }
+        new_room_data_ = reset_room_data(room_cache)
 
-        self.assertEqual(room_cache, new_room_data)
+        self.assertEqual(room_cache, new_room_data_)
