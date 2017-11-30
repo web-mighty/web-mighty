@@ -4,5 +4,10 @@
     "secure": false,
     "changeOrigin": true,
     "ws": true
+  },
+  "/media": {
+    "target": "http://localhost:8000",
+    "secure": false,
+    "changeOrigin": true
   }
 }
