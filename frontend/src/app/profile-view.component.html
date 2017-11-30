@@ -1,6 +1,10 @@
 <div *ngIf="profile">
-  <div>Profile</div>
-
-  <label>Nickname: </label> <span>{{nickname}}</span>
+  <div class="mdl-list">
+    <div class="mdl-list__item">
+      <span class="mdl-list__item-primary-content">
+        <img class="mdl-list__item-avatar" [src]="profile.avatar" style="border: 2px solid grey; box-sizing: border-box;">
+        <span>{{nickname}}</span>
+      </span>
+    </div>
 </div>
 <div *ngIf="error">{{error}}</div>

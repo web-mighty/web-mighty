@@ -1,7 +1,13 @@
-.logo-header {
+.logo-header-large {
     padding: 0 0 0 0;
     justify-content: center;
     background-color: #FFFFFF;
     min-height: 130px;
+}
+.logo-header-small {
+    padding: 0 20px 0 40px;
+    justify-content: center;
+    background-color: #FFFFFF;
+    min-height: 80px;
 }
  

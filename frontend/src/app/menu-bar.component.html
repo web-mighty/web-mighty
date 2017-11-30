@@ -1,28 +1,60 @@
-<div class="mdl-layout__header-row logo-header">
-  <div class="mdl-layout-spacer"></div>
-  <!-- Logo -->
-  <span class="mdl-layout-title" (click)="gotoLobby()" style="cursor: pointer">
-    <img src={{logoPath}} height="100em">
-  </span>
-  <div class="mdl-layout-spacer"></div>
-</div>
-<div class="mdl-layout__header-row">
-  <!-- Spacer -->
-  <div class="mdl-layout-spacer"></div>
-
-  <!-- Buttons -->
-  <div *ngIf="!(signedIn | async)">
-    <nav class="mdl-navigation">
-      <span class="mdl-navigation__link" (click)="gotoSignIn()" style="cursor: pointer">Sign in</span>
-    </nav>
+<div class="mdl-layout--large-screen-only">
+  <div class="mdl-layout__header-row logo-header-large">
+    <div class="mdl-layout-spacer"></div>
+    <!-- Logo -->
+    <span class="mdl-layout-title" (click)="gotoLobby()" style="cursor: pointer">
+      <img src={{logoPath}} height="100em">
+    </span>
+    <div class="mdl-layout-spacer"></div>
   </div>
-  <div *ngIf="signedIn | async">
-    <nav class="mdl-navigation">
-      <span class="mdl-navigation__link" (click)="gotoProfile()" style="cursor: pointer">
-        <i class="material-icons">account_circle</i>
-        {{username | async}}
-      </span>
-      <span class="mdl-navigation__link" (click)="signOut()" style="cursor: pointer">Sign out</span>
-    </nav>
+
+  <div class="mdl-layout__header-row">
+    <!-- Spacer -->
+    <div class="mdl-layout-spacer"></div>
+
+    <!-- Buttons -->
+    <div *ngIf="!(signedIn | async)">
+      <nav class="mdl-navigation">
+        <span class="mdl-navigation__link" (click)="gotoSignIn()" style="cursor: pointer">Sign in</span>
+      </nav>
+    </div>
+    <div *ngIf="signedIn | async">
+      <nav class="mdl-navigation">
+        <span class="mdl-navigation__link" (click)="gotoProfile()" style="cursor: pointer">
+          <i class="material-icons">account_circle</i>
+          {{username | async}}
+        </span>
+        <span class="mdl-navigation__link" (click)="signOut()" style="cursor: pointer">Sign out</span>
+      </nav>
+    </div>
+  </div>
+</div>
+
+<div class="mdl-layout--small-screen-only">
+  <div class="mdl-layout__header-row logo-header-small">
+    <!-- Logo -->
+    <span class="mdl-layout-title" (click)="gotoLobby()" style="cursor: pointer">
+      <img src={{logoPath}} height="50em">
+    </span>
+    <div class="mdl-layout-spacer"></div>
+
+    <!-- Buttons -->
+      <div *ngIf="!(signedIn | async)">
+        <nav class="mdl-navigation">
+          <span class="mdl-navigation__link mdl-color-text--accent" (click)="gotoSignIn()" style="cursor: pointer">Sign in</span>
+        </nav>
+      </div>
+      <div *ngIf="signedIn | async">
+        <nav class="mdl-navigation">
+          
+          <!-- TODO -->
+
+          <span class="mdl-navigation__link mdl-color-text--accent" (click)="gotoProfile()" style="display: inline; white-space: nowrap; overflow: hidden; width: 100px; text-overflow: ellipsis; cursor: pointer">
+            <i class="material-icons">account_circle</i>
+            <span >{{username | async}}</span>
+          </span>
+          <span class="mdl-navigation__link mdl-color-text--accent" (click)="signOut()" style="cursor: pointer">Sign out</span>
+        </nav>
+      </div>
   </div>
 </div>

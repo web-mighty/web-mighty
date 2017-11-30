@@ -1,6 +1,7 @@
 <div class="mdl-grid">
   <div class="mdl-layout-spacer"></div>
-  <div class="mdl-cell mdl-cell--6-col">
+  <div class="mdl-cell mdl-cell--6-col-desktop mdl-cell--8-col-tablet mdl-cell--4-col-phone">
+    <h4 class="mdl-color-text--red" *ngIf="error | async" style="display: inline">{{error | async}}</h4>
     <button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent" (click)="gotoCreateGame()" style="float: right">
       <i class="material-icons">add</i>
       New Game
@@ -10,31 +11,32 @@
   <div class="mdl-layout-spacer"></div>
 </div>
 <div class="mdl-grid">
-  <div class="mdl-cell mdl-cell--3-col">
-    <div *ngIf="error | async">{{error | async}}</div>
+  <div class="mdl-cell mdl-cell--3-col-desktop mdl-cell--hide-tablet mdl-cell--hide-phone">
   </div>
-  <table class="mdl-data-table mdl-js-data-table mdl-cell mdl-cell--6-col">
-    <thead>
-      <tr>
-        <th class="mdl-data-table__cell--non-numeric">Title</th>
-        <th class="mdl-data-table__cell--non-numeric">Private</th>
-        <th class="mdl-data-table__cell--non-numeric"></th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr *ngFor="let room of roomList | async">
-        <td class="mdl-data-table__cell--non-numeric">{{room.title}}</td>
-        <td class="mdl-data-table__cell--non-numeric">
-          <img *ngIf="room.is_private" src={{lockImgPath}} height="40" width="40">
-        </td>
-        <td class="mdl-data-table__cell--non-numeric">
-          <button (click)="joinRoom(room.id)">Join</button>
-        </td>
-      </tr>
-    <tbody>
-  </table>
-  <div class="mdl-cell mdl-cell--3-col">
-    <div class="mdl-card mdl-shadow--2dp">
+  <div class="mdl-cell mdl-cell--6-col-desktop mdl-cell--8-col-tablet mdl-cell--4-col-phone">
+    <table class="mdl-data-table mdl-js-data-table" style="width: 100%">
+      <thead>
+        <tr>
+          <th class="mdl-data-table__cell--non-numeric">Title</th>
+          <th class="mdl-data-table__cell--non-numeric">Private</th>
+          <th class="mdl-data-table__cell--non-numeric"></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let room of roomList | async">
+          <td class="mdl-data-table__cell--non-numeric">{{room.title}}</td>
+          <td class="mdl-data-table__cell--non-numeric">
+            <i class="material-icons">lock</i>
+          </td>
+          <td class="mdl-data-table__cell--non-numeric">
+            <button (click)="joinRoom(room.id)">Join</button>
+          </td>
+        </tr>
+      <tbody>
+    </table>
+  </div>
+  <div class="mdl-cell mdl-cell--3-col-desktop mdl-cell--hide-tablet mdl-cell--hide-phone">
+    <div class="mdl-card mdl-shadow--2dp" style="max-width: 100%">
       <div class="mdl-card__title">
         <h2 class="mdl-card__title-text">Hall of Fame</h2>
       </div>
