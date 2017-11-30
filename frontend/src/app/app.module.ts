@@ -19,6 +19,7 @@ import { AppStateModule } from './state/app-state.module';
 
 import { XSRFStrategy } from '@angular/http';
 import { xsrfFactory } from './xsrf-factory';
+import { MdlDirective } from './mdl.directive';
 
 @NgModule({
   declarations: [
@@ -32,6 +33,7 @@ import { xsrfFactory } from './xsrf-factory';
     GameRoomComponent,
     GameCreateComponent,
     HallOfFameComponent,
+    MdlDirective,
   ],
   imports: [
     BrowserModule,
