@@ -1,12 +1,12 @@
 import { AppActions } from '../app-actions';
 import * as WebSocketActions from '../actions/websocket';
 
-import { Request } from '../../websocket';
+import { RequestWithNonce } from '../../websocket';
 
 export interface WebSocketState {
   connecting: boolean;
   error: string | null;
-  requests: { [nonce: string]: Request };
+  requests: { [nonce: string]: RequestWithNonce };
 }
 const initialState: WebSocketState = {
   connecting: false,
@@ -37,7 +37,7 @@ export function websocketReducer(
       };
     case WebSocketActions.RESPONSE: {
       const requests = { ...state.requests };
-      delete requests[action.nonce];
+      delete requests[action.request.nonce];
       return {
         ...state,
         requests,

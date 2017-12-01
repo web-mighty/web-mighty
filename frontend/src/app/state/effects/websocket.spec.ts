@@ -228,8 +228,8 @@ describe('WebSocketEffects', () => {
         new WebSocketActions.Connect()
       );
       let found = false;
-      effects.connect$.subscribe((action: WebSocketActions.Response) => {
-        if (action.type === WebSocketActions.RESPONSE) {
+      effects.connect$.subscribe((action: WebSocketActions.RawResponse) => {
+        if (action.type === WebSocketActions.RAW_RESPONSE) {
           expect(action.nonce).toBe(nonce);
           expect(action.response as any).toEqual(resp);
           found = true;

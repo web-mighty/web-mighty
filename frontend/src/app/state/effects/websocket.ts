@@ -10,6 +10,7 @@ import 'rxjs/add/operator/mergeMap';
 import 'rxjs/add/operator/concat';
 import 'rxjs/add/operator/do';
 import 'rxjs/add/operator/delay';
+import 'rxjs/add/operator/withLatestFrom';
 import { Observable } from 'rxjs/Observable';
 import 'rxjs/add/observable/of';
 
@@ -62,7 +63,7 @@ export class WebSocketEffects {
             obs.next(new WebSocketActions.Event(data));
           } else if ('nonce' in data) {
             // response
-            obs.next(new WebSocketActions.Response(data));
+            obs.next(new WebSocketActions.RawResponse(data));
           }
         });
       });
@@ -85,6 +86,23 @@ export class WebSocketEffects {
         this.socket.send(JSON.stringify(action.payload));
       }
     });
+
+  @Effect()
+  rawResponse$ =
+    this.actions$.ofType(WebSocketActions.RAW_RESPONSE)
+    .withLatestFrom(
+      this.store.select('websocket', 'requests'),
+      (action: WebSocketActions.RawResponse, state) => {
+        const nonce = action.nonce;
+        if (nonce in state) {
+          const request = state[nonce];
+          return new WebSocketActions.Response(request, action.response);
+        }
+        return null;
+      }
+    )
+    .filter(x => x != null)
+    .do(console.log);
 
   @Effect()
   disconnected$: Observable<Action> =

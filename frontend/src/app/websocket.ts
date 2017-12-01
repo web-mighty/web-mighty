@@ -58,8 +58,19 @@ export interface FailureResponse {
   error: GenericError;
 }
 
+export interface Player {
+  username: string;
+  ready: boolean;
+}
+export interface Room {
+  room_id: string;
+  title: string;
+  players: Player[];
+}
+
 export type Response
   = SuccessResponse<{}>
+  | SuccessResponse<Room>
   | FailureResponse
 ;
 
