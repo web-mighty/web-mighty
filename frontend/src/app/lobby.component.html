@@ -7,6 +7,7 @@
     <th>Private</th>
   </tr>
   <tr *ngFor="let room of roomList | async">
+    <td>{{room.player_number}}</td>
     <td>{{room.title}}</td>
     <td>
       <img *ngIf="room.is_private" src={{lockImgPath}} height="40" width="40">

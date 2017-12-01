@@ -7,7 +7,7 @@ def get_room_list(page, count_per_page):
     rooms = Room.objects.all()
     start = (page - 1) * count_per_page
     end = page * count_per_page
-    selected_rooms = rooms[start:end].values('room_id', 'title', 'is_private')
+    selected_rooms = rooms[start:end].values('room_id', 'title', 'is_private', 'player_number')
 
     return list(selected_rooms)
 
