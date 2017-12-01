@@ -38,6 +38,9 @@ export namespace CreateRoom {
     constructor(public payload: {
       title: string;
       password?: string;
+      options: {
+        player_number: number;
+      };
     }) {}
   }
   export class Done implements Action {

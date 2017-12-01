@@ -8,6 +8,10 @@
     <label>Password(optional)</label>
     <input [(ngModel)]="password" name="password" type="password">
   </div>
+  <div>
+    <label>Player number</label>
+    <input [(ngModel)]="player_number" name="player_number" type="number">
+  </div>
   <button (click)="create()">Create</button>
   <div *ngIf="error | async">{{error | async}}</div>
 </form>
