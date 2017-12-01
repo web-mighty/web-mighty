@@ -18,7 +18,7 @@
             <label class="mdl-textfield__label">Password</label>
             <input class="mdl-textfield__input" [(ngModel)]="password" name="password" type="password">
           </div>
-          <div class="mdl-color-text--red" *ngIf="error | async">{{error | async}}</div>
+          <div class="error-message" *ngIf="error | async">{{error | async}}</div>
           <button class="sign-in-button mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent" (click)="signIn()">
             Submit
           </button>

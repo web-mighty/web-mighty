@@ -29,7 +29,7 @@
           <label class="mdl-textfield__label">Nickname (Set to username if empty)</label>
           <input class="mdl-textfield__input" [(ngModel)]="nickname" name="nickname" type="text">
         </div>
-        <div class="mdl-color-text--red" *ngIf="error | async">{{error | async}}</div>
+        <div class="error-message" *ngIf="error | async">{{error | async}}</div>
         <button class="sign-up-button mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent" (click)="signUp()">
           Submit
         </button>

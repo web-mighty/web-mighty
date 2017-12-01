@@ -1,10 +1,17 @@
-<div *ngIf="profile">
-  <div class="mdl-list">
-    <div class="mdl-list__item">
-      <span class="mdl-list__item-primary-content">
-        <img class="mdl-list__item-avatar" [src]="profile.avatar" style="border: 2px solid grey; box-sizing: border-box;">
-        <span>{{nickname}}</span>
-      </span>
+<div class="mdl-grid">
+  <div class="mdl-layout-spacer"></div>
+  <div class="mdl-cell mdl-cell--6-col-desktop mdl-cell--8-col-tablet mdl-cell--4-col-phone">
+    <h4 class="mdl-color-text--red" *ngIf="error | async" style="display: inline">{{error | async}}</h4>
+    <div *ngIf="profile">
+      <div class="mdl-list">
+        <div class="mdl-list__item">
+          <span class="mdl-list__item-primary-content">
+            <img class="mdl-list__item-avatar" [src]="profile.avatar" style="border: 2px solid grey; box-sizing: border-box;">
+            <span>{{nickname}}</span>
+          </span>
+        </div>
+      </div>
     </div>
+  </div>
+  <div class="mdl-layout-spacer"></div>
 </div>
-<div *ngIf="error">{{error}}</div>
