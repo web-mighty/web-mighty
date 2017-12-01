@@ -16,7 +16,12 @@ def create_room(**kwargs):
     room_id = str(uuid.uuid4())
     title = kwargs.get('title', None)
     password = kwargs.get('password', None)
-    player_number = kwargs.get('player_number', 0)
+
+    options = kwargs.get('options', {})
+    player_number = options.get('player_number', 0)
+
+    if player_number not in (5, 6):
+        return None
 
     if password is not None:
         password = make_password(password)
