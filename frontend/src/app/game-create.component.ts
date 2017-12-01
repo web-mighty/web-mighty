@@ -37,13 +37,17 @@ export class GameCreateComponent implements OnInit {
     if (this.password === '') {
       this.store.dispatch(new RoomActions.CreateRoom.Start({
         title: this.title,
-        player_number: this.player_number,
+        options: {
+          player_number: this.player_number,
+        }
       }));
     } else {
       this.store.dispatch(new RoomActions.CreateRoom.Start({
         title: this.title,
         password: this.password,
-        player_number: this.player_number,
+        options: {
+          player_number: this.player_number,
+        }
       }));
     }
   }
