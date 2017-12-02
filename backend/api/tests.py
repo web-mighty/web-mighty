@@ -5,6 +5,7 @@ from django.contrib.auth.hashers import check_password
 from django.core.cache import cache
 from django.urls import reverse
 from django.core.files import File
+from django.core import mail
 from backend.settings import BASE_DIR
 from io import BytesIO
 import json
@@ -271,8 +272,22 @@ class ApiSignUpTest(TestCase):
             content_type='application/json',
         )
 
+        user = User.objects.get(username='skystar')
+        self.assertFalse(user.is_active)
+        self.assertIsNotNone(cache.get('verify-account:skystar'))
+
+        self.assertEqual(len(mail.outbox), 1)
+
+        body = mail.outbox[0].body
+        link = body.split('href="')[1].split('"')[0]
+
+        client.get(
+            link,
+        )
+
+        self.assertIsNone(cache.get('verify-account:skystar'))
         user = authenticate(username='skystar', password='doge')
-        self.assertTrue(user)
+        self.assertIsNotNone(user)
 
     def test_sign_up_fail(self):
         client = Client()
