@@ -280,7 +280,7 @@ describe('WebSocketEffects', () => {
 
       actions.next(
         new WebSocketActions.Request(new WebSocketMessages.RoomJoinRequest({
-          'room-id': 'asdf',
+          'room_id': 'asdf',
         }))
       );
       effects.request$.subscribe(_ => {});
@@ -290,14 +290,14 @@ describe('WebSocketEffects', () => {
       const obj = JSON.parse(webSocket.received[0]);
       expect(typeof(obj.nonce)).toBe('string');
       expect(obj.action).toBe('room-join');
-      expect(obj.data).toEqual({ 'room-id': 'asdf' });
+      expect(obj.data).toEqual({ 'room_id': 'asdf' });
     }));
 
     it('should not send message if not connected', fakeAsync(() => {
       actions = new ReplaySubject(1);
       actions.next(
         new WebSocketActions.Request(new WebSocketMessages.RoomJoinRequest({
-          'room-id': 'asdf',
+          'room_id': 'asdf',
         }))
       );
       effects.request$.subscribe(_ => {});

@@ -16,6 +16,7 @@ import { Room } from '../../room';
 import { State } from '../reducer';
 import * as RoomActions from '../actions/room';
 import * as RouterActions from '../actions/router';
+import * as GameActions from '../actions/game';
 
 @Injectable()
 export class RoomEffects {
@@ -68,18 +69,19 @@ export class RoomEffects {
           return Observable.throw(response);
         }
         const room: Room = response.json();
-        return Observable.of(new RoomActions.CreateRoom.Done(room));
+        return Observable.of(
+          new GameActions.JoinRoom({
+            roomId: room.room_id,
+            password: params.password,
+          }) as Action,
+          new RoomActions.CreateRoom.Done(room) as Action
+        );
       }).catch((response): Observable<Action> =>
         Observable.of(
           new RoomActions.CreateRoom.Failed(RoomEffects.createRoomFailedMessage)
         )
       )
     );
-
-  @Effect()
-  createRoomDone$: Observable<Action> =
-    this.actions$.ofType(RoomActions.CREATE_ROOM_DONE)
-    .map(_ => new RouterActions.GoByUrl('lobby'));
 
   constructor(
     private actions$: Actions,

@@ -11,6 +11,7 @@ import { SignUpComponent } from './sign-up.component';
 import { SignInComponent } from './sign-in.component';
 import { ProfileViewComponent } from './profile-view.component';
 import { ProfileEditComponent } from './profile-edit.component';
+import { GameRoomComponent } from './game-room.component';
 import { GameCreateComponent } from './game-create.component';
 import { HallOfFameComponent } from './hall-of-fame.component';
 import { AppRoutingModule } from './app-routing.module';
@@ -28,6 +29,7 @@ import { xsrfFactory } from './xsrf-factory';
     SignInComponent,
     ProfileViewComponent,
     ProfileEditComponent,
+    GameRoomComponent,
     GameCreateComponent,
     HallOfFameComponent,
   ],

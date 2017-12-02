@@ -9,6 +9,7 @@ import { Room } from './room';
 // Actions
 import * as UserActions from './state/actions/user';
 import * as RoomActions from './state/actions/room';
+import * as GameActions from './state/actions/game';
 
 @Component({
   selector: 'app-lobby',
@@ -57,6 +58,10 @@ export class LobbyComponent implements OnInit {
   }
 
   joinRoom(id: string) {
+    // TODO: Ask password
+    this.store.dispatch(new GameActions.JoinRoom({
+      roomId: id,
+    }));
   }
 
 }

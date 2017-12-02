@@ -13,7 +13,7 @@ import 'rxjs/add/operator/delay';
 import 'rxjs/add/operator/withLatestFrom';
 import { Observable } from 'rxjs/Observable';
 import 'rxjs/add/observable/of';
-import 'rxjs/add/observable/never';
+import 'rxjs/add/observable/empty';
 
 import { State } from '../reducer';
 import * as UserActions from '../actions/user';
@@ -28,6 +28,7 @@ function relativeWebSocketUri(path: string): string {
   return `${wsProtocol}//${host}${path}`;
 }
 
+// Map generic WebSocket responses into specific game actions.
 function mapResponse(resp: WebSocketActions.Response): Action | null {
   switch (resp.request.action) {
     case 'room-join': {
@@ -95,12 +96,17 @@ export class WebSocketEffects {
       }
     });
 
-  @Effect({ dispatch: false })
+  @Effect()
   request$ =
     this.actions$.ofType(WebSocketActions.REQUEST)
-    .do((action: WebSocketActions.Request) => {
-      if (this.socket != null) {
+    .mergeMap((action: WebSocketActions.Request) => {
+      if (this.socket == null) {
+        return Observable.of(
+          new WebSocketActions.WebSocketError('Not connected')
+        );
+      } else {
         this.socket.send(JSON.stringify(action.payload));
+        return Observable.empty();
       }
     });
 
@@ -118,8 +124,7 @@ export class WebSocketEffects {
         return null;
       }
     )
-    .filter(x => x != null)
-    .do(console.log);
+    .filter(x => x != null);
 
   @Effect()
   response$ =
@@ -127,7 +132,7 @@ export class WebSocketEffects {
     .mergeMap((resp: WebSocketActions.Response) => {
       const result = mapResponse(resp);
       if (result === null) {
-        return Observable.never();
+        return Observable.empty();
       } else {
         return Observable.of(result);
       }
