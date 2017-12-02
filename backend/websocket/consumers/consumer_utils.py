@@ -1,4 +1,5 @@
 import json
+from .state import RoomState
 
 
 def _to_text(obj):
@@ -79,12 +80,12 @@ def reset_room_data(room_data):
 def new_room_data(**kwargs):
     new_room_data = {
         'room_id': kwargs['room_id'],
-        'is_playing': False,
         'players': [],
         'options': {
             'player_number': kwargs['player_number'],
         },
-        'state': {
+        'game': {
+            'state': RoomState.NOT_PLAYING,
             'round': 0,
             'turn': 0,
             'president': '',
@@ -100,6 +101,7 @@ def new_room_data(**kwargs):
             'joker_suit': '',
             'table_cards': [],
             'floor_cards': [],
+            'killed_player': {}
         },
     }
 
@@ -112,6 +114,7 @@ def new_player_data(**kwargs):
         'reply': kwargs['reply'],
         'ready': kwargs['ready'],
         'cards': [],
+        'bid': 0,  # 0 - not bid, 1 - bid, 2 - give up
     }
 
     return player_data
