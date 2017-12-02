@@ -39,7 +39,7 @@ export class WebSocketEffects {
     this.actions$.ofType(WebSocketActions.CONNECT)
     .switchMap((action: WebSocketActions.Connect) => {
       const { force } = action;
-      const path = `/api/websocket${force ? '?force=true' : ''}`;
+      const path = `/api/websocket/${force ? '?force=true' : ''}`;
       this.socket = this.webSocket.connect(relativeWebSocketUri(path));
       return new Observable(obs => {
         this.socket.addEventListener('open', () => {
