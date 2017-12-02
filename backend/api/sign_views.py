@@ -145,9 +145,16 @@ def verify_account(request, url_code):
 def verify_session(request):
     if request.method == 'GET':
         if request.user.is_authenticated:
+            username = request.user.username
+
             response_data = {
-                'username': request.user.username,
+                'username': username,
             }
+
+            room = cache.get('player-room:' + username)
+            if room is not None:
+                response_data['room_id'] = room['room_id']
+
             return JsonResponse(response_data)
         else:
             return HttpResponse(status=401)
