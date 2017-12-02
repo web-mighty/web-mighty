@@ -18,11 +18,22 @@ def room_join_consumer(message):
             reply_error('No room_id', nonce=nonce, type='room-join'))
         return
 
+    player_room_cache_key = 'player-room:' + username
+    room_cache = cache.get(player_room_cache_key)
+
+    if room_cache is not None:
+        reply_channel.send(reply_error(
+            'You are already in a room',
+            nonce=nonce,
+            type='room-join',
+        ))
+        return
+
     try:
         room = Room.objects.get(room_id=room_id)
     except Room.DoesNotExist:
         reply_channel.send(
-            reply_error('Room does not exists', nonce=nonce, type='room-join'))
+            reply_error('Room does not exist', nonce=nonce, type='room-join'))
         return
 
     # xor?
