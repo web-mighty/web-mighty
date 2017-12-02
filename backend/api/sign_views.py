@@ -71,7 +71,9 @@ def sign_up(request):
         send_mail(
             'Web Mighty: Email Verification',
             '''
-            To activate your account, please click the <a href="{url}">link</a>.
+            To activate your account, please visit the following link.
+
+            {url}
             '''.format(url=url),
             'web-mighty@vbchunguk.me',
             [email],

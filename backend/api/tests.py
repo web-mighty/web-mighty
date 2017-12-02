@@ -279,7 +279,7 @@ class ApiSignUpTest(TestCase):
         self.assertEqual(len(mail.outbox), 1)
 
         body = mail.outbox[0].body
-        link = body.split('href="')[1].split('"')[0]
+        link = body.split('link.')[1].strip()
 
         client.get(
             link,
