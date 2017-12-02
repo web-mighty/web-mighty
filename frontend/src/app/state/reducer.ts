@@ -3,6 +3,7 @@ import { UserState, userReducer } from './reducers/user';
 import { ProfileState, profileReducer } from './reducers/profile';
 import { RoomState, roomReducer } from './reducers/room';
 import { WebSocketState, websocketReducer } from './reducers/websocket';
+import { GameState, gameReducer } from './reducers/game';
 
 export interface State {
   user: UserState;
@@ -10,6 +11,7 @@ export interface State {
   router: RouterReducerState;
   profile: ProfileState;
   websocket: WebSocketState;
+  game: GameState;
 }
 export const reducers = {
   user: userReducer,
@@ -17,4 +19,5 @@ export const reducers = {
   router: routerReducer,
   profile: profileReducer,
   websocket: websocketReducer,
+  game: gameReducer,
 };

@@ -81,9 +81,9 @@ export class Response implements Action {
     public response: WebSocketResponse,
   ) {}
 
-  downcast<T>(): SuccessResponse<T> | string {
+  downcast<T>(): T | string {
     if (this.response.success === true) {
-      return this.response as SuccessResponse<T>;
+      return this.response.result as T;
     } else {
       return this.response.error.reason;
     }

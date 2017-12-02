@@ -1,17 +1,16 @@
 import { AppActions } from '../app-actions';
 import * as RoomActions from '../actions/room';
+import * as GameActions from '../actions/game';
 
 import { Room } from '../../room';
 
 export interface RoomState {
   roomList: Room[];
-  room: Room | null;
   currentError: string | null;
 }
 
 const initialState: RoomState = {
   roomList: [],
-  room: null,
   currentError: null,
 };
 
@@ -29,8 +28,10 @@ export function roomReducer(
     case RoomActions.CREATE_ROOM_START:
       return { ...state, currentError: null };
     case RoomActions.CREATE_ROOM_DONE:
-      return { ...state, room: action.room, currentError: null };
+      return { ...state, currentError: null };
     case RoomActions.CREATE_ROOM_FAILED:
+      return { ...state, currentError: action.error };
+    case GameActions.JOIN_ROOM_FAILED:
       return { ...state, currentError: action.error };
     default:
       return state;

@@ -13,15 +13,32 @@ import 'rxjs/add/operator/delay';
 import 'rxjs/add/operator/withLatestFrom';
 import { Observable } from 'rxjs/Observable';
 import 'rxjs/add/observable/of';
+import 'rxjs/add/observable/never';
 
 import { State } from '../reducer';
 import * as UserActions from '../actions/user';
 import * as WebSocketActions from '../actions/websocket';
+import * as GameActions from '../actions/game';
+
+import { Room as WebSocketRoom } from '../../websocket';
 
 function relativeWebSocketUri(path: string): string {
   const { protocol, host } = window.location;
   const wsProtocol = protocol === 'https:' ? 'wss:' : 'ws:';
   return `${wsProtocol}//${host}${path}`;
+}
+
+function mapResponse(resp: WebSocketActions.Response): Action | null {
+  switch (resp.request.action) {
+    case 'room-join': {
+      const result = resp.downcast<WebSocketRoom>();
+      if (typeof result === 'string') {
+        return new GameActions.JoinRoomFailed(result);
+      } else {
+        return new GameActions.RoomInfo(result);
+      }
+    }
+  }
 }
 
 @Injectable()
@@ -103,6 +120,18 @@ export class WebSocketEffects {
     )
     .filter(x => x != null)
     .do(console.log);
+
+  @Effect()
+  response$ =
+    this.actions$.ofType(WebSocketActions.RESPONSE)
+    .mergeMap((resp: WebSocketActions.Response) => {
+      const result = mapResponse(resp);
+      if (result === null) {
+        return Observable.never();
+      } else {
+        return Observable.of(result);
+      }
+    });
 
   @Effect()
   disconnected$: Observable<Action> =
