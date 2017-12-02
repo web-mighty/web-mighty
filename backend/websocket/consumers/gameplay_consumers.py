@@ -1,5 +1,5 @@
 from channels import Channel, Group
-from .card import shuffled_card
+from .card import shuffled_card, card_score
 from .consumer_utils import event, reply_error, response
 from django.core.cache import cache
 from .state import RoomState
@@ -267,7 +267,56 @@ def gameplay_bid_consumer(message):
 
 
 def gameplay_deal_miss_consumer(message):
-    pass
+    data = message.content
+    username = data['username']
+    nonce = data['nonce']
+    reply_channel = Channel(data['reply'])
+    room_id = cache.get('player-room:' + username)
+
+    if room_id is None:
+        reply_channel.send(reply_error(
+            'You are not in room',
+            nonce=nonce,
+            type='gameplay-bid',
+        ))
+        return
+
+    room = cache.get('room:' + room_id)
+
+    if room['game']['state'].value > 3:  # FRIEND_SELECTING
+        reply_channel.send(reply_error(
+            'Invalid timing',
+            nonce=nonce,
+            type='gameplay-bid',
+        ))
+        return
+
+    cards = []
+
+    for player in room['players']:
+        if player['username'] == username:
+            cards = player['cards']
+            score = card_score(cards)
+            break
+
+    if score > 0:
+        reply_channel.send(reply_error(
+            'Invalid score',
+            nonce=nonce,
+            type='gameplay-bid',
+        ))
+        return
+
+    event_data = {
+        'player': username,
+        'cards': cards,
+    }
+
+    Group(room_id).send(event(
+        'gameplay-deal-miss',
+        event_data,
+    ))
+    Channel('room-reset').send({'room_id': room_id})
 
 
 def gameplay_friend_select_consumer(message):

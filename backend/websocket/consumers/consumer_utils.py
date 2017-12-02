@@ -66,6 +66,8 @@ def event_error(reason, type=''):
 def reset_room_data(room_data):
     for player in room_data['players']:
         player['ready'] = False
+        player['cards'] = []
+        player['bid'] = 0
 
     new_room_data_ = new_room_data(
         room_id=room_data['room_id'],
