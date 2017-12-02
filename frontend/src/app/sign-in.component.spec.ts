@@ -111,7 +111,7 @@ describe('SignInComponent', () => {
     fixture.detectChanges();
     fixture.whenStable().then(() => {
       fixture.detectChanges();
-      const message = fixture.nativeElement.querySelector('form > div:last-child').textContent;
+      const message = fixture.nativeElement.querySelector('.error-message').textContent;
       expect(message).toBe('Foobar error.');
     });
   }));

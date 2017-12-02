@@ -24,6 +24,7 @@
       </thead>
       <tbody>
         <tr *ngFor="let room of roomList | async">
+          <td class="mdl-data-table__cell">{{room.player_number}}</td>
           <td class="mdl-data-table__cell--non-numeric">{{room.title}}</td>
           <td class="mdl-data-table__cell--non-numeric">
             <i class="material-icons">lock</i>
