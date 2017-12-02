@@ -16,6 +16,7 @@ available_channels = [
     'gameplay-start',
     'gameplay-bid',
     'gameplay-deal-miss',
+    'gameplay-kill',
     'gameplay-friend-select',
     'gameplay-play',
 ]
@@ -30,6 +31,8 @@ multiplexer_routings = [
     route('gameplay-bid', 'websocket.consumers.gameplay_consumers.gameplay_bid_consumer'),
     route('gameplay-deal-miss',
           'websocket.consumers.gameplay_consumers.gameplay_deal_miss_consumer'),
+    route('gameplay-kill',
+          'websocket.consumers.gameplay_consumers.gameplay_kill_consumer'),
     route('gameplay-friend-select',
           'websocket.consumers.gameplay_consumers.gameplay_friend_select_consumer'),
     route('gameplay-play', 'websocket.consumers.gameplay_consumers.gameplay_play_consumer'),

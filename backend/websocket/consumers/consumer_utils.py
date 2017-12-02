@@ -89,6 +89,7 @@ def new_room_data(**kwargs):
         'game': {
             'state': RoomState.NOT_PLAYING,
             'round': 0,
+            'player_number': kwargs['player_number'],
             'turn': 0,
             'president': '',
             'friend': '',
