@@ -28,8 +28,8 @@ export class GameRoomComponent implements OnInit, OnDestroy {
   private roomDataSubscription;
   private subscription;
 
-  private roomId: string;
-  private roomData: WebSocketRoom;
+  roomId: string;
+  roomData: WebSocketRoom;
 
   constructor(
     private store: Store<State>,
@@ -121,8 +121,12 @@ export class GameRoomComponent implements OnInit, OnDestroy {
     // Else, do not send anything.
     this.store.select('game')
       .filter(game => {
-        if (game == null) return false;
-        if (game.joiningTo !== null) return false;
+        if (game == null) {
+          return false;
+        }
+        if (game.joiningTo !== null) {
+          return false;
+        }
         return true;
       })
       .map(game => {

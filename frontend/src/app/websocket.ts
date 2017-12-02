@@ -3,7 +3,7 @@ import * as v4 from 'uuid/v4';
 export interface RoomJoinRequestData {
   room_id: string;
   password?: string;
-};
+}
 
 export class RoomJoinRequest {
   action = 'room-join';
