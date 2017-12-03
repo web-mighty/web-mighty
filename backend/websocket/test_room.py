@@ -157,7 +157,7 @@ class RoomJoinTest(ChannelTestCase):
         player_room_cache = cache.get('player-room:skystar1')
 
         self.assertFalse(response['success'])
-        self.assertEqual(response['error']['reason'], 'Room does not exists')
+        self.assertEqual(response['error']['reason'], 'Room does not exist')
         self.assertIsNone(player_room_cache)
 
     def test_room_join_broadcast(self):
