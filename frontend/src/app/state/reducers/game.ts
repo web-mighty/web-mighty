@@ -33,6 +33,12 @@ function applyPlayerState(room: WebSocketRoom, update: GameActions.PlayerState) 
     }
     return p;
   });
+  if (!players.find(p => p.username === update.username)) {
+    players.push({
+      username: update.username,
+      ready: update.ready,
+    });
+  }
   return {
     ...room,
     players,

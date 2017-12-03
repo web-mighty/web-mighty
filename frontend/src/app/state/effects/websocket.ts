@@ -39,6 +39,31 @@ function mapResponse(resp: WebSocketActions.Response): Action | null {
         return new GameActions.RoomInfo(result);
       }
     }
+    default:
+      return null;
+  }
+}
+
+function mapEvent(ev: WebSocketActions.Event): Action | null {
+  const {payload} = ev;
+  switch (payload.event) {
+    case 'room-join':
+      return new GameActions.PlayerStateChange({
+        username: payload.data.player,
+        left: false,
+        ready: false,
+      });
+    case 'room-leave':
+      return new GameActions.PlayerStateChange({
+        username: payload.data.player,
+        left: true,
+        ready: false,
+      });
+    case 'error':
+      // TODO: Emit appropriate error action
+      return new WebSocketActions.WebSocketError(payload.data);
+    default:
+      return null;
   }
 }
 
@@ -137,6 +162,14 @@ export class WebSocketEffects {
         return Observable.of(result);
       }
     });
+
+  @Effect()
+  event$ =
+    this.actions$.ofType(WebSocketActions.EVENT)
+    .do(console.log)
+    .map(mapEvent)
+    .do(console.log)
+    .filter(action => action != null);
 
   @Effect()
   disconnected$: Observable<Action> =

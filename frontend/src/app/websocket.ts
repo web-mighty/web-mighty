@@ -86,7 +86,14 @@ export interface RoomJoinEvent {
     player: string;
   };
 }
+export interface RoomLeaveEvent {
+  event: 'room-leave';
+  data: {
+    player: string;
+  };
+}
 export type Event
   = ErrorEvent
   | RoomJoinEvent
+  | RoomLeaveEvent
 ;
