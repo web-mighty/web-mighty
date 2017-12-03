@@ -86,6 +86,7 @@ def create_user(**kwargs):
             username=kwargs['username'],
             password=kwargs['password'],
             email=kwargs['email'],
+            is_active=kwargs.get('is_active', True),
         )
 
         with open(os.path.join(BASE_DIR, 'static', DEFAULT_AVATAR_NAME), 'rb') as f:

@@ -12,6 +12,8 @@ https://docs.djangoproject.com/en/1.11/ref/settings/
 
 import os
 from .secret import SECRET_KEY
+from .secret import EMAIL_HOST, EMAIL_PORT, EMAIL_USE_TLS
+from .secret import EMAIL_HOST_USER, EMAIL_HOST_PASSWORD
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -140,3 +142,5 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 MEDIA_URL = '/media/'
 
 DEFAULT_AVATAR_NAME = 'doge.jpg'
+
+DOMAIN_NAME = 'http://localhost:4200/'

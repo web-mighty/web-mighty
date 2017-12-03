@@ -19,5 +19,13 @@ import random
 SECRET_FILE = os.path.join(os.environ['PROJECT_PATH'], 'secret.py')
 SECRET_KEY = ''.join([random.SystemRandom().choice('abcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*(-_=+)') for i in range(50)])
 secret = open(SECRET_FILE, 'w')
-secret.write("SECRET_KEY = '%s'\n" % SECRET_KEY)
+content = """
+SECRET_KEY = '{}'
+EMAIL_HOST = ''
+EMAIL_PORT = 587
+EMAIL_HOST_USER = ''
+EMAIL_HOST_PASSWORD = ''
+EMAIL_USE_TLS = True
+""".format(SECRET_KEY)
+secret.write(content)
 secret.close()
