@@ -92,6 +92,16 @@ def room_leave_consumer(message):
     room_cache_key = 'room:' + room_id
     room_cache = cache.get(room_cache_key)
 
+    if room_cache is None:
+        try:
+            room = Room.objects.get(room_id=room_id)
+            room.delete()
+        except Room.DoesNotExist:
+            pass
+        Group(room_id).discard(reply_channel)
+        cache.delete(player_room_cache_key)
+        return
+
     found = False
     for i, player in enumerate(room_cache['players']):
         if player['username'] == username:
@@ -105,9 +115,13 @@ def room_leave_consumer(message):
         return
 
     if len(room_cache['players']) == 0:
-        room = Room.objects.get(room_id=room_id)
-        room.delete()
+        try:
+            room = Room.objects.get(room_id=room_id)
+            room.delete()
+        except Room.DoesNotExist:
+            pass
         Group(room_id).discard(reply_channel)
+        cache.delete(player_room_cache_key)
         return
 
     cache.set(room_cache_key, room_cache)
