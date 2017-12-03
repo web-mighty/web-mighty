@@ -154,21 +154,13 @@ export class WebSocketEffects {
   @Effect()
   response$ =
     this.actions$.ofType(WebSocketActions.RESPONSE)
-    .mergeMap((resp: WebSocketActions.Response) => {
-      const result = mapResponse(resp);
-      if (result === null) {
-        return Observable.empty();
-      } else {
-        return Observable.of(result);
-      }
-    });
+    .map(mapResponse)
+    .filter(action => action != null);
 
   @Effect()
   event$ =
     this.actions$.ofType(WebSocketActions.EVENT)
-    .do(console.log)
     .map(mapEvent)
-    .do(console.log)
     .filter(action => action != null);
 
   @Effect()

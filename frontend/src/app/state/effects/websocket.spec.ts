@@ -4,9 +4,10 @@ import { HttpModule } from '@angular/http';
 import { RouterTestingModule } from '@angular/router/testing';
 import { StoreModule } from '@ngrx/store';
 import { provideMockActions } from '@ngrx/effects/testing';
+import * as v4 from 'uuid/v4';
 
 import { ReplaySubject } from 'rxjs/ReplaySubject';
-import { Store } from '@ngrx/store';
+import { Store, Action } from '@ngrx/store';
 import { Actions } from '@ngrx/effects';
 import { State } from '../reducer';
 import { WebSocketMock } from '../../testing';
@@ -20,6 +21,7 @@ import { reducers } from '../reducer';
 import { AppActions } from '../app-actions';
 import * as UserActions from '../actions/user';
 import * as WebSocketActions from '../actions/websocket';
+import * as GameActions from '../actions/game';
 
 // Effects
 import { WebSocketEffects } from './websocket';
@@ -305,6 +307,92 @@ describe('WebSocketEffects', () => {
 
       expect(webSocket.received.length).toBe(0);
     }));
+  });
+
+  describe('rawResponse$', () => {
+    it('should match request and response using nonce', fakeAsync(() => {
+      actions = new ReplaySubject(1);
+
+      const req =
+        new WebSocketActions.Request(new WebSocketMessages.RoomLeaveRequest());
+      const resp =
+        new WebSocketActions.RawResponse({
+          nonce: req.payload.nonce,
+          success: true,
+          result: {},
+        });
+      store.dispatch(req);
+      actions.next(resp);
+
+      const list = [];
+      effects.rawResponse$.subscribe(actions => list.push(actions));
+      tick();
+
+      expect(list.length).toBe(1);
+      expect(list[0].request).toEqual(req.payload);
+      expect(list[0].response).toEqual({ success: true, result: {} });
+    }));
+
+    it('should discard response if nonce is not found', fakeAsync(() => {
+      actions = new ReplaySubject(1);
+
+      const resp =
+        new WebSocketActions.RawResponse({
+          nonce: v4(),
+          success: true,
+          result: {},
+        });
+      actions.next(resp);
+
+      const list = [];
+      effects.rawResponse$.subscribe(actions => list.push(actions));
+      tick();
+
+      expect(list.length).toBe(0);
+    }));
+  });
+
+  // TODO: response$ tests
+
+  describe('event$', () => {
+    const expects: Array<{
+      name: string,
+      given: WebSocketMessages.Event,
+      expect: Action,
+    }> = [
+      {
+        name: 'room-join',
+        given: { event: 'room-join', data: { player: 'foo' } },
+        expect: new GameActions.PlayerStateChange({
+          username: 'foo',
+          left: false,
+          ready: false,
+        }),
+      },
+      {
+        name: 'room-leave',
+        given: { event: 'room-leave', data: { player: 'foo' } },
+        expect: new GameActions.PlayerStateChange({
+          username: 'foo',
+          left: true,
+          ready: false,
+        }),
+      },
+    ];
+
+    for (const spec of expects) {
+      it(`should process ${spec.name}`, fakeAsync(() => {
+        actions = new ReplaySubject(1);
+        actions.next(new WebSocketActions.Event(spec.given));
+
+        const list = [];
+        effects.event$.subscribe(action => list.push(action));
+        tick();
+
+        expect(list.length).toBe(1);
+        expect(list[0]).toEqual(spec.expect);
+      }));
+    }
   });
 
   describe('disconnected$', () => {
