@@ -11,12 +11,12 @@
   <div class="mdl-layout-spacer"></div>
 </div>
 <div class="mdl-grid">
-  <div class="mdl-cell mdl-cell--3-col-desktop mdl-cell--hide-tablet mdl-cell--hide-phone">
-  </div>
+  <div class="mdl-layout-spacer"></div>
   <div class="mdl-cell mdl-cell--6-col-desktop mdl-cell--8-col-tablet mdl-cell--4-col-phone">
     <table class="mdl-data-table mdl-js-data-table" style="width: 100%">
       <thead>
         <tr>
+          <th></th>
           <th class="mdl-data-table__cell--non-numeric">Title</th>
           <th class="mdl-data-table__cell--non-numeric">Private</th>
           <th class="mdl-data-table__cell--non-numeric"></th>
@@ -24,31 +24,21 @@
       </thead>
       <tbody>
         <tr *ngFor="let room of roomList | async">
-          <td class="mdl-data-table__cell">{{room.player_number}}</td>
+          <td class="mdl-data-table__cell--non-numeric">
+            <span class="mdl-chip">
+              <span class="mdl-chip__text">{{room.player_number}} player</span>
+            </span>
+          </td>
           <td class="mdl-data-table__cell--non-numeric">{{room.title}}</td>
           <td class="mdl-data-table__cell--non-numeric">
-            <i class="material-icons">lock</i>
+            <i class="material-icons" *ngIf="room.is_private">lock</i>
           </td>
           <td class="mdl-data-table__cell--non-numeric">
-            <button (click)="joinRoom(room.id)">Join</button>
+            <button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent" (click)="joinRoom(room.room_id)">Join</button>
           </td>
         </tr>
       <tbody>
     </table>
   </div>
-  <div class="mdl-cell mdl-cell--3-col-desktop mdl-cell--hide-tablet mdl-cell--hide-phone">
-    <div class="mdl-card mdl-shadow--2dp" style="max-width: 100%">
-      <div class="mdl-card__title">
-        <h2 class="mdl-card__title-text">Hall of Fame</h2>
-      </div>
-      <div class="mdl-card__supporting-text">
-        Standing in the hall of fame
-        <br>
-        And the world's gonna know your name
-      </div>
-      <div class="mdl-card__actions mdl-card--border">
-        <button class="mdl-button mdl-js-button mdl-button--accent" (click)="gotoHallOfFame()">View Rankings</button>
-      </div>
-    </div>
-  </div>
+  <div class="mdl-layout-spacer"></div>
 </div>

@@ -1,22 +1,29 @@
 .clickable {
-    cursor: pointer;
+  cursor: pointer;
 }
 .logo-header-large {
-    padding: 0 0 0 0;
-    justify-content: center;
-    background-color: #FFFFFF;
-    min-height: 130px;
+  padding: 0 0 0 0;
+  justify-content: center;
+  background-color: #FFFFFF;
+  min-height: 130px;
 }
 .logo-header-small {
-    padding: 0 20px 0 40px;
-    justify-content: center;
-    background-color: #FFFFFF;
-    min-height: 80px;
+  padding: 0 20px 0 40px;
+  justify-content: center;
+  background-color: #FFFFFF;
 }
-.profile-link {
-    width: 100px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+#logo-small {
+  height: 40px;
 }
- 
+.profile-link-large {
+  width: 150px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.profile-link-small {
+  width: 100px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}

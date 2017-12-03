@@ -9,6 +9,11 @@
   </div>
 
   <div class="mdl-layout__header-row">
+    <!-- Hall of Fame -->
+    <nav class="mdl-navigation">
+      <span class="mdl-navigation__link clickable" (click)="gotoHallOfFame()">Hall of Fame</span>
+    </nav>
+
     <!-- Spacer -->
     <div class="mdl-layout-spacer"></div>
 
@@ -20,7 +25,7 @@
     </div>
     <div *ngIf="signedIn | async">
       <nav class="mdl-navigation">
-        <span class="mdl-navigation__link clickable" (click)="gotoProfile()">
+        <span class="mdl-navigation__link profile-link-large clickable" (click)="gotoProfile()">
           <i class="material-icons">account_circle</i>
           {{username | async}}
         </span>
@@ -34,7 +39,7 @@
   <div class="mdl-layout__header-row logo-header-small">
     <!-- Logo -->
     <span class="mdl-layout-title clickable" (click)="gotoLobby()">
-      <img src={{logoPath}} height="50em">
+      <img id="logo-small" src={{logoPath}}>
     </span>
     <div class="mdl-layout-spacer"></div>
 
@@ -46,10 +51,10 @@
       </div>
       <div *ngIf="signedIn | async">
         <nav class="mdl-navigation">
-          
+
           <!-- TODO -->
 
-          <span class="mdl-navigation__link mdl-color-text--accent profile-link clickable" (click)="gotoProfile()">
+          <span class="mdl-navigation__link mdl-color-text--accent profile-link-small clickable" (click)="gotoProfile()">
             <i class="material-icons">account_circle</i>
             <span >{{username | async}}</span>
           </span>
