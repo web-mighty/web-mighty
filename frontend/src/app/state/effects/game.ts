@@ -23,7 +23,7 @@ export class GameEffects {
       if (action.payload.password) {
         payload.password = action.payload.password;
       }
-      const req = new WebSocket.Request.RoomJoin(payload);
+      const req = new WebSocket.Requests.RoomJoin(payload);
       return Observable.of(
         new WebSocketActions.Request(req) as Action,
         new RouterActions.Go({ path: ['room', action.payload.roomId] }) as Action
@@ -40,7 +40,7 @@ export class GameEffects {
     this.actions$.ofType(GameActions.LEAVE_ROOM)
     .map((action: GameActions.LeaveRoom) =>
       new WebSocketActions.Request(
-        new WebSocket.Request.RoomLeave()
+        new WebSocket.Requests.RoomLeave()
       )
     );
 

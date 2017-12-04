@@ -281,7 +281,7 @@ describe('WebSocketEffects', () => {
       tick();
 
       actions.next(
-        new WebSocketActions.Request(new WebSocket.Request.RoomJoin({
+        new WebSocketActions.Request(new WebSocket.Requests.RoomJoin({
           'room_id': 'asdf',
         }))
       );
@@ -298,7 +298,7 @@ describe('WebSocketEffects', () => {
     it('should not send message if not connected', fakeAsync(() => {
       actions = new ReplaySubject(1);
       actions.next(
-        new WebSocketActions.Request(new WebSocket.Request.RoomJoin({
+        new WebSocketActions.Request(new WebSocket.Requests.RoomJoin({
           'room_id': 'asdf',
         }))
       );
@@ -314,7 +314,7 @@ describe('WebSocketEffects', () => {
       actions = new ReplaySubject(1);
 
       const req =
-        new WebSocketActions.Request(new WebSocket.Request.RoomLeave());
+        new WebSocketActions.Request(new WebSocket.Requests.RoomLeave());
       const resp =
         new WebSocketActions.RawResponse({
           nonce: req.payload.nonce,
@@ -363,15 +363,15 @@ describe('WebSocketEffects', () => {
     const expects: Array<{
       name: string,
       given: {
-        request: WebSocket.RequestType,
-        response: WebSocket.ResponseType,
+        request: WebSocket.Request,
+        response: WebSocket.Response,
       },
       expect: Action,
     }> = [
       {
         name: 'room-join',
         given: {
-          request: new WebSocket.Request.RoomJoin({
+          request: new WebSocket.Requests.RoomJoin({
             room_id: 'foo',
           }),
           response: {
@@ -384,7 +384,7 @@ describe('WebSocketEffects', () => {
       {
         name: 'room-leave',
         given: {
-          request: new WebSocket.Request.RoomLeave(),
+          request: new WebSocket.Requests.RoomLeave(),
           response: {
             success: true,
             result: {},
@@ -418,7 +418,7 @@ describe('WebSocketEffects', () => {
   describe('event$', () => {
     const expects: Array<{
       name: string,
-      given: WebSocket.EventType,
+      given: WebSocket.Event,
       expect: Action,
     }> = [
       {

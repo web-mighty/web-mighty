@@ -1,9 +1,9 @@
 import * as Data from './websocket/data';
-import * as Request from './websocket/request';
-import { Request as RequestType } from './websocket/request';
-import * as Response from './websocket/response';
-import { Response as ResponseType } from './websocket/response';
-import * as Event from './websocket/event';
-import { Event as EventType } from './websocket/event';
+import * as Requests from './websocket/request';
+import { Request } from './websocket/request';
+import * as Responses from './websocket/response';
+import { Response } from './websocket/response';
+import * as Events from './websocket/event';
+import { Event } from './websocket/event';
 
-export { Data, Request, Response, Event, RequestType, ResponseType, EventType };
+export { Data, Requests, Responses, Events, Request, Response, Event };

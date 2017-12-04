@@ -48,7 +48,7 @@ export class Request implements Action {
   readonly type = REQUEST;
   readonly nonce: string;
 
-  constructor(public readonly request: WebSocket.RequestType) {
+  constructor(public readonly request: WebSocket.Request) {
     this.nonce = v4();
   }
 
@@ -63,9 +63,9 @@ export class Request implements Action {
 export class RawResponse implements Action {
   readonly type = RAW_RESPONSE;
   readonly nonce: string;
-  readonly response: WebSocket.ResponseType;
+  readonly response: WebSocket.Response;
 
-  constructor(payload: WebSocket.Response.WithNonce) {
+  constructor(payload: WebSocket.Responses.WithNonce) {
     this.nonce = payload.nonce;
     if (payload.success === true) {
       this.response = {
@@ -86,8 +86,8 @@ export class Response implements Action {
 
   constructor(
     public nonce: string,
-    public request: WebSocket.RequestType,
-    public response: WebSocket.ResponseType,
+    public request: WebSocket.Request,
+    public response: WebSocket.Response,
   ) {}
 
   downcast<T>(): T | string {
@@ -102,7 +102,7 @@ export class Response implements Action {
 export class Event implements Action {
   readonly type = EVENT;
 
-  constructor(public payload: WebSocket.EventType) {}
+  constructor(public payload: WebSocket.Event) {}
 }
 
 export type Actions

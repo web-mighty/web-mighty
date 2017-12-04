@@ -8,7 +8,7 @@ export type ConnectionStatus = 'disconnected' | 'connecting' | 'connected';
 export interface WebSocketState {
   connectionStatus: ConnectionStatus;
   error: string | null;
-  requests: { [nonce: string]: WebSocket.RequestType };
+  requests: { [nonce: string]: WebSocket.Request };
 }
 const initialState: WebSocketState = {
   connectionStatus: 'disconnected',
