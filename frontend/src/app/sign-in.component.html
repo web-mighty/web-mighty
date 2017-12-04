@@ -1,19 +1,35 @@
-<div *ngIf="verifying | async">
-  Verifying current session. Please wait...
-</div>
-<div *ngIf="!(verifying | async)">
-  <div>Sign in</div>
-  <button (click)="gotoSignUp()" class="sign-up-button">Sign up</button>
-  <form>
-    <div>
-      <label>Username</label>
-      <input [(ngModel)]="username" name="username" type="text">
+<div class="mdl-grid mdl-grid--no-spacing">
+  <div class="mdl-layout-spacer"></div>
+  <div class="mdl-card mdl-shadow--3dp">
+    <div class="mdl-card__title">
+      <h2 class="mdl-card__title-text">Sign in</h2>
     </div>
-    <div>
-      <label>Password</label>
-      <input [(ngModel)]="password" name="password" type="password">
+    <div class="mdl-card__supporting-text">
+      <div *ngIf="verifying | async">
+        <div class="mdl-spinner mdl-spinner--single-color mdl-js-spinner is-active"></div>
+      </div>
+      <div *ngIf="!(verifying | async)">
+        <form action="#">
+          <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+            <label class="mdl-textfield__label">Username</label>
+            <input class="mdl-textfield__input" [(ngModel)]="username" name="username" type="text">
+          </div>
+          <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+            <label class="mdl-textfield__label">Password</label>
+            <input class="mdl-textfield__input" [(ngModel)]="password" name="password" type="password">
+          </div>
+          <div class="error-message" *ngIf="error | async">{{error | async}}</div>
+          <button class="sign-in-button mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent" (click)="signIn()">
+            Submit
+          </button>
+        </form>
+      </div>
     </div>
-    <button (click)="signIn()" class="sign-in-button">Sign in</button>
-    <div *ngIf="error | async">{{error | async}}</div>
-  </form>
+    <div class="mdl-card__menu">
+      <button class="sign-up-button mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect" (click)="gotoSignUp()">
+        Sign up
+      </button>
+    </div>
+  </div>
+  <div class="mdl-layout-spacer"></div>
 </div>

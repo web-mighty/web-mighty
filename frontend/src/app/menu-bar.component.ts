@@ -43,5 +43,15 @@ export class MenuBarComponent implements OnInit {
   signOut() {
     this.store.dispatch(new UserActions.SignOut.Start());
   }
+  gotoHallOfFame() {
+    this.store.dispatch(new UserActions.RedirectWithSignInState({
+      when: 'not-signed-in',
+      goTo: 'sign_in',
+    }));
+    this.store.dispatch(new UserActions.RedirectWithSignInState({
+      when: 'signed-in',
+      goTo: 'hall_of_fame',
+    }));
+  }
 
 }

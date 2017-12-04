@@ -42,7 +42,5 @@ export class SignUpComponent {
         nickname: this.nickname
       })
     );
-    this.password = '';
-    this.confirmPassword = '';
   }
 }

@@ -71,17 +71,6 @@ export class LobbyComponent implements OnInit {
     }));
   }
 
-  gotoHallOfFame() {
-    this.store.dispatch(new UserActions.RedirectWithSignInState({
-      when: 'not-signed-in',
-      goTo: 'sign_in',
-    }));
-    this.store.dispatch(new UserActions.RedirectWithSignInState({
-      when: 'signed-in',
-      goTo: 'hall_of_fame',
-    }));
-  }
-
   joinRoom(id: string) {
     // TODO: Ask password
     this.store.dispatch(new GameActions.JoinRoom({

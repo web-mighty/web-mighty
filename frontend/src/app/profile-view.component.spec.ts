@@ -119,7 +119,7 @@ describe('ProfileViewComponent', () => {
     fixture.detectChanges();
     fixture.whenStable().then(() => {
       fixture.detectChanges();
-      const nickname = fixture.nativeElement.querySelector('span').textContent;
+      const nickname = fixture.nativeElement.querySelector('#profile-view-nickname').textContent;
       expect(nickname).toBe('Doge');
     });
   }));
@@ -129,7 +129,7 @@ describe('ProfileViewComponent', () => {
     fixture.detectChanges();
     fixture.whenStable().then(() => {
       fixture.detectChanges();
-      const message = fixture.nativeElement.querySelector('div:last-child').textContent;
+      const message = fixture.nativeElement.querySelector('.error-message').textContent;
       expect(message).toBe('Foobar error.');
     });
   }));

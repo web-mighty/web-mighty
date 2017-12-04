@@ -1,25 +1,40 @@
-<div>Sign up</div>
-<form>
-  <div>
-    <label>E-mail</label>
-    <input [(ngModel)]="email" name="email" type="text">
+<div class="mdl-grid mdl-grid--no-spacing">
+  <div class="mdl-layout-spacer"></div>
+  <div class="mdl-card mdl-shadow--3dp">
+    <div class="mdl-card__title">
+      <h2 class="mdl-card__title-text">Sign up</h2>
+    </div>
+    <div class="mdl-card__supporting-text">
+      * : Required
+      <form action="#">
+        <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+          <label class="mdl-textfield__label">E-mail*</label>
+          <input class="mdl-textfield__input" [(ngModel)]="email" name="email" type="email">
+          <span class="mdl-textfield__error">Please enter valid email</span>
+        </div>
+        <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+          <label class="mdl-textfield__label">Username*</label>
+          <input class="mdl-textfield__input" pattern="[A-Za-z0-9_\-\+@\.]*" [(ngModel)]="username" name="username" type="text">
+          <span class="mdl-textfield__error">Only alphabets, numbers, and ., _, -, +, @ are allowed</span>
+        </div>
+        <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+          <label class="mdl-textfield__label">Password*</label>
+          <input class="mdl-textfield__input" [(ngModel)]="password" name="password" type="password">
+        </div>
+        <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+          <label class="mdl-textfield__label">Confirm Password*</label>
+          <input class="mdl-textfield__input" [(ngModel)]="confirmPassword" name="confirmPassword" type="password">
+        </div>
+        <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+          <label class="mdl-textfield__label">Nickname (Set to username if empty)</label>
+          <input class="mdl-textfield__input" [(ngModel)]="nickname" name="nickname" type="text">
+        </div>
+        <div class="error-message" *ngIf="error | async">{{error | async}}</div>
+        <button class="sign-up-button mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent" (click)="signUp()">
+          Submit
+        </button>
+      </form>
+    </div>
   </div>
-  <div>
-    <label>Username</label>
-    <input [(ngModel)]="username" name="username" type="text">
-  </div>
-  <div>
-    <label>Password</label>
-    <input [(ngModel)]="password" name="password" type="password">
-  </div>
-  <div>
-    <label>Confirm Password</label>
-    <input [(ngModel)]="confirmPassword" name="confirmPassword" type="password">
-  </div>
-  <div>
-    <label>Nickname</label>
-    <input [(ngModel)]="nickname" name="nickname" type="text" [placeholder]="username">
-  </div>
-  <button (click)="signUp()">Sign up</button>
-  <div *ngIf="error | async">{{error | async}}</div>
-</form>
+  <div class="mdl-layout-spacer"></div>
+</div>
