@@ -20,7 +20,7 @@ import * as UserActions from '../actions/user';
 import * as WebSocketActions from '../actions/websocket';
 import * as GameActions from '../actions/game';
 
-import { Room as WebSocketRoom } from '../../websocket';
+import * as WebSocket from '../../websocket';
 
 function relativeWebSocketUri(path: string): string {
   const { protocol, host } = window.location;
@@ -32,7 +32,7 @@ function relativeWebSocketUri(path: string): string {
 function mapResponse(resp: WebSocketActions.Response): Action | null {
   switch (resp.request.action) {
     case 'room-join': {
-      const result = resp.downcast<WebSocketRoom>();
+      const result = resp.downcast<WebSocket.Data.Room>();
       if (typeof result === 'string') {
         return new GameActions.JoinRoomFailed(result);
       } else {
@@ -152,7 +152,7 @@ export class WebSocketEffects {
         const nonce = action.nonce;
         if (nonce in state) {
           const request = state[nonce];
-          return new WebSocketActions.Response(request, action.response);
+          return new WebSocketActions.Response(nonce, request, action.response);
         }
         return null;
       }

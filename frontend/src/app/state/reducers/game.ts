@@ -1,13 +1,10 @@
 import { AppActions } from '../app-actions';
 import * as GameActions from '../actions/game';
 
-import {
-  Player as WebSocketPlayer,
-  Room as WebSocketRoom
-} from '../../websocket';
+import * as WebSocket from '../../websocket';
 
 export interface GameState {
-  room: WebSocketRoom | null;
+  room: WebSocket.Data.Room | null;
   joiningTo: string | null;
   leaving: boolean;
 }
@@ -18,7 +15,10 @@ const initialState: GameState = {
   leaving: false,
 };
 
-function applyPlayerState(room: WebSocketRoom, update: GameActions.PlayerState) {
+function applyPlayerState(
+  room: WebSocket.Data.Room,
+  update: GameActions.PlayerState
+) {
   if (update.left) {
     const players = room.players.filter(p => p.username !== update.username);
     return {

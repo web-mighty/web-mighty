@@ -17,7 +17,7 @@ import { State } from './state/reducer';
 import * as RouterActions from './state/actions/router';
 import * as GameActions from './state/actions/game';
 
-import { Room as WebSocketRoom } from './websocket';
+import * as WebSocket from './websocket';
 
 @Component({
   selector: 'app-game-room',
@@ -29,7 +29,7 @@ export class GameRoomComponent implements OnInit, OnDestroy {
   private subscription;
 
   roomId: string;
-  roomData: WebSocketRoom;
+  roomData: WebSocket.Data.Room;
 
   constructor(
     private store: Store<State>,

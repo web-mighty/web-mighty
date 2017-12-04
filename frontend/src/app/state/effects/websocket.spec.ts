@@ -12,7 +12,7 @@ import { Actions } from '@ngrx/effects';
 import { State } from '../reducer';
 import { WebSocketMock } from '../../testing';
 
-import * as WebSocketMessages from '../../websocket';
+import * as WebSocket from '../../websocket';
 
 // Reducers
 import { reducers } from '../reducer';
@@ -281,7 +281,7 @@ describe('WebSocketEffects', () => {
       tick();
 
       actions.next(
-        new WebSocketActions.Request(new WebSocketMessages.RoomJoinRequest({
+        new WebSocketActions.Request(new WebSocket.Request.RoomJoin({
           'room_id': 'asdf',
         }))
       );
@@ -298,7 +298,7 @@ describe('WebSocketEffects', () => {
     it('should not send message if not connected', fakeAsync(() => {
       actions = new ReplaySubject(1);
       actions.next(
-        new WebSocketActions.Request(new WebSocketMessages.RoomJoinRequest({
+        new WebSocketActions.Request(new WebSocket.Request.RoomJoin({
           'room_id': 'asdf',
         }))
       );
@@ -314,7 +314,7 @@ describe('WebSocketEffects', () => {
       actions = new ReplaySubject(1);
 
       const req =
-        new WebSocketActions.Request(new WebSocketMessages.RoomLeaveRequest());
+        new WebSocketActions.Request(new WebSocket.Request.RoomLeave());
       const resp =
         new WebSocketActions.RawResponse({
           nonce: req.payload.nonce,
@@ -329,7 +329,7 @@ describe('WebSocketEffects', () => {
       tick();
 
       expect(list.length).toBe(1);
-      expect(list[0].request).toEqual(req.payload);
+      expect(list[0].request).toEqual(req.request);
       expect(list[0].response).toEqual({ success: true, result: {} });
     }));
 
@@ -357,7 +357,7 @@ describe('WebSocketEffects', () => {
   describe('event$', () => {
     const expects: Array<{
       name: string,
-      given: WebSocketMessages.Event,
+      given: WebSocket.EventType,
       expect: Action,
     }> = [
       {
