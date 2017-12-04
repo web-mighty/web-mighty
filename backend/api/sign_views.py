@@ -37,6 +37,10 @@ def sign_up(request):
             else:
                 return HttpResponseBadRequest()
 
+        userset = User.objects.filter(email=email)
+        if userset.exists():
+            return HttpResponseBadRequest()
+
         user = User(
             username=username,
             password=password,

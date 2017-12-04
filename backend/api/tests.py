@@ -310,6 +310,27 @@ class ApiSignUpTest(TestCase):
 
         self.assertEqual(response.status_code, 405)
 
+        create_user(
+            username='skystar',
+            password='doge',
+            nickname='test_nick',
+            email='asdf@asdf.com',
+        )
+
+        post_data = {
+            'username': 'not_skystar',
+            'password': 'doge',
+            'nickname': 'nicknick',
+            'email': 'asdf@asdf.com',
+        }
+        response = client.post(
+            reverse('sign_up'),
+            json.dumps(post_data),
+            content_type='application/json',
+        )
+
+        self.assertEqual(response.status_code, 400)
+
 
 class ApiSignInTest(TestCase):
     def setUp(self):
