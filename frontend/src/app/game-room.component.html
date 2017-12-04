@@ -1,0 +1,11 @@
+<div *ngIf="roomData != null">
+  <h3>{{roomData.title}}</h3>
+  <ul>
+    <li *ngFor="let player of roomData.players">
+      {{player.ready ? '✓' : ''}}{{player.username}}
+    </li>
+  </ul>
+</div>
+<div *ngIf="roomData == null">
+  Joining to {{roomId}}...
+</div>

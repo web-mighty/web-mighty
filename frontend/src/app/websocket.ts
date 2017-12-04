@@ -1,11 +1,13 @@
 import * as v4 from 'uuid/v4';
 
+export interface RoomJoinRequestData {
+  room_id: string;
+  password?: string;
+}
+
 export class RoomJoinRequest {
   action = 'room-join';
-  constructor(public data: {
-    'room-id': string;
-    password?: string;
-  }) {}
+  constructor(public data: RoomJoinRequestData) {}
 }
 export class RoomLeaveRequest {
   action = 'room-leave';
@@ -58,8 +60,19 @@ export interface FailureResponse {
   error: GenericError;
 }
 
+export interface Player {
+  username: string;
+  ready: boolean;
+}
+export interface Room {
+  room_id: string;
+  title: string;
+  players: Player[];
+}
+
 export type Response
   = SuccessResponse<{}>
+  | SuccessResponse<Room>
   | FailureResponse
 ;
 
@@ -73,7 +86,14 @@ export interface RoomJoinEvent {
     player: string;
   };
 }
+export interface RoomLeaveEvent {
+  event: 'room-leave';
+  data: {
+    player: string;
+  };
+}
 export type Event
   = ErrorEvent
   | RoomJoinEvent
+  | RoomLeaveEvent
 ;

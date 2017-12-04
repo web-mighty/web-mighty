@@ -15,6 +15,7 @@ export const DISCONNECT = 'WebSocket: Disconnect';
 export const DISCONNECTED = 'WebSocket: Disconnected';
 export const WS_ERROR = 'WebSocket: WebSocket error';
 export const REQUEST = 'WebSocket: Request';
+export const RAW_RESPONSE = 'WebSocket: Raw response';
 export const RESPONSE = 'WebSocket: Response';
 export const EVENT = 'WebSocket: Event';
 
@@ -51,8 +52,8 @@ export class Request implements Action {
   }
 }
 
-export class Response implements Action {
-  readonly type = RESPONSE;
+export class RawResponse implements Action {
+  readonly type = RAW_RESPONSE;
   readonly nonce: string;
   readonly response: WebSocketResponse;
 
@@ -70,10 +71,19 @@ export class Response implements Action {
       };
     }
   }
+}
 
-  downcast<T>(): SuccessResponse<T> | string {
+export class Response implements Action {
+  readonly type = RESPONSE;
+
+  constructor(
+    public request: RequestWithNonce,
+    public response: WebSocketResponse,
+  ) {}
+
+  downcast<T>(): T | string {
     if (this.response.success === true) {
-      return this.response as SuccessResponse<T>;
+      return this.response.result as T;
     } else {
       return this.response.error.reason;
     }
@@ -93,6 +103,7 @@ export type Actions
   | Disconnected
   | WebSocketError
   | Request
+  | RawResponse
   | Response
   | Event
 ;

@@ -125,33 +125,31 @@ def room_leave_consumer(message):
             reply_error('You are currently not in the room', nonce=nonce, type='room-leave'))
         return
 
+    Group(room_id).discard(reply_channel)
+    cache.delete(player_room_cache_key)
+
+    if not disconnected:
+        reply_channel.send(
+            response({}, nonce=nonce))
+
     if len(room_cache['players']) == 0:
         try:
             room = Room.objects.get(room_id=room_id)
             room.delete()
         except Room.DoesNotExist:
             pass
-        Group(room_id).discard(reply_channel)
-        cache.delete(player_room_cache_key)
-        return
+    else:
+        cache.set(room_cache_key, room_cache)
 
-    cache.set(room_cache_key, room_cache)
-    cache.delete(player_room_cache_key)
+        event_data = {
+            'player': username,
+        }
 
-    event_data = {
-        'player': username,
-    }
+        Group(room_id).send(event('room-leave', event_data))
 
-    if not disconnected:
-        reply_channel.send(
-            response({}, nonce=nonce))
-
-    Group(room_id).discard(reply_channel)
-    Group(room_id).send(event('room-leave', event_data))
-
-    # only when game is playing
-    if room_cache['is_playing']:
-        Channel('room-reset').send({'room_id': room_id})
+        # only when game is playing
+        if room_cache['is_playing']:
+            Channel('room-reset').send({'room_id': room_id})
 
 
 def room_ready_consumer(message):

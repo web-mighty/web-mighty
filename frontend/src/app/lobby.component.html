@@ -1,6 +1,7 @@
 <button (click)="gotoCreateGame()">New Game</button>
 <button (click)="gotoHallOfFame()">Hall of Fame</button>
 <p>Game List</p>
+<div *ngIf="loading | async">Loading...</div>
 <table>
   <tr>
     <th>Title</th>
@@ -13,7 +14,7 @@
       <img *ngIf="room.is_private" src={{lockImgPath}} height="40" width="40">
     </td>
     <td>
-      <button (click)="joinRoom(room.id)">Join</button>
+      <button (click)="joinRoom(room.room_id)">Join</button>
     </td>
   </tr>
 </table>

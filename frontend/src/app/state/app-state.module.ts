@@ -17,6 +17,7 @@ import { RouterEffects } from './effects/router';
 import { ProfileEffects } from './effects/profile';
 import { RoomEffects } from './effects/room';
 import { WebSocketEffects } from './effects/websocket';
+import { GameEffects } from './effects/game';
 
 @NgModule({
   imports: [
@@ -29,6 +30,7 @@ import { WebSocketEffects } from './effects/websocket';
       RouterEffects,
       RoomEffects,
       WebSocketEffects,
+      GameEffects,
     ]),
     StoreRouterConnectingModule,
   ],

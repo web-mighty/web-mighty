@@ -9,6 +9,7 @@ import { Room } from './room';
 // Actions
 import * as UserActions from './state/actions/user';
 import * as RoomActions from './state/actions/room';
+import * as GameActions from './state/actions/game';
 
 @Component({
   selector: 'app-lobby',
@@ -19,19 +20,44 @@ export class LobbyComponent implements OnInit {
 
   roomList: Observable<Room[]>;
   error: Observable<string | null>;
+  leaving: Observable<boolean>;
+  loading: Observable<boolean>;
   lockImgPath = 'assets/img/lock.svg';
 
   constructor(private store: Store<State>) {
-    const room = this.store.select('room');
-    this.roomList = room.map(room => room.roomList);
-    this.error = room.map(room => room.currentError);
+    this.roomList = this.store.select('room', 'roomList');
+    this.error = this.store.select('room', 'currentError');
+    this.leaving =
+      this.store.select('game', 'leaving')
+      .filter(leaving => leaving != null);
+    const loading =
+      this.store.select('room', 'roomLoading')
+      .filter(loading => loading != null);
+
+    this.loading =
+      Observable.combineLatest(
+        this.leaving,
+        loading,
+        (leaving, loading) => leaving || loading
+      );
   }
 
   ngOnInit() {
-    this.store.dispatch(new RoomActions.GetRooms.Start({
-      page: 1,
-      count_per_page: 10,
-    }));
+    const completeWhenLeft =
+      this.leaving
+      .takeWhile(leaving => leaving)
+      .ignoreElements() as Observable<never>;
+
+    completeWhenLeft.subscribe(
+      _ => {},
+      _ => {},
+      () => {
+        this.store.dispatch(new RoomActions.GetRooms.Start({
+          page: 1,
+          count_per_page: 10,
+        }));
+      }
+    );
   }
 
   gotoCreateGame() {
@@ -57,6 +83,10 @@ export class LobbyComponent implements OnInit {
   }
 
   joinRoom(id: string) {
+    // TODO: Ask password
+    this.store.dispatch(new GameActions.JoinRoom({
+      roomId: id,
+    }));
   }
 
 }
