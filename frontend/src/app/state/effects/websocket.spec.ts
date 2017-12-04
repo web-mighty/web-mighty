@@ -352,7 +352,68 @@ describe('WebSocketEffects', () => {
     }));
   });
 
-  // TODO: response$ tests
+  describe('response$', () => {
+    const sampleRoom: WebSocket.Data.Room = {
+      room_id: 'foo',
+      title: 'foobar',
+      players: [
+        { username: 'foo', ready: false },
+      ],
+    };
+    const expects: Array<{
+      name: string,
+      given: {
+        request: WebSocket.RequestType,
+        response: WebSocket.ResponseType,
+      },
+      expect: Action,
+    }> = [
+      {
+        name: 'room-join',
+        given: {
+          request: new WebSocket.Request.RoomJoin({
+            room_id: 'foo',
+          }),
+          response: {
+            success: true,
+            result: sampleRoom,
+          },
+        },
+        expect: new GameActions.RoomInfo(sampleRoom),
+      },
+      {
+        name: 'room-leave',
+        given: {
+          request: new WebSocket.Request.RoomLeave(),
+          response: {
+            success: true,
+            result: {},
+          },
+        },
+        expect: new GameActions.LeaveRoomDone(),
+      },
+    ];
+
+    for (const spec of expects) {
+      it(`should process ${spec.name}`, fakeAsync(() => {
+        actions = new ReplaySubject(1);
+        const resp =
+          new WebSocketActions.Response(
+            v4(),
+            spec.given.request,
+            spec.given.response
+          );
+        actions.next(resp);
+
+        const list = [];
+        effects.response$.subscribe(action => list.push(action));
+        tick();
+
+        expect(list.length).toBe(1);
+        expect(list[0]).toEqual(spec.expect);
+      }));
+    }
+  });
 
   describe('event$', () => {
     const expects: Array<{
