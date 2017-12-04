@@ -1,14 +1,14 @@
 import { AppActions } from '../app-actions';
 import * as WebSocketActions from '../actions/websocket';
 
-import { RequestWithNonce } from '../../websocket';
+import * as WebSocket from '../../websocket';
 
 export type ConnectionStatus = 'disconnected' | 'connecting' | 'connected';
 
 export interface WebSocketState {
   connectionStatus: ConnectionStatus;
   error: string | null;
-  requests: { [nonce: string]: RequestWithNonce };
+  requests: { [nonce: string]: WebSocket.Request };
 }
 const initialState: WebSocketState = {
   connectionStatus: 'disconnected',
@@ -34,12 +34,12 @@ export function websocketReducer(
         ...state,
         requests: {
           ...state.requests,
-          [action.payload.nonce]: action.payload,
+          [action.payload.nonce]: action.request,
         },
       };
     case WebSocketActions.RESPONSE: {
       const requests = { ...state.requests };
-      delete requests[action.request.nonce];
+      delete requests[action.nonce];
       return {
         ...state,
         requests,

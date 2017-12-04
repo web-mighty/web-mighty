@@ -1,9 +1,6 @@
 import { Action } from '@ngrx/store';
 
-import {
-  Player as WebSocketPlayer,
-  Room as WebSocketRoom
-} from '../../websocket';
+import * as WebSocket from '../../websocket';
 
 export const JOIN_ROOM = 'Game: Join room';
 export const JOIN_ROOM_FAILED = 'Game: Join room: Failed';
@@ -46,7 +43,7 @@ export class LeaveRoomDone implements Action {
 export class RoomInfo implements Action {
   readonly type = ROOM_INFO;
 
-  constructor(public room: WebSocketRoom) {}
+  constructor(public room: WebSocket.Data.Room) {}
 }
 
 export class PlayerStateChange implements Action {

@@ -1,13 +1,7 @@
 import { Action } from '@ngrx/store';
+import * as v4 from 'uuid/v4';
 
-import {
-  Request as WebSocketRequest,
-  Response as WebSocketResponse,
-  Event as WebSocketEvent,
-  SuccessResponse,
-  RequestWithNonce,
-  ResponseWithNonce
-} from '../../websocket';
+import * as WebSocket from '../../websocket';
 
 export const CONNECT = 'WebSocket: Connect';
 export const CONNECTED = 'WebSocket: Connected';
@@ -43,21 +37,35 @@ export class WebSocketError implements Action {
   constructor(public error: any) {}
 }
 
+
+interface RequestWithNonce {
+  nonce: string;
+  action: string;
+  data: any;
+}
+
 export class Request implements Action {
   readonly type = REQUEST;
-  readonly payload: RequestWithNonce;
+  readonly nonce: string;
 
-  constructor(request: WebSocketRequest) {
-    this.payload = new RequestWithNonce(request);
+  constructor(public readonly request: WebSocket.Request) {
+    this.nonce = v4();
+  }
+
+  get payload(): RequestWithNonce {
+    return {
+      nonce: this.nonce,
+      ...this.request
+    };
   }
 }
 
 export class RawResponse implements Action {
   readonly type = RAW_RESPONSE;
   readonly nonce: string;
-  readonly response: WebSocketResponse;
+  readonly response: WebSocket.Response;
 
-  constructor(payload: ResponseWithNonce) {
+  constructor(payload: WebSocket.Responses.WithNonce) {
     this.nonce = payload.nonce;
     if (payload.success === true) {
       this.response = {
@@ -77,8 +85,9 @@ export class Response implements Action {
   readonly type = RESPONSE;
 
   constructor(
-    public request: RequestWithNonce,
-    public response: WebSocketResponse,
+    public nonce: string,
+    public request: WebSocket.Request,
+    public response: WebSocket.Response,
   ) {}
 
   downcast<T>(): T | string {
@@ -93,7 +102,7 @@ export class Response implements Action {
 export class Event implements Action {
   readonly type = EVENT;
 
-  constructor(public payload: WebSocketEvent) {}
+  constructor(public payload: WebSocket.Event) {}
 }
 
 export type Actions

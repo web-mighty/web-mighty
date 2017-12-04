@@ -12,7 +12,7 @@ import { Actions } from '@ngrx/effects';
 import { State } from '../reducer';
 import { WebSocketMock } from '../../testing';
 
-import * as WebSocketMessages from '../../websocket';
+import * as WebSocket from '../../websocket';
 
 // Reducers
 import { reducers } from '../reducer';
@@ -281,7 +281,7 @@ describe('WebSocketEffects', () => {
       tick();
 
       actions.next(
-        new WebSocketActions.Request(new WebSocketMessages.RoomJoinRequest({
+        new WebSocketActions.Request(new WebSocket.Requests.RoomJoin({
           'room_id': 'asdf',
         }))
       );
@@ -298,7 +298,7 @@ describe('WebSocketEffects', () => {
     it('should not send message if not connected', fakeAsync(() => {
       actions = new ReplaySubject(1);
       actions.next(
-        new WebSocketActions.Request(new WebSocketMessages.RoomJoinRequest({
+        new WebSocketActions.Request(new WebSocket.Requests.RoomJoin({
           'room_id': 'asdf',
         }))
       );
@@ -314,7 +314,7 @@ describe('WebSocketEffects', () => {
       actions = new ReplaySubject(1);
 
       const req =
-        new WebSocketActions.Request(new WebSocketMessages.RoomLeaveRequest());
+        new WebSocketActions.Request(new WebSocket.Requests.RoomLeave());
       const resp =
         new WebSocketActions.RawResponse({
           nonce: req.payload.nonce,
@@ -329,7 +329,7 @@ describe('WebSocketEffects', () => {
       tick();
 
       expect(list.length).toBe(1);
-      expect(list[0].request).toEqual(req.payload);
+      expect(list[0].request).toEqual(req.request);
       expect(list[0].response).toEqual({ success: true, result: {} });
     }));
 
@@ -352,12 +352,73 @@ describe('WebSocketEffects', () => {
     }));
   });
 
-  // TODO: response$ tests
+  describe('response$', () => {
+    const sampleRoom: WebSocket.Data.Room = {
+      room_id: 'foo',
+      title: 'foobar',
+      players: [
+        { username: 'foo', ready: false },
+      ],
+    };
+    const expects: Array<{
+      name: string,
+      given: {
+        request: WebSocket.Request,
+        response: WebSocket.Response,
+      },
+      expect: Action,
+    }> = [
+      {
+        name: 'room-join',
+        given: {
+          request: new WebSocket.Requests.RoomJoin({
+            room_id: 'foo',
+          }),
+          response: {
+            success: true,
+            result: sampleRoom,
+          },
+        },
+        expect: new GameActions.RoomInfo(sampleRoom),
+      },
+      {
+        name: 'room-leave',
+        given: {
+          request: new WebSocket.Requests.RoomLeave(),
+          response: {
+            success: true,
+            result: {},
+          },
+        },
+        expect: new GameActions.LeaveRoomDone(),
+      },
+    ];
+
+    for (const spec of expects) {
+      it(`should process ${spec.name}`, fakeAsync(() => {
+        actions = new ReplaySubject(1);
+        const resp =
+          new WebSocketActions.Response(
+            v4(),
+            spec.given.request,
+            spec.given.response
+          );
+        actions.next(resp);
+
+        const list = [];
+        effects.response$.subscribe(action => list.push(action));
+        tick();
+
+        expect(list.length).toBe(1);
+        expect(list[0]).toEqual(spec.expect);
+      }));
+    }
+  });
 
   describe('event$', () => {
     const expects: Array<{
       name: string,
-      given: WebSocketMessages.Event,
+      given: WebSocket.Event,
       expect: Action,
     }> = [
       {

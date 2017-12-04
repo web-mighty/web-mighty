@@ -17,15 +17,15 @@ export class GameEffects {
   joinRoom$: Observable<Action> =
     this.actions$.ofType(GameActions.JOIN_ROOM)
     .mergeMap((action: GameActions.JoinRoom) => {
-      const payload: WebSocket.RoomJoinRequestData = {
+      const payload: WebSocket.Data.RoomJoin = {
         'room_id': action.payload.roomId
       };
       if (action.payload.password) {
         payload.password = action.payload.password;
       }
-      const req = new WebSocket.RoomJoinRequest(payload);
+      const req = new WebSocket.Requests.RoomJoin(payload);
       return Observable.of(
-        new WebSocketActions.Request(new WebSocket.RequestWithNonce(req)) as Action,
+        new WebSocketActions.Request(req) as Action,
         new RouterActions.Go({ path: ['room', action.payload.roomId] }) as Action
       );
     });
@@ -40,9 +40,7 @@ export class GameEffects {
     this.actions$.ofType(GameActions.LEAVE_ROOM)
     .map((action: GameActions.LeaveRoom) =>
       new WebSocketActions.Request(
-        new WebSocket.RequestWithNonce(
-          new WebSocket.RoomLeaveRequest()
-        )
+        new WebSocket.Requests.RoomLeave()
       )
     );
 
