@@ -8,6 +8,7 @@ import {
 export const JOIN_ROOM = 'Game: Join room';
 export const JOIN_ROOM_FAILED = 'Game: Join room: Failed';
 export const LEAVE_ROOM = 'Game: Leave room';
+export const LEAVE_ROOM_DONE = 'Game: Leave room: Done';
 
 export const ROOM_INFO = 'Game: Room info';
 export const PLAYER_STATE_CHANGE = 'Game: Player state change';
@@ -38,6 +39,10 @@ export class LeaveRoom implements Action {
   readonly type = LEAVE_ROOM;
 }
 
+export class LeaveRoomDone implements Action {
+  readonly type = LEAVE_ROOM_DONE;
+}
+
 export class RoomInfo implements Action {
   readonly type = ROOM_INFO;
 
@@ -54,6 +59,7 @@ export type Actions
   = JoinRoom
   | JoinRoomFailed
   | LeaveRoom
+  | LeaveRoomDone
   | RoomInfo
   | PlayerStateChange
 ;

@@ -1,6 +1,7 @@
 <button (click)="gotoCreateGame()">New Game</button>
 <button (click)="gotoHallOfFame()">Hall of Fame</button>
 <p>Game List</p>
+<div *ngIf="loading | async">Loading...</div>
 <table>
   <tr>
     <th>Title</th>

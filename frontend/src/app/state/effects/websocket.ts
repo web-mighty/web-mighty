@@ -39,6 +39,14 @@ function mapResponse(resp: WebSocketActions.Response): Action | null {
         return new GameActions.RoomInfo(result);
       }
     }
+    case 'room-leave': {
+      const result = resp.downcast<{}>();
+      if (typeof result === 'string') {
+        return new WebSocketActions.WebSocketError(result);
+      } else {
+        return new GameActions.LeaveRoomDone();
+      }
+    }
     default:
       return null;
   }

@@ -9,11 +9,13 @@ import {
 export interface GameState {
   room: WebSocketRoom | null;
   joiningTo: string | null;
+  leaving: boolean;
 }
 
 const initialState: GameState = {
   room: null,
   joiningTo: null,
+  leaving: false,
 };
 
 function applyPlayerState(room: WebSocketRoom, update: GameActions.PlayerState) {
@@ -55,9 +57,11 @@ export function gameReducer(
     case GameActions.JOIN_ROOM_FAILED:
       return initialState;
     case GameActions.LEAVE_ROOM:
+      return { ...state, leaving: true };
+    case GameActions.LEAVE_ROOM_DONE:
       return initialState;
     case GameActions.ROOM_INFO:
-      return { room: action.room, joiningTo: null };
+      return { room: action.room, joiningTo: null, leaving: false };
     case GameActions.PLAYER_STATE_CHANGE:
       return { ...state, room: applyPlayerState(state.room, action.payload) };
     default:
