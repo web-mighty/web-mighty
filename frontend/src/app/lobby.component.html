@@ -1,44 +1,45 @@
-<div class="mdl-grid">
-  <div class="mdl-layout-spacer"></div>
-  <div class="mdl-cell mdl-cell--6-col-desktop mdl-cell--8-col-tablet mdl-cell--4-col-phone">
-    <h4 class="mdl-color-text--red" *ngIf="error | async" style="display: inline">{{error | async}}</h4>
-    <button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent" (click)="gotoCreateGame()" style="float: right">
+<div class="lobby">
+  <div class="room-header">
+    <div *ngIf="loading | async" class="spinner mdl-spinner mdl-js-spinner is-active"></div>
+    <h4 *ngIf="error | async" class="error-message mdl-color-text--red">
+      {{error | async}}
+    </h4>
+    <div class="mdl-layout-spacer"></div>
+    <button
+      class="new-game-button mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent"
+      (click)="gotoCreateGame()">
       <i class="material-icons">add</i>
       New Game
     </button>
-    <div *ngIf="loading | async">Loading...</div>
   </div>
-  <div class="mdl-layout-spacer"></div>
-</div>
-<div class="mdl-grid">
-  <div class="mdl-layout-spacer"></div>
-  <div class="mdl-cell mdl-cell--6-col-desktop mdl-cell--8-col-tablet mdl-cell--4-col-phone">
-    <table class="mdl-data-table mdl-js-data-table" style="width: 100%">
-      <thead>
-        <tr>
-          <th></th>
-          <th class="mdl-data-table__cell--non-numeric">Title</th>
-          <th class="mdl-data-table__cell--non-numeric">Private</th>
-          <th class="mdl-data-table__cell--non-numeric"></th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let room of roomList | async">
-          <td class="mdl-data-table__cell--non-numeric">
-            <span class="mdl-chip">
-              <span class="mdl-chip__text">{{room.player_number}} player</span>
-            </span>
-          </td>
-          <td class="mdl-data-table__cell--non-numeric">{{room.title}}</td>
-          <td class="mdl-data-table__cell--non-numeric">
-            <i class="material-icons" *ngIf="room.is_private">lock</i>
-          </td>
-          <td class="mdl-data-table__cell--non-numeric">
-            <button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent" (click)="joinRoom(room.room_id)">Join</button>
-          </td>
-        </tr>
-      <tbody>
-    </table>
-  </div>
-  <div class="mdl-layout-spacer"></div>
+  <table class="room-list mdl-data-table mdl-js-data-table">
+    <thead>
+      <tr>
+        <th></th>
+        <th class="mdl-data-table__cell--non-numeric">Title</th>
+        <th class="mdl-data-table__cell--non-numeric">Private</th>
+        <th class="mdl-data-table__cell--non-numeric"></th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let room of roomList | async">
+        <td class="mdl-data-table__cell--non-numeric">
+          <span class="mdl-chip">
+            <span class="mdl-chip__text">{{room.player_number}}-player</span>
+          </span>
+        </td>
+        <td class="mdl-data-table__cell--non-numeric">{{room.title}}</td>
+        <td class="mdl-data-table__cell--non-numeric">
+          <i class="material-icons" *ngIf="room.is_private">lock</i>
+        </td>
+        <td class="mdl-data-table__cell--non-numeric">
+          <button
+            class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent"
+            (click)="joinRoom(room.room_id)">
+            Join
+          </button>
+        </td>
+      </tr>
+    <tbody>
+  </table>
 </div>
