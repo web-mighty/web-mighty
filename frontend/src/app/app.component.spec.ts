@@ -1,10 +1,13 @@
 import { Component } from '@angular/core';
 import { ComponentFixture, TestBed, async } from '@angular/core/testing';
 import { RouterTestingModule } from '@angular/router/testing';
+import { StoreModule } from '@ngrx/store';
+
 import { Router } from '@angular/router';
 
+import { websocketReducer } from './state/reducers/websocket';
+
 import { AppComponent } from './app.component';
-import { MenuBarComponent } from './menu-bar.component';
 
 let comp: AppComponent;
 let fixture: ComponentFixture<AppComponent>;
@@ -15,15 +18,25 @@ let fixture: ComponentFixture<AppComponent>;
 })
 class MockMenuBarComponent {}
 
+@Component({
+  selector: 'app-duplicate-alert',
+  template: ''
+})
+class MockDuplicateAlertComponent {}
+
 describe('AppComponent', () => {
   beforeEach(async(() => {
     TestBed.configureTestingModule({
       declarations: [
         AppComponent,
         MockMenuBarComponent,
+        MockDuplicateAlertComponent,
       ],
       imports: [
         RouterTestingModule.withRoutes([]),
+        StoreModule.forRoot({
+          websocket: websocketReducer,
+        }),
       ],
       providers: [
       ],
