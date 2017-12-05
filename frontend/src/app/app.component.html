@@ -3,6 +3,7 @@
     <app-menu-bar></app-menu-bar>
   </header>
   <main class="mdl-layout__content">
-    <router-outlet></router-outlet>
+    <router-outlet *ngIf="!(isDuplicate | async)"></router-outlet>
+    <app-duplicate-alert *ngIf="isDuplicate | async"></app-duplicate-alert>
   </main>
 </div>

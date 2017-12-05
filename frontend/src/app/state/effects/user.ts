@@ -109,12 +109,9 @@ export class UserEffects {
   signOut$: Observable<Action> =
     this.actions$.ofType(UserActions.SIGN_OUT_START)
     .mergeMap(() =>
-      Observable.of(new WebSocketActions.Disconnect())
-      .concat(
-        this.http.get('/api/signout/')
-        .mergeMap((response): Observable<Action> =>
-          Observable.of(new UserActions.SignOut.Done())
-        )
+      this.http.get('/api/signout/')
+      .mergeMap((response): Observable<Action> =>
+        Observable.of(new UserActions.SignOut.Done())
       )
     );
 

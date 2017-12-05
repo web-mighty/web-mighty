@@ -7,6 +7,7 @@ import { AppStateModule } from './state/app-state.module';
 
 import { AppComponent } from './app.component';
 import { MenuBarComponent } from './menu-bar.component';
+import { DuplicateAlertComponent } from './duplicate-alert.component';
 import { MdlDirective } from './mdl.directive';
 
 import { XSRFStrategy } from '@angular/http';
@@ -16,6 +17,7 @@ import { xsrfFactory } from './xsrf-factory';
   declarations: [
     AppComponent,
     MenuBarComponent,
+    DuplicateAlertComponent,
     MdlDirective,
   ],
   imports: [

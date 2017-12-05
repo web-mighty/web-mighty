@@ -8,9 +8,11 @@ import 'rxjs/add/operator/map';
 import 'rxjs/add/operator/switchMap';
 import 'rxjs/add/operator/mergeMap';
 import 'rxjs/add/operator/concat';
+import 'rxjs/add/operator/concatMap';
 import 'rxjs/add/operator/do';
 import 'rxjs/add/operator/delay';
 import 'rxjs/add/operator/withLatestFrom';
+import 'rxjs/add/operator/startWith';
 import { Observable } from 'rxjs/Observable';
 import 'rxjs/add/observable/of';
 import 'rxjs/add/observable/empty';
@@ -55,6 +57,8 @@ function mapResponse(resp: WebSocketActions.Response): Action | null {
 function mapEvent(ev: WebSocketActions.Event): Action | null {
   const {payload} = ev;
   switch (payload.event) {
+    case 'connected':
+      return new WebSocketActions.Connected();
     case 'room-join':
       return new GameActions.PlayerStateChange({
         username: payload.data.player,
@@ -69,7 +73,12 @@ function mapEvent(ev: WebSocketActions.Event): Action | null {
       });
     case 'error':
       // TODO: Emit appropriate error action
-      return new WebSocketActions.WebSocketError(payload.data);
+      switch (payload.data.type) {
+        case 'connection-dup':
+          return new WebSocketActions.DuplicateSession();
+        default:
+          return new WebSocketActions.WebSocketError(payload.data);
+      }
     default:
       return null;
   }
@@ -87,6 +96,11 @@ export class WebSocketEffects {
     .map(() => new WebSocketActions.Connect());
 
   @Effect()
+  signOut$ =
+    this.actions$.ofType(UserActions.SIGN_OUT_START)
+    .map(() => new WebSocketActions.Disconnect());
+
+  @Effect()
   connect$: Observable<Action> =
     this.actions$.ofType(WebSocketActions.CONNECT)
     .switchMap((action: WebSocketActions.Connect) => {
@@ -95,7 +109,8 @@ export class WebSocketEffects {
       this.socket = this.webSocket.connect(relativeWebSocketUri(path));
       return new Observable(obs => {
         this.socket.addEventListener('open', () => {
-          obs.next(new WebSocketActions.Connected());
+          // Connection message will be sent from the backend
+          // obs.next(new WebSocketActions.Connected());
         });
         this.socket.addEventListener('error', e => {
           obs.next(new WebSocketActions.WebSocketError(e));
@@ -175,14 +190,16 @@ export class WebSocketEffects {
   disconnected$: Observable<Action> =
     this.actions$.ofType(WebSocketActions.DISCONNECTED)
     .do(() => this.socket = null)
+    .mergeMap(() => this.store.select('websocket', 'connectionStatus').first())
+    .filter(status => status !== 'duplicate')
     .mergeMap(() => this.store.select('user', 'authUser').first())
     .filter(user => user != null)
-    .mergeMap(() => {
-      const connect = Observable.of(new WebSocketActions.Connect());
+    .concatMap(() => {
+      const action = new WebSocketActions.Connect();
       if (this.delay) {
-        return connect.delay(5000);
+        return Observable.empty().delay(5000).startWith(action) as Observable<Action>;
       } else {
-        return connect;
+        return Observable.of(action);
       }
     });
 

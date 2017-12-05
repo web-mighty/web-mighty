@@ -98,6 +98,21 @@ describe('WebSocketEffects', () => {
     }));
   });
 
+  describe('signOut$', () => {
+    it('should fire Disconnect with signingOut set to true', fakeAsync(() => {
+      actions = new ReplaySubject(1);
+      actions.next(new UserActions.SignOut.Start());
+
+      const list = [];
+      effects.signOut$.subscribe(action => list.push(action));
+      tick();
+
+      expect(list).toEqual([
+        new WebSocketActions.Disconnect(),
+      ]);
+    }));
+  });
+
   describe('connect$', () => {
     it('should try to connect', fakeAsync(() => {
       actions = new ReplaySubject(1);
@@ -121,23 +136,21 @@ describe('WebSocketEffects', () => {
       expect(webSocket.url).toMatch(/\?force=true$/);
     }));
 
-    it('should emit Connected when connected', fakeAsync(() => {
+    it('should emit nothing right after connection', fakeAsync(() => {
       actions = new ReplaySubject(1);
       actions.next(
         new WebSocketActions.Connect()
       );
       let found = false;
       effects.connect$.subscribe(action => {
-        if (action.type === WebSocketActions.CONNECTED) {
-          found = true;
-        }
+        found = true;
       });
       tick();
 
       webSocket.accept();
       tick();
 
-      expect(found).toBeTruthy();
+      expect(found).not.toBeTruthy();
     }));
 
     it('should fire Disconnected if the socket is closed', fakeAsync(() => {
@@ -421,6 +434,11 @@ describe('WebSocketEffects', () => {
       given: WebSocket.Event,
       expect: Action,
     }> = [
+      {
+        name: 'connected',
+        given: { event: 'connected', data: {} },
+        expect: new WebSocketActions.Connected(),
+      },
       {
         name: 'room-join',
         given: { event: 'room-join', data: { player: 'foo' } },

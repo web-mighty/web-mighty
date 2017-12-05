@@ -8,6 +8,7 @@ export const CONNECTED = 'WebSocket: Connected';
 export const DISCONNECT = 'WebSocket: Disconnect';
 export const DISCONNECTED = 'WebSocket: Disconnected';
 export const WS_ERROR = 'WebSocket: WebSocket error';
+export const DUPLICATE_SESSION = 'WebSocket: Duplicate session';
 export const REQUEST = 'WebSocket: Request';
 export const RAW_RESPONSE = 'WebSocket: Raw response';
 export const RESPONSE = 'WebSocket: Response';
@@ -35,6 +36,10 @@ export class WebSocketError implements Action {
   readonly type = WS_ERROR;
 
   constructor(public error: any) {}
+}
+
+export class DuplicateSession implements Action {
+  readonly type = DUPLICATE_SESSION;
 }
 
 
@@ -111,6 +116,7 @@ export type Actions
   | Disconnect
   | Disconnected
   | WebSocketError
+  | DuplicateSession
   | Request
   | RawResponse
   | Response

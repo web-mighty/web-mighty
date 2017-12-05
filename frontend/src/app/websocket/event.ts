@@ -4,6 +4,10 @@ export interface Error {
   event: 'error';
   data: GenericError;
 }
+export interface Connected {
+  event: 'connected';
+  data: {};
+}
 export interface RoomJoin {
   event: 'room-join';
   data: {
@@ -18,6 +22,7 @@ export interface RoomLeave {
 }
 export type Event
   = Error
+  | Connected
   | RoomJoin
   | RoomLeave
 ;
