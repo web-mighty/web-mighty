@@ -1,4 +1,6 @@
 import { NgModule } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { RouterModule, Routes } from '@angular/router';
 
 import { LobbyComponent } from './lobby.component';
@@ -23,7 +25,21 @@ const routes: Routes = [
 ];
 
 @NgModule({
-  imports: [ RouterModule.forRoot(routes) ],
+  declarations: [
+    LobbyComponent,
+    SignUpComponent,
+    SignInComponent,
+    ProfileViewComponent,
+    ProfileEditComponent,
+    GameRoomComponent,
+    GameCreateComponent,
+    HallOfFameComponent,
+  ],
+  imports: [
+    CommonModule,
+    FormsModule,
+    RouterModule.forRoot(routes),
+  ],
   exports: [ RouterModule ]
 })
 export class AppRoutingModule {}
