@@ -1,7 +1,7 @@
 from channels import Channel
 from channels.routing import route
 from channels.auth import channel_session_user, channel_session_user_from_http
-from .consumer_utils import reply_error, event_error
+from .consumer_utils import event, reply_error, event_error
 from django.core.cache import cache
 from urllib.parse import parse_qs
 import json
@@ -38,7 +38,7 @@ multiplexer_routings = [
 def websocket_connect(message):
     if not message.user.is_authenticated:
         message.reply_channel.send({'accept': True})
-        message.reply_channel.send(event_error('Not authenticated', type='connection'))
+        message.reply_channel.send(event_error('Not authenticated', type='connection-auth'))
         message.reply_channel.send({'close': True})
         return
 
@@ -67,11 +67,12 @@ def websocket_connect(message):
             else:
                 message.reply_channel.send({'accept': True})
                 message.reply_channel.send(
-                    event_error('Session duplication detected', type='connection'))
+                    event_error('Session duplication detected', type='connection-dup'))
                 message.reply_channel.send({'close': True})
                 return
 
     message.reply_channel.send({'accept': True})
+    message.reply_channel.send(event('connected', {}))
 
 
 @channel_session_user

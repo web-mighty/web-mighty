@@ -8,9 +8,11 @@ import 'rxjs/add/operator/map';
 import 'rxjs/add/operator/switchMap';
 import 'rxjs/add/operator/mergeMap';
 import 'rxjs/add/operator/concat';
+import 'rxjs/add/operator/concatMap';
 import 'rxjs/add/operator/do';
 import 'rxjs/add/operator/delay';
 import 'rxjs/add/operator/withLatestFrom';
+import 'rxjs/add/operator/startWith';
 import { Observable } from 'rxjs/Observable';
 import 'rxjs/add/observable/of';
 import 'rxjs/add/observable/empty';
@@ -55,6 +57,8 @@ function mapResponse(resp: WebSocketActions.Response): Action | null {
 function mapEvent(ev: WebSocketActions.Event): Action | null {
   const {payload} = ev;
   switch (payload.event) {
+    case 'connected':
+      return new WebSocketActions.Connected();
     case 'room-join':
       return new GameActions.PlayerStateChange({
         username: payload.data.player,
@@ -70,10 +74,8 @@ function mapEvent(ev: WebSocketActions.Event): Action | null {
     case 'error':
       // TODO: Emit appropriate error action
       switch (payload.data.type) {
-        case 'connection':
-          if (payload.data.reason.includes('duplication')) {
-            return new WebSocketActions.DuplicateSession();
-          }
+        case 'connection-dup':
+          return new WebSocketActions.DuplicateSession();
         default:
           return new WebSocketActions.WebSocketError(payload.data);
       }
@@ -102,7 +104,8 @@ export class WebSocketEffects {
       this.socket = this.webSocket.connect(relativeWebSocketUri(path));
       return new Observable(obs => {
         this.socket.addEventListener('open', () => {
-          obs.next(new WebSocketActions.Connected());
+          // Connection message will be sent from the backend
+          // obs.next(new WebSocketActions.Connected());
         });
         this.socket.addEventListener('error', e => {
           obs.next(new WebSocketActions.WebSocketError(e));
