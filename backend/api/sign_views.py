@@ -155,9 +155,9 @@ def verify_session(request):
                 'username': username,
             }
 
-            room = cache.get('player-room:' + username)
-            if room is not None:
-                response_data['room_id'] = room['room_id']
+            room_id = cache.get('player-room:' + username)
+            if room_id is not None:
+                response_data['room_id'] = room_id
 
             return JsonResponse(response_data)
         else:
