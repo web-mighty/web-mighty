@@ -96,6 +96,11 @@ export class WebSocketEffects {
     .map(() => new WebSocketActions.Connect());
 
   @Effect()
+  signOut$ =
+    this.actions$.ofType(UserActions.SIGN_OUT_START)
+    .map(() => new WebSocketActions.Disconnect());
+
+  @Effect()
   connect$: Observable<Action> =
     this.actions$.ofType(WebSocketActions.CONNECT)
     .switchMap((action: WebSocketActions.Connect) => {

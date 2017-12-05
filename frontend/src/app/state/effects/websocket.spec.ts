@@ -98,6 +98,21 @@ describe('WebSocketEffects', () => {
     }));
   });
 
+  describe('signOut$', () => {
+    it('should fire Disconnect with signingOut set to true', fakeAsync(() => {
+      actions = new ReplaySubject(1);
+      actions.next(new UserActions.SignOut.Start());
+
+      const list = [];
+      effects.signOut$.subscribe(action => list.push(action));
+      tick();
+
+      expect(list).toEqual([
+        new WebSocketActions.Disconnect(),
+      ]);
+    }));
+  });
+
   describe('connect$', () => {
     it('should try to connect', fakeAsync(() => {
       actions = new ReplaySubject(1);

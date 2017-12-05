@@ -25,6 +25,13 @@ export function websocketReducer(
       return { ...initialState, connectionStatus: 'connecting' };
     case WebSocketActions.CONNECTED:
       return { ...initialState, connectionStatus: 'connected' };
+    case WebSocketActions.DISCONNECT:
+      if (state.connectionStatus === 'duplicate') {
+        // duplicate implies disconnected
+        return { ...state, connectionStatus: 'disconnected' };
+      } else {
+        return state;
+      }
     case WebSocketActions.DISCONNECTED:
       if (state.connectionStatus === 'duplicate') {
         return { ...initialState, connectionStatus: 'duplicate' };
