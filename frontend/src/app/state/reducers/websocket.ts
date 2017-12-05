@@ -3,7 +3,7 @@ import * as WebSocketActions from '../actions/websocket';
 
 import * as WebSocket from '../../websocket';
 
-export type ConnectionStatus = 'disconnected' | 'connecting' | 'connected';
+export type ConnectionStatus = 'disconnected' | 'connecting' | 'duplicate' | 'connected';
 
 export interface WebSocketState {
   connectionStatus: ConnectionStatus;
@@ -26,9 +26,15 @@ export function websocketReducer(
     case WebSocketActions.CONNECTED:
       return { ...initialState, connectionStatus: 'connected' };
     case WebSocketActions.DISCONNECTED:
-      return { ...initialState };
+      if (state.connectionStatus === 'duplicate') {
+        return { ...initialState, connectionStatus: 'duplicate' };
+      } else {
+        return initialState;
+      }
     case WebSocketActions.WS_ERROR:
       return { ...state, error: String(action.error) };
+    case WebSocketActions.DUPLICATE_SESSION:
+      return { ...state, connectionStatus: 'duplicate' };
     case WebSocketActions.REQUEST:
       return {
         ...state,

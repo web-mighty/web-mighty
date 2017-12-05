@@ -69,7 +69,14 @@ function mapEvent(ev: WebSocketActions.Event): Action | null {
       });
     case 'error':
       // TODO: Emit appropriate error action
-      return new WebSocketActions.WebSocketError(payload.data);
+      switch (payload.data.type) {
+        case 'connection':
+          if (payload.data.reason.includes('duplication')) {
+            return new WebSocketActions.DuplicateSession();
+          }
+        default:
+          return new WebSocketActions.WebSocketError(payload.data);
+      }
     default:
       return null;
   }
@@ -175,6 +182,8 @@ export class WebSocketEffects {
   disconnected$: Observable<Action> =
     this.actions$.ofType(WebSocketActions.DISCONNECTED)
     .do(() => this.socket = null)
+    .mergeMap(() => this.store.select('websocket', 'connectionStatus').first())
+    .filter(status => status !== 'duplicate')
     .mergeMap(() => this.store.select('user', 'authUser').first())
     .filter(user => user != null)
     .mergeMap(() => {
