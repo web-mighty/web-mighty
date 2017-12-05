@@ -186,12 +186,12 @@ export class WebSocketEffects {
     .filter(status => status !== 'duplicate')
     .mergeMap(() => this.store.select('user', 'authUser').first())
     .filter(user => user != null)
-    .mergeMap(() => {
-      const connect = Observable.of(new WebSocketActions.Connect());
+    .concatMap(() => {
+      const action = new WebSocketActions.Connect();
       if (this.delay) {
-        return connect.delay(5000);
+        return Observable.empty().delay(5000).startWith(action) as Observable<Action>;
       } else {
-        return connect;
+        return Observable.of(action);
       }
     });
 
