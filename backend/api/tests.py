@@ -426,6 +426,23 @@ class ApiSessionTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(data['username'], 'skystar')
 
+    def test_verify_session_with_room_id(self):
+        client = Client()
+        client.login(username='skystar', password='doge')
+
+        player_room_cache_key = 'player-room:' + 'skystar'
+        cache.set(player_room_cache_key, 'doge')
+
+        response = client.get(
+            reverse('verify_session'),
+        )
+
+        data = response.json()
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(data['username'], 'skystar')
+        self.assertEqual(data['room_id'], 'doge')
+
     def test_verify_session_unauthorized(self):
         client = Client()
 
