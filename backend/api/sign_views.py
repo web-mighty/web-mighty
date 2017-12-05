@@ -71,7 +71,7 @@ def sign_up(request):
 
         url_code = b64encode(':'.join((username, code)).encode()).decode()
 
-        url = DOMAIN_NAME + 'api/verify_account/{}/'.format(url_code)
+        url = DOMAIN_NAME + 'verify_account/{}/'.format(url_code)
         send_mail(
             'Web Mighty: Email Verification',
             '''
@@ -120,18 +120,23 @@ def sign_out(request):
         return HttpResponseNotAllowed(['GET'])
 
 
-def verify_account(request, url_code):
-    if request.method != 'GET':
-        return HttpResponseNotAllowed(['GET'])
+def verify_account(request):
+    if request.method != 'POST':
+        return HttpResponseNotAllowed(['POST'])
+
+    request_data = json.loads(request.body.decode())
+    token = request_data.get('token')
 
     try:
-        username, verify_code = b64decode(url_code.encode()).decode().split(':')
+        username, verify_token = b64decode(token.encode()).decode().split(':')
     except binascii.Error:
         return HttpResponseBadRequest()
+    except ValueError:
+        return HttpResponseBadRequest()
 
-    code = cache.get('verify-account:' + username)
+    token = cache.get('verify-account:' + username)
 
-    if code == verify_code:
+    if token == verify_token:
         try:
             user = User.objects.get(username=username)
         except User.DoesNotExist:
