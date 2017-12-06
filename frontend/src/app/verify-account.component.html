@@ -1,0 +1,15 @@
+<div>
+  <p *ngIf="signedIn | async">
+  Please sign out and retry.
+  </p>
+  <p *ngIf="verificationPending | async">
+  Verifying your account...
+  </p>
+  <div *ngIf="verificationDone | async">
+    <h3>Verification done!</h3>
+    <button (click)="gotoSignIn()">Sign In</button>
+  </div>
+  <p *ngIf="failureReason | async">
+  {{failureReason | async}}
+  </p>
+</div>

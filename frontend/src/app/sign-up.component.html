@@ -1,6 +1,5 @@
-<div class="mdl-grid mdl-grid--no-spacing">
-  <div class="mdl-layout-spacer"></div>
-  <div class="mdl-card mdl-shadow--3dp">
+<div class="sign-up">
+  <div *ngIf="!(verificationRequired | async)" class="mdl-card mdl-shadow--3dp">
     <div class="mdl-card__title">
       <h2 class="mdl-card__title-text">Sign up</h2>
     </div>
@@ -36,5 +35,10 @@
       </form>
     </div>
   </div>
-  <div class="mdl-layout-spacer"></div>
+  <div *ngIf="verificationRequired | async">
+    <h3>Email Verification Required</h3>
+    <p>
+    We've sent you an email. Please check the email and activate your account.
+    </p>
+  </div>
 </div>

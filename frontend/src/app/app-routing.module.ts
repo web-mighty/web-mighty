@@ -6,6 +6,7 @@ import { RouterModule, Routes } from '@angular/router';
 import { LobbyComponent } from './lobby.component';
 import { SignUpComponent } from './sign-up.component';
 import { SignInComponent } from './sign-in.component';
+import { VerifyAccountComponent } from './verify-account.component';
 import { ProfileViewComponent } from './profile-view.component';
 import { ProfileEditComponent } from './profile-edit.component';
 import { GameRoomComponent } from './game-room.component';
@@ -17,6 +18,7 @@ const routes: Routes = [
   { path: 'lobby', component: LobbyComponent },
   { path: 'sign_up', component: SignUpComponent },
   { path: 'sign_in', component: SignInComponent },
+  { path: 'verify_account/:token', component: VerifyAccountComponent },
   { path: 'profile/:username', component: ProfileViewComponent },
   { path: 'profile/:username/edit', component: ProfileEditComponent },
   { path: 'room/:roomId', component: GameRoomComponent },
@@ -29,6 +31,7 @@ const routes: Routes = [
     LobbyComponent,
     SignUpComponent,
     SignInComponent,
+    VerifyAccountComponent,
     ProfileViewComponent,
     ProfileEditComponent,
     GameRoomComponent,

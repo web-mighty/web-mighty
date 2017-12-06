@@ -68,11 +68,6 @@ export class UserEffects {
     });
 
   @Effect()
-  signUpDone$: Observable<Action> =
-    this.actions$.ofType(UserActions.SIGN_UP_DONE)
-    .map(_ => new RouterActions.GoByUrl('sign_in'));
-
-  @Effect()
   signIn$: Observable<Action> =
     this.actions$.ofType(UserActions.SIGN_IN_START)
     .map((action: UserActions.SignIn.Start) => action.payload)
@@ -170,6 +165,31 @@ export class UserEffects {
       Observable.of(new RouterActions.GoByUrl('lobby')) :
       Observable.never();
     });
+
+  @Effect()
+  verifyAccount$ =
+    this.actions$.ofType(UserActions.VERIFY_ACCOUNT_START)
+    .mergeMap((action: UserActions.VerifyAccount.Start) =>
+      this.http.post(
+        '/api/verify_account/',
+        JSON.stringify({ token: action.token }),
+        { headers: UserEffects.jsonHeaders }
+      )
+      .mergeMap((response): Observable<Action> => {
+        if (!response.ok) {
+          return Observable.throw(response);
+        }
+        return Observable.of(new UserActions.VerifyAccount.Done());
+      })
+      .catch((response): Observable<Action> => {
+        if (response.status === 400) {
+          return Observable.of(new UserActions.VerifyAccount.Failed('invalid'));
+        } else if (response.status === 500) {
+          return Observable.of(new UserActions.VerifyAccount.Failed('crash'));
+        }
+        return Observable.of(new UserActions.VerifyAccount.Failed('unknown'));
+      })
+    );
 
   constructor(
     private actions$: Actions,

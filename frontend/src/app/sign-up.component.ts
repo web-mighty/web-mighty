@@ -21,12 +21,15 @@ export class SignUpComponent {
   nickname = '';
 
   error: Observable<string | null>;
+  verificationRequired: Observable<boolean>;
 
   constructor(
     private store: Store<State>,
   ) {
-    const user = this.store.select('user');
-    this.error = user.map(user => user.currentError);
+    this.error = this.store.select('user', 'currentError');
+    this.verificationRequired =
+      this.store.select('user', 'accountVerification', 'status')
+      .map(status => status === 'required');
   }
 
   signUp() {

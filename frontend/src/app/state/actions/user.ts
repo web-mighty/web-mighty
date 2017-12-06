@@ -20,6 +20,10 @@ export const NEED_SIGN_IN = 'User: Need sign in';
 
 export const REDIRECT_WITH_SIGN_IN_STATE = 'User: Redirect with sign in state';
 
+export const VERIFY_ACCOUNT_START = 'User: Verify account: Start';
+export const VERIFY_ACCOUNT_DONE = 'User: Verify account: Done';
+export const VERIFY_ACCOUNT_FAILED = 'User: Verify account: Failed';
+
 export namespace SignUp {
   export class Start implements Action {
     readonly type = SIGN_UP_START;
@@ -95,6 +99,30 @@ export class RedirectWithSignInState implements Action {
   }) {}
 }
 
+export namespace VerifyAccount {
+  export type FailureReason
+    = 'invalid'
+    | 'crash'
+    | 'unknown'
+  ;
+
+  export class Start implements Action {
+    readonly type = VERIFY_ACCOUNT_START;
+
+    constructor(public readonly token: string) {}
+  }
+
+  export class Done implements Action {
+    readonly type = VERIFY_ACCOUNT_DONE;
+  }
+
+  export class Failed implements Action {
+    readonly type = VERIFY_ACCOUNT_FAILED;
+
+    constructor(public readonly reason: FailureReason) {}
+  }
+}
+
 export type Actions
   = SignUp.Start
   | SignUp.Done
@@ -108,4 +136,7 @@ export type Actions
   | Verified
   | NeedSignIn
   | RedirectWithSignInState
+  | VerifyAccount.Start
+  | VerifyAccount.Done
+  | VerifyAccount.Failed
 ;
