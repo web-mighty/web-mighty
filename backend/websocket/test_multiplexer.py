@@ -31,6 +31,9 @@ class MultiplexerTest(ChannelTestCase):
         self.assertEqual(response['data']['reason'], 'Not authenticated')
         self.assertEqual(response['data']['type'], 'connection-auth')
 
+        response = client.receive()
+        self.assertEqual(response['close'], 4000)
+
     def test_connection_authenticated(self):
         self.assertIsNone(cache.get('session:skystar'))
 
@@ -63,6 +66,9 @@ class MultiplexerTest(ChannelTestCase):
         self.assertEqual(response['data']['reason'], 'Session duplication detected')
         self.assertEqual(response['data']['type'], 'connection-dup')
 
+        response = second_client.receive()
+        self.assertEqual(response['close'], 4001)
+
         self.assertEqual(cache.get('session:skystar'), session_cache)
 
     def test_connection_force_login(self):
@@ -92,6 +98,9 @@ class MultiplexerTest(ChannelTestCase):
         self.assertIn('error', response)
         self.assertEqual(response['error']['reason'], 'Session duplication detected')
         self.assertEqual(response['error']['type'], 'receive')
+
+        response = first_client.receive()
+        self.assertEqual(response['close'], 4011)
 
         self.assertNotEqual(cache.get('session:skystar'), session_cache)
 

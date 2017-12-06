@@ -75,7 +75,9 @@ function mapEvent(ev: WebSocketActions.Event): Action | null {
       // TODO: Emit appropriate error action
       switch (payload.data.type) {
         case 'connection-dup':
-          return new WebSocketActions.DuplicateSession();
+          return null;
+        case 'connection-auth':
+          return null;
         default:
           return new WebSocketActions.WebSocketError(payload.data);
       }
@@ -116,10 +118,27 @@ export class WebSocketEffects {
           obs.next(new WebSocketActions.WebSocketError(e));
         });
         this.socket.addEventListener('close', e => {
-          if (!e.wasClean) {
-            obs.next(new WebSocketActions.WebSocketError(e));
+          switch (e.code) {
+            case 1000: // Normal
+              obs.next(new WebSocketActions.Disconnected());
+              break;
+            case 4000: // Reject: Unauthorized
+              obs.next(new WebSocketActions.Disconnected());
+              break;
+            case 4001: // Reject: Duplication
+              obs.next(new WebSocketActions.DuplicateSession());
+              break;
+            case 4010: // Disconnect: Unauthorized
+              obs.next(new WebSocketActions.Disconnected());
+              break;
+            case 4011: // Disconnect: Duplication
+              obs.next(new WebSocketActions.DuplicateSession());
+              break;
+            default:
+              obs.next(new WebSocketActions.WebSocketError(e));
+              obs.next(new WebSocketActions.Disconnected());
+              break;
           }
-          obs.next(new WebSocketActions.Disconnected());
           obs.complete();
         });
         this.socket.addEventListener('message', message => {

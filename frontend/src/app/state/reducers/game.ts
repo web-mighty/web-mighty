@@ -66,6 +66,7 @@ export function gameReducer(
     case GameActions.PLAYER_STATE_CHANGE:
       return { ...state, room: applyPlayerState(state.room, action.payload) };
     case WebSocketActions.DISCONNECTED:
+    case WebSocketActions.DUPLICATE_SESSION:
       return initialState;
     default:
       return state;
