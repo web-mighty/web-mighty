@@ -24,6 +24,8 @@ const routes: Routes = [
   { path: 'room/:roomId', component: GameRoomComponent },
   { path: 'create_game', component: GameCreateComponent },
   { path: 'hall_of_fame', component: HallOfFameComponent },
+
+  { path: '**', redirectTo: '/lobby' }, // FIXME: NotFoundComponent?
 ];
 
 @NgModule({
