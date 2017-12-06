@@ -23,9 +23,8 @@ export class SignInComponent implements OnInit {
   constructor(
     private store: Store<State>,
   ) {
-    const user = this.store.select('user');
-    this.verifying = user.map(user => user.verifying);
-    this.error = user.map(user => user.currentError);
+    this.verifying = this.store.select('user', 'verifying');
+    this.error = this.store.select('user', 'currentError');
   }
 
   ngOnInit() {
