@@ -1,3 +1,4 @@
+import { browser, by, element } from 'protractor';
 import { AppPage } from './app.po';
 
 describe('frontend App', () => {
@@ -23,6 +24,7 @@ describe('frontend App', () => {
     });
     page.submitSignUp();
 
-    expect(page.getCurrentUrl()).toMatch(/\/sign_in$/);
+    const h3 = element(by.css('app-sign-up div > h3'));
+    expect(h3.getText()).toBe('Email Verification Required');
   });
 });
