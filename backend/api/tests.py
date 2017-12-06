@@ -8,6 +8,7 @@ from django.core.files import File
 from django.core import mail
 from backend.settings import BASE_DIR
 from io import BytesIO
+from urllib.parse import unquote_plus
 import json
 import os
 
@@ -282,7 +283,7 @@ class ApiSignUpTest(TestCase):
         link = body.split('link.')[1].strip()
 
         post_data = {
-            'token': link.split('/')[-2].strip(),
+            'token': unquote_plus(link.split('/')[-2].strip()),
         }
 
         client.post(
