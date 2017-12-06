@@ -1,5 +1,6 @@
 import { AppActions } from '../app-actions';
 import * as GameActions from '../actions/game';
+import * as WebSocketActions from '../actions/websocket';
 
 import * as WebSocket from '../../websocket';
 
@@ -64,6 +65,8 @@ export function gameReducer(
       return { room: action.room, joiningTo: null, leaving: false };
     case GameActions.PLAYER_STATE_CHANGE:
       return { ...state, room: applyPlayerState(state.room, action.payload) };
+    case WebSocketActions.DISCONNECTED:
+      return initialState;
     default:
       return state;
   }
