@@ -76,6 +76,10 @@ export class LobbyComponent implements OnInit {
     this.store.dispatch(new GameActions.JoinRoom({
       roomId: id,
     }));
+    this.store.dispatch(new UserActions.RedirectWithSignInState({
+      when: 'not-signed-in',
+      goTo: 'sign_in',
+    }));
   }
 
 }

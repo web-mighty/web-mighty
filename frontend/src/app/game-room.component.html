@@ -1,11 +1,20 @@
-<div *ngIf="roomData != null">
-  <h3>{{roomData.title}}</h3>
-  <ul>
-    <li *ngFor="let player of roomData.players">
-      {{player.ready ? '✓' : ''}}{{player.username}}
-    </li>
-  </ul>
-</div>
-<div *ngIf="roomData == null">
-  Joining to {{roomId}}...
+<div class="mdl-grid">
+  <div class="mdl-layout-spacer"></div>
+  <div class="mdl-cell mdl-cell--6-col-desktop mdl-cell--8-col-tablet mdl-cell--4-col-phone">
+    <div *ngIf="roomData != null">
+      <h3>{{roomData.title}}</h3>
+      <div class="mdl-list">
+        <div class="mdl-list__item" *ngFor="let player of roomData.players">
+          <span class="mdl-list__item-primary-content">
+            <i class="material-icons mdl=list__item-avatar">account_circle</i>
+            {{player.username}}{{player.ready ? '✓' : ''}}
+          </span>
+        </div>
+      </div>
+    </div>
+    <div *ngIf="roomData == null">
+      <h4>Joining to {{roomId}}...</h4>
+    </div>
+  </div>
+  <div class="mdl-layout-spacer"></div>
 </div>
