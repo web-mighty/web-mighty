@@ -281,8 +281,14 @@ class ApiSignUpTest(TestCase):
         body = mail.outbox[0].body
         link = body.split('link.')[1].strip()
 
-        client.get(
-            link,
+        post_data = {
+            'token': link.split('/')[-2].strip(),
+        }
+
+        client.post(
+            reverse('verify_account'),
+            json.dumps(post_data),
+            content_type='application/json',
         )
 
         self.assertIsNone(cache.get('verify-account:skystar'))
