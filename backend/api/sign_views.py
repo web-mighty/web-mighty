@@ -14,6 +14,7 @@ import binascii
 from base64 import b64encode, b64decode
 import uuid
 from datetime import datetime, timedelta
+from urllib.parse import quote_plus
 
 
 def sign_up(request):
@@ -69,7 +70,7 @@ def sign_up(request):
         code = str(uuid.uuid4())
         cache.set('verify-account:' + username, code)
 
-        url_code = b64encode(':'.join((username, code)).encode()).decode()
+        url_code = quote_plus(b64encode(':'.join((username, code)).encode()).decode())
 
         url = DOMAIN_NAME + 'verify_account/{}/'.format(url_code)
         send_mail(
