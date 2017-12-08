@@ -140,6 +140,14 @@ def gameplay_bid_consumer(message):
 
             if player_number == 5:
                 room['game']['state'] = RoomState.FRIEND_SELECTING
+
+                event_data = {
+                    'floor_cards': room['game']['floor_cards'],
+                }
+                reply_channel.send(event(
+                    'gameplay-floor-cards',
+                    event_data,
+                ))
                 event_data = {
                     'player': bidder,
                 }
@@ -513,6 +521,35 @@ def gameplay_friend_select_consumer(message):
         ))
         return
 
+    floor_cards = data.get('floor-cards', None)
+
+    if floor_cards is None:
+        reply_channel.send(reply_error(
+            'Invalid floor cards',
+            nonce=nonce,
+            type='gameplay-friend-select',
+        ))
+        return
+
+    player_card = []
+    room['floor_cards'] = []
+    for p in room['players']:
+        if p['username'] == username:
+            player_card = p['cards']
+            break
+
+    for c in floor_cards:
+        ci = card_index(c, player_card)
+        if ci == -1:
+            reply_channel.send(reply_error(
+                'Invalid floor cards',
+                nonce=nonce,
+                type='gameplay-friend-select',
+            ))
+            return
+        room['floor_cards'].append(c)
+        del player_card[ci]
+
     type = data.get('type', None)
 
     if type is None or type not in ['no', 'card', 'player', 'turn']:
@@ -540,16 +577,13 @@ def gameplay_friend_select_consumer(message):
             ))
             return
 
-        for player in room['players']:
-            if player['username'] == username:
-                if card_in(card, player['cards']):
-                    reply_channel.send(reply_error(
-                        'You cannot select your card',
-                        nonce=nonce,
-                        type='gameplay-friend-select',
-                    ))
-                    return
-                break
+        if card_in(card, player_card):
+            reply_channel.send(reply_error(
+                'You cannot select your card',
+                nonce=nonce,
+                type='gameplay-friend-select',
+            ))
+            return
 
         room['game']['friend_selection']['type'] = 'card'
         room['game']['friend_selection']['card'] = card
@@ -595,6 +629,34 @@ def gameplay_friend_select_consumer(message):
         room['game']['friend_selection']['type'] = 'turn'
         room['game']['friend_selection']['turn'] = t
         event_data['turn'] = t
+
+    change_bid = data.get('change-bid', None)
+
+    if change_bid is not None and isinstance(change_bid, dict):
+        bid = change_bid.get('bid', None)
+        giruda = change_bid.get('giruda', None)
+        if bid is None or giruda is None:
+            reply_channel.send(reply_error(
+                'Invalid bid or giruda change',
+                nonce=nonce,
+                type='gameplay-friend-select',
+            ))
+            return
+        current_bid = room['game']['bid_score']
+        current_giruda = room['game']['giruda']
+        change_score = bid if giruda != 'N' else bid - 1
+        current_score = current_bid if current_giruda != 'N' else current_bid - 1
+
+        if change_score < current_score + 2:
+            reply_channel.send(reply_error(
+                'Not enough bid',
+                nonce=nonce,
+                type='gameplay-friend-select',
+            ))
+            return
+
+        room['game']['bid_score'] = bid
+        room['game']['giruda'] = giruda
 
     room['game']['state'] = RoomState.PLAYING
     room['game']['turn'] = 0
