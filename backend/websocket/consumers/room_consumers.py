@@ -4,6 +4,7 @@ from django.contrib.auth.hashers import check_password
 from api.models import Room
 from .consumer_utils import reply_error, response, event, reset_room_data
 from .consumer_utils import new_player_data
+from .state import RoomState
 
 
 def room_join_consumer(message):
@@ -158,7 +159,7 @@ def room_leave_consumer(message):
         Group(room_id).send(event('room-leave', event_data))
 
         # only when game is playing
-        if room_cache['is_playing']:
+        if room_cache['game']['state'] is not RoomState.NOT_PLAYING:
             Channel('room-reset').send({'room_id': room_id})
 
 
@@ -257,8 +258,6 @@ def room_start_consumer(message):
         reply_channel.send(
             reply_error('Not all people are ready', nonce=nonce, type='room-start'))
         return
-
-    room_cache['is_playing'] = True
 
     cache.set(room_cache_key, room_cache)
 

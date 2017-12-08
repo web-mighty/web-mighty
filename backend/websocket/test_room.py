@@ -11,6 +11,7 @@ from django.core.cache import cache
 from api.models import Room
 from api.models import create_user
 from websocket.consumers.consumer_utils import reset_room_data
+from websocket.consumers.state import RoomState
 
 import os
 
@@ -521,7 +522,7 @@ class RoomStartTest(ChannelTestCase):
 
         room_cache = cache.get('room:room')
 
-        self.assertFalse(room_cache['is_playing'])
+        self.assertIs(room_cache['game']['state'], RoomState.NOT_PLAYING)
 
         req = request('room-start', {}, nonce='test')
         client1.send_and_consume('websocket.receive', req, path='/api/websocket/')
@@ -536,10 +537,6 @@ class RoomStartTest(ChannelTestCase):
 
         response = client2.receive()
         self.assertEqual(response['event'], 'room-start')
-
-        room_cache = cache.get('room:room')
-
-        self.assertTrue(room_cache['is_playing'])
 
 
 class RoomResetTest(ChannelTestCase):
@@ -601,7 +598,7 @@ class RoomResetTest(ChannelTestCase):
         client1.receive()
 
         room_cache = cache.get('room:room')
-        room_cache['is_playing'] = True
+        room_cache['game']['state'] = RoomState.PLAYING
         cache.set('room:room', room_cache)
 
         req = request('room-leave', {}, nonce='test')
