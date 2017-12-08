@@ -287,7 +287,7 @@ def gameplay_deal_miss_consumer(message):
 
     if room['game']['state'].value > RoomState.FRIEND_SELECTING.value:
         reply_channel.send(reply_error(
-            'Invalid timing',
+            'Invalid request',
             nonce=nonce,
             type='gameplay-bid',
         ))
@@ -338,7 +338,7 @@ def gameplay_kill_consumer(message):
 
     room = cache.get('room:' + room_id)
 
-    if room['game']['state'] != RoomState.KILL_SELECTING:
+    if room['game']['state'] is not RoomState.KILL_SELECTING:
         reply_channel.send(reply_error(
             'Invalid request',
             nonce=nonce,
@@ -481,7 +481,143 @@ def gameplay_kill_consumer(message):
 
 
 def gameplay_friend_select_consumer(message):
-    pass
+    data = message.content
+    username = data['username']
+    nonce = data['nonce']
+    reply_channel = Channel(data['reply'])
+    room_id = cache.get('player-room:' + username)
+
+    if room_id is None:
+        reply_channel.send(reply_error(
+            'You are not in room',
+            nonce=nonce,
+            type='gameplay-friend-select',
+        ))
+        return
+
+    room = cache.get('room:' + room_id)
+
+    if room['game']['state'] is not RoomState.FRIEND_SELECTING:
+        reply_channel.send(reply_error(
+            'Invalid request',
+            nonce=nonce,
+            type='gameplay-friend-select',
+        ))
+        return
+
+    if room['game']['president'] != username:
+        reply_channel.send(reply_error(
+            'You are not president',
+            nonce=nonce,
+            type='gameplay-friend-select',
+        ))
+        return
+
+    type = data.get('type', None)
+
+    if type is None or type not in ['no', 'card', 'player', 'turn']:
+        reply_channel.send(reply_error(
+            'Invalid friend type',
+            nonce=nonce,
+            type='gameplay-friend-select',
+        ))
+        return
+
+    event_data = {
+        'type': type,
+    }
+
+    if type == 'no':
+        pass
+
+    elif type == 'card':
+        card = data.get('card', None)
+        if card is None or not is_valid_card(card):
+            reply_channel.send(reply_error(
+                'Invalid card',
+                nonce=nonce,
+                type='gameplay-friend-select',
+            ))
+            return
+
+        for player in room['players']:
+            if player['username'] == username:
+                if card_in(card, player['cards']):
+                    reply_channel.send(reply_error(
+                        'You cannot select your card',
+                        nonce=nonce,
+                        type='gameplay-friend-select',
+                    ))
+                    return
+                break
+
+        room['game']['friend_selection']['type'] = 'card'
+        room['game']['friend_selection']['card'] = card
+        event_data['card'] = card
+
+    elif type == 'player':
+        p = data.get('player', None)
+        if p is None or not isinstance(p, str):
+            reply_channel.send(reply_error(
+                'Invalid player',
+                nonce=nonce,
+                type='gameplay-friend-select',
+            ))
+            return
+
+        found = False
+        for player in room['players']:
+            if player['username'] == p:
+                found = True
+                room['game']['friend_selection']['type'] = 'player'
+                room['game']['friend_selection']['player'] = p
+                event_data['player'] = p
+                break
+
+        if not found:
+            reply_channel.send(reply_error(
+                'Invalid player',
+                nonce=nonce,
+                type='gameplay-friend-select',
+            ))
+            return
+
+    elif type == 'turn':
+        t = data.get('turn', None)
+        if t is None or not isinstance(t, int) or t < 1 or t > 10:
+            reply_channel.send(reply_error(
+                'Invalid turn',
+                nonce=nonce,
+                type='gameplay-friend-select',
+            ))
+            return
+
+        room['game']['friend_selection']['type'] = 'turn'
+        room['game']['friend_selection']['turn'] = t
+        event_data['turn'] = t
+
+    room['game']['state'] = RoomState.PLAYING
+    room['game']['turn'] = 0
+
+    cache.set('room:' + room_id, room)
+
+    reply_channel.send(response(
+        {},
+        nonce=nonce,
+    ))
+    Group(room_id).send(event(
+        'gameplay-friend-select',
+        event_data,
+    ))
+
+    event_data = {
+        'player': username,
+    }
+
+    Group(room_id).send(event(
+        'gameplay-turn',
+        event_data,
+    ))
 
 
 def gameplay_play_consumer(message):

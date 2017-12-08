@@ -93,6 +93,12 @@ def new_room_data(**kwargs):
             'turn': 0,
             'president': '',
             'friend': '',
+            'friend_selection': {
+                'type': '',
+                'card': {},
+                'turn': 0,
+                'player': '',
+            },
             'bid_score': 0,
             'current_bid': {
                 'bidder': '',

@@ -27,6 +27,9 @@ def card_score(cards, giruda):
 
 
 def is_valid_card(card):
+    if isinstance(card, dict) is False:
+        return False
+
     ranks = ['A', 'K', 'Q', 'J', '10', '9', '8', '7', '6', '5', '4', '3', '2']
     suits = ['S', 'D', 'C', 'H']
     if 'suit' not in card or 'rank' not in card:
