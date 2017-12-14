@@ -18,3 +18,7 @@ export interface Room {
   title: string;
   players: Player[];
 }
+
+export interface ReadyResult {
+  ready: boolean;
+}

@@ -1,4 +1,4 @@
-import { Room, GenericError } from './data';
+import { Room, ReadyResult, GenericError } from './data';
 
 export interface SuccessWithNonce {
   nonce: string;
@@ -26,5 +26,6 @@ export interface Failure {
 export type Response
   = Success<{}>
   | Success<Room>
+  | Success<ReadyResult>
   | Failure
 ;

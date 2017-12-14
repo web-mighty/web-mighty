@@ -44,6 +44,15 @@ export class GameEffects {
       )
     );
 
+  @Effect()
+  ready$ =
+    this.actions$.ofType(GameActions.READY)
+    .map((action: GameActions.Ready) =>
+      new WebSocketActions.Request(
+        new WebSocket.Requests.RoomReady(action.ready)
+      )
+    );
+
   constructor(
     private actions$: Actions,
   ) {}
