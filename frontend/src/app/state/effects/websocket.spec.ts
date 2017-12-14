@@ -194,11 +194,87 @@ describe('WebSocketEffects', () => {
       webSocket.accept();
       tick();
 
-      webSocket.close(false);
+      webSocket.close(1001);
       tick();
 
       expect(errorFound).toBeTruthy();
       expect(closeFound).toBeTruthy();
+    }));
+
+    it('should fire Disconnected if the socket is closed with 4000', fakeAsync(() => {
+      actions = new ReplaySubject(1);
+      actions.next(
+        new WebSocketActions.Connect()
+      );
+      let list = [];
+      effects.connect$.subscribe(action => list.push(action));
+      tick();
+
+      webSocket.accept();
+      tick();
+
+      webSocket.close(4000);
+      tick();
+
+      expect(list.length).toBe(1);
+      expect(list[0]).toEqual(new WebSocketActions.Disconnected());
+    }));
+
+    it('should fire DuplicateSession if the socket is closed with 4001', fakeAsync(() => {
+      actions = new ReplaySubject(1);
+      actions.next(
+        new WebSocketActions.Connect()
+      );
+      let list = [];
+      effects.connect$.subscribe(action => list.push(action));
+      tick();
+
+      webSocket.accept();
+      tick();
+
+      webSocket.close(4001);
+      tick();
+
+      expect(list.length).toBe(1);
+      expect(list[0]).toEqual(new WebSocketActions.DuplicateSession());
+    }));
+
+    it('should fire Disconnected if the socket is closed with 4010', fakeAsync(() => {
+      actions = new ReplaySubject(1);
+      actions.next(
+        new WebSocketActions.Connect()
+      );
+      let list = [];
+      effects.connect$.subscribe(action => list.push(action));
+      tick();
+
+      webSocket.accept();
+      tick();
+
+      webSocket.close(4010);
+      tick();
+
+      expect(list.length).toBe(1);
+      expect(list[0]).toEqual(new WebSocketActions.Disconnected());
+    }));
+
+    it('should fire DuplicateSession if the socket is closed with 4011', fakeAsync(() => {
+      actions = new ReplaySubject(1);
+      actions.next(
+        new WebSocketActions.Connect()
+      );
+      let list = [];
+      effects.connect$.subscribe(action => list.push(action));
+      tick();
+
+      webSocket.accept();
+      tick();
+
+      webSocket.close(4011);
+      tick();
+
+      expect(list.length).toBe(1);
+      expect(list[0]).toEqual(new WebSocketActions.DuplicateSession());
     }));
 
     it('should fire Event if it received an event', fakeAsync(() => {
@@ -457,6 +533,24 @@ describe('WebSocketEffects', () => {
           ready: false,
         }),
       },
+      {
+        name: 'generic error',
+        given: { event: 'error', data: { type: 'foo', reason: 'bar' } },
+        expect: new WebSocketActions.WebSocketError({
+          type: 'foo',
+          reason: 'bar',
+        }),
+      },
+      {
+        name: 'error of connection-dup',
+        given: { event: 'error', data: { type: 'connection-dup', reason: 'Session duplication detected' } },
+        expect: null,
+      },
+      {
+        name: 'error of connection-auth',
+        given: { event: 'error', data: { type: 'connection-auth', reason: 'Not authenticated' } },
+        expect: null,
+      },
     ];
 
     for (const spec of expects) {
@@ -468,8 +562,12 @@ describe('WebSocketEffects', () => {
         effects.event$.subscribe(action => list.push(action));
         tick();
 
-        expect(list.length).toBe(1);
-        expect(list[0]).toEqual(spec.expect);
+        if (spec.expect === null) {
+          expect(list.length).toBe(0);
+        } else {
+          expect(list.length).toBe(1);
+          expect(list[0]).toEqual(spec.expect);
+        }
       }));
     }
   });

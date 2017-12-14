@@ -7,6 +7,16 @@ from urllib.parse import parse_qs
 import json
 
 
+WEBSOCKET_REJECT_UNAUTHORIZED = 4000
+WEBSOCKET_REJECT_DUPLICATE = 4001
+WEBSOCKET_DISCONNECT_UNAUTHORIZED = 4010
+WEBSOCKET_DISCONNECT_DUPLICATE = 4011
+
+rejection_codes = [
+    WEBSOCKET_REJECT_UNAUTHORIZED,
+    WEBSOCKET_REJECT_DUPLICATE,
+]
+
 available_channels = [
     'room-join',
     'room-leave',
@@ -39,7 +49,7 @@ def websocket_connect(message):
     if not message.user.is_authenticated:
         message.reply_channel.send({'accept': True})
         message.reply_channel.send(event_error('Not authenticated', type='connection-auth'))
-        message.reply_channel.send({'close': True})
+        message.reply_channel.send({'close': WEBSOCKET_REJECT_UNAUTHORIZED})
         return
 
     cache_key = 'session:' + message.user.username
@@ -62,13 +72,13 @@ def websocket_connect(message):
     else:
         if current_session != message.reply_channel.name:
             if 'force' in query_string and 'true' in query_string['force']:
-                Channel(current_session).send({'close': True})
+                Channel(current_session).send({'close': WEBSOCKET_DISCONNECT_DUPLICATE})
                 cache.set(cache_key, message.reply_channel.name)
             else:
                 message.reply_channel.send({'accept': True})
                 message.reply_channel.send(
                     event_error('Session duplication detected', type='connection-dup'))
-                message.reply_channel.send({'close': True})
+                message.reply_channel.send({'close': WEBSOCKET_REJECT_DUPLICATE})
                 return
 
     message.reply_channel.send({'accept': True})
@@ -87,7 +97,7 @@ def websocket_receive(message):
     if not message.user.is_authenticated:
         message.reply_channel.send(
             reply_error('Not authenticated', nonce=data.get('nonce', ''), type='receive'))
-        message.reply_channel.send({'close': True})
+        message.reply_channel.send({'close': WEBSOCKET_DISCONNECT_UNAUTHORIZED})
         return
 
     cache_key = 'session:' + message.user.username
@@ -96,7 +106,7 @@ def websocket_receive(message):
     if message.reply_channel.name != current_session:
         message.reply_channel.send(
             reply_error('Session duplication detected', nonce=data.get('nonce', ''), type='receive'))
-        message.reply_channel.send({'close': True})
+        message.reply_channel.send({'close': WEBSOCKET_DISCONNECT_DUPLICATE})
         return
 
     if 'nonce' not in data:
@@ -127,6 +137,11 @@ def websocket_receive(message):
 
 @channel_session_user
 def websocket_disconnect(message):
+    if message.content['code'] in rejection_codes:
+        # The connection is closed due to rejection
+        # Did nothing, so do nothing
+        return
+
     if message.user.is_authenticated:
         session_cache_key = 'session:' + message.user.username
         session = cache.get(session_cache_key)

@@ -310,7 +310,7 @@ class RoomLeaveTest(ChannelTestCase):
         self.assertIsNotNone(cache.get('session:skystar1'))
         self.assertIsNone(cache.get('player-room:skystar1'))
 
-        client2.send_and_consume('websocket.disconnect', path='/api/websocket')
+        client2.send_and_consume('websocket.disconnect', {'code': 1000}, path='/api/websocket')
 
         room_leave_consumer(self.get_next_message('room-leave'))
 
