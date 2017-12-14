@@ -47,10 +47,11 @@ export class WebSocketMock {
     }
   }
 
-  close(wasClean: boolean = true) {
+  close(code: number = 1000) {
     const cbs = this.cbtable['close'];
+    const wasClean = code === 1000;
     for (const cb of cbs) {
-      cb(new CloseEvent('close', { wasClean }));
+      cb(new CloseEvent('close', { code, wasClean }));
     }
   }
 }

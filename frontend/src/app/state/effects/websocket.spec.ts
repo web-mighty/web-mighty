@@ -194,11 +194,87 @@ describe('WebSocketEffects', () => {
       webSocket.accept();
       tick();
 
-      webSocket.close(false);
+      webSocket.close(1001);
       tick();
 
       expect(errorFound).toBeTruthy();
       expect(closeFound).toBeTruthy();
+    }));
+
+    it('should fire Disconnected if the socket is closed with 4000', fakeAsync(() => {
+      actions = new ReplaySubject(1);
+      actions.next(
+        new WebSocketActions.Connect()
+      );
+      let list = [];
+      effects.connect$.subscribe(action => list.push(action));
+      tick();
+
+      webSocket.accept();
+      tick();
+
+      webSocket.close(4000);
+      tick();
+
+      expect(list.length).toBe(1);
+      expect(list[0]).toEqual(new WebSocketActions.Disconnected());
+    }));
+
+    it('should fire DuplicateSession if the socket is closed with 4001', fakeAsync(() => {
+      actions = new ReplaySubject(1);
+      actions.next(
+        new WebSocketActions.Connect()
+      );
+      let list = [];
+      effects.connect$.subscribe(action => list.push(action));
+      tick();
+
+      webSocket.accept();
+      tick();
+
+      webSocket.close(4001);
+      tick();
+
+      expect(list.length).toBe(1);
+      expect(list[0]).toEqual(new WebSocketActions.DuplicateSession());
+    }));
+
+    it('should fire Disconnected if the socket is closed with 4010', fakeAsync(() => {
+      actions = new ReplaySubject(1);
+      actions.next(
+        new WebSocketActions.Connect()
+      );
+      let list = [];
+      effects.connect$.subscribe(action => list.push(action));
+      tick();
+
+      webSocket.accept();
+      tick();
+
+      webSocket.close(4010);
+      tick();
+
+      expect(list.length).toBe(1);
+      expect(list[0]).toEqual(new WebSocketActions.Disconnected());
+    }));
+
+    it('should fire DuplicateSession if the socket is closed with 4011', fakeAsync(() => {
+      actions = new ReplaySubject(1);
+      actions.next(
+        new WebSocketActions.Connect()
+      );
+      let list = [];
+      effects.connect$.subscribe(action => list.push(action));
+      tick();
+
+      webSocket.accept();
+      tick();
+
+      webSocket.close(4011);
+      tick();
+
+      expect(list.length).toBe(1);
+      expect(list[0]).toEqual(new WebSocketActions.DuplicateSession());
     }));
 
     it('should fire Event if it received an event', fakeAsync(() => {
