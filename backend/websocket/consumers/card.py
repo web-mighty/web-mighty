@@ -85,7 +85,7 @@ def is_joker_call(card, giruda):
 def is_same_card(card1, card2):
     if card1['rank'] == 'JK' and card1['rank'] == card2['rank']:
         return True
-    if card1['rank'] == card1['rank'] and card1['suit'] == card2['suit']:
+    if card1['rank'] == card2['rank'] and card1['suit'] == card2['suit']:
         return True
     return False
 
@@ -148,3 +148,10 @@ def win_card(cards, giruda, joker_call, round=-1):
             mr = r
             mi = i
     return mi
+
+
+def code_to_card(code):
+    # SA (Spade A), JK (Joker)
+    if code == 'JK':
+        return {'rank': 'JK', 'suit': None}
+    return {'rank': code[1:], 'suit': code[0]}

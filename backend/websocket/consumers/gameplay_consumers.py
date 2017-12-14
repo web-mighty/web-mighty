@@ -74,7 +74,7 @@ def gameplay_bid_consumer(message):
     giruda = data.get('giruda', None)
     try_bid = data.get('bid', None)
 
-    if not all([score, giruda, try_bid]):
+    if score is None or giruda is None or try_bid is None:
         reply_channel.send(reply_error(
             'Invalid request',
             nonce=nonce,
@@ -107,17 +107,24 @@ def gameplay_bid_consumer(message):
         room['players'][turn]['bid'] = 2
 
         bidder_count = 0
+        giveup_count = 0
         bidder = ''
         bidder_turn = 0
         bidder_reply = ''
         for i, player in enumerate(room['players']):
             if player['bid'] == 1:
-                bidder_count = bidder_count + 1
+                bidder_count += 1
                 bidder = player['username']
                 bidder_turn = i
                 bidder_reply = player['reply']
+            elif player['bid'] == 2:
+                giveup_count += 1
 
-        if bidder_count == 1:
+        if bidder_count == 1 and giveup_count == (player_number - 1):
+            reply_channel.send(response(
+                {},
+                nonce=nonce,
+            ))
             turn = bidder_turn
             reply_channel = Channel(bidder_reply)
             room['game']['president'] = bidder
@@ -143,6 +150,8 @@ def gameplay_bid_consumer(message):
             if player_number == 5:
                 room['game']['state'] = RoomState.FRIEND_SELECTING
 
+                room['players'][0]['cards'] += room['game']['floor_cards']
+
                 event_data = {
                     'floor_cards': room['game']['floor_cards'],
                 }
@@ -157,6 +166,7 @@ def gameplay_bid_consumer(message):
                     'gameplay-friend-selecting',
                     event_data,
                 ))
+                room['game']['floor_cards'] = []
             elif player_number == 6:
                 room['game']['state'] = RoomState.KILL_SELECTING
                 event_data = {
@@ -174,8 +184,8 @@ def gameplay_bid_consumer(message):
             j = i % player_number
             player = room['players'][j]
             if player['bid'] != 2:
-                room['game']['turn'] = i
-                turn = i
+                room['game']['turn'] = j
+                turn = j
                 break
 
         room['game']['turn'] = turn
@@ -217,7 +227,7 @@ def gameplay_bid_consumer(message):
     else:
         miminum_bid = 13
 
-    tuned_score = score if giruda != 'N' else score - 1
+    tuned_score = score if giruda != 'N' else score + 1
 
     if tuned_score < miminum_bid or score > 20:
         reply_channel.send(reply_error(
@@ -228,9 +238,9 @@ def gameplay_bid_consumer(message):
         return
 
     current_bid = room['game']['current_bid']
-    tuned_current_bid = current_bid['score'] if current_bid['giruda'] != 'N' else current_bid['score'] - 1
+    tuned_current_bid = current_bid['score'] if current_bid['giruda'] != 'N' else current_bid['score'] + 1
 
-    if tuned_score < miminum_bid or tuned_current_bid >= tuned_score:
+    if tuned_current_bid >= tuned_score:
         reply_channel.send(reply_error(
             'Not enough score',
             nonce=nonce,
@@ -241,14 +251,14 @@ def gameplay_bid_consumer(message):
     room['game']['current_bid']['bidder'] = username
     room['game']['current_bid']['score'] = score
     room['game']['current_bid']['giruda'] = giruda
-    room['player'][turn]['bid'] = 1
+    room['players'][turn]['bid'] = 1
 
     for i in range(turn + 1, turn + player_number):
         j = i % player_number
         player = room['players'][j]
         if player['bid'] != 2:
-            room['game']['turn'] = i
-            turn = i
+            room['game']['turn'] = j
+            turn = j
             break
 
     room['game']['turn'] = turn
@@ -525,7 +535,7 @@ def gameplay_friend_select_consumer(message):
 
     floor_cards = data.get('floor-cards', None)
 
-    if floor_cards is None:
+    if floor_cards is None or not isinstance(floor_cards, list) or len(floor_cards) != 3:
         reply_channel.send(reply_error(
             'Invalid floor cards',
             nonce=nonce,
@@ -554,7 +564,7 @@ def gameplay_friend_select_consumer(message):
 
     type = data.get('type', None)
 
-    if type is None or type not in ['no', 'card', 'player', 'turn']:
+    if type is None or type not in ['no', 'card', 'player', 'round']:
         reply_channel.send(reply_error(
             'Invalid friend type',
             nonce=nonce,
@@ -618,8 +628,8 @@ def gameplay_friend_select_consumer(message):
             ))
             return
 
-    elif type == 'turn':
-        t = data.get('turn', None)
+    elif type == 'round':
+        t = data.get('round', None)
         if t is None or not isinstance(t, int) or t < 1 or t > 10:
             reply_channel.send(reply_error(
                 'Invalid turn',
@@ -628,9 +638,9 @@ def gameplay_friend_select_consumer(message):
             ))
             return
 
-        room['game']['friend_selection']['type'] = 'turn'
-        room['game']['friend_selection']['turn'] = t
-        event_data['turn'] = t
+        room['game']['friend_selection']['type'] = 'round'
+        room['game']['friend_selection']['round'] = t
+        event_data['round'] = t
 
     change_bid = data.get('change-bid', None)
 
@@ -876,8 +886,8 @@ def gameplay_play_consumer(message):
         score_cards = filter_score_card(room['game']['table_cards'])
         room['players'][win]['score'] += len(score_cards)
 
-        f = room['friend_selection']
-        if f['type'] == 'turn' and f['turn'] == turn:
+        f = room['game']['friend_selection']
+        if f['type'] == 'round' and f['round'] == round:
             room['game']['friend'] = win_player
             event_data = {
                 'player': win_player,
@@ -898,15 +908,15 @@ def gameplay_play_consumer(message):
         room['players'] = room['players'][win:] + room['players'][:win]
         room['game']['round'] += 1
 
-    if room['game']['round'] == 10:
-        # game end
-        pass
+        if room['game']['round'] == 11:
+            print('game end')
+            pass
 
-    room['game']['table_cards'] = []
+        room['game']['table_cards'] = []
+        room['game']['joker_call'] = False
+        room['game']['joker_suit'] = ''
+
     room['game']['turn'] = turn
-    room['game']['joker_call'] = False
-    room['game']['joker_suit'] = ''
-
     cache.set('room:' + room_id, room)
 
     Group(room_id).send(event(

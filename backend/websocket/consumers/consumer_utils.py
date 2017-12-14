@@ -97,7 +97,7 @@ def new_room_data(**kwargs):
             'friend_selection': {
                 'type': '',
                 'card': {},
-                'turn': 0,
+                'round': 0,
                 'player': '',
             },
             'bid_score': 0,
