@@ -5,10 +5,14 @@ set -e
 TYPE=$1
 if [ $TYPE = 'before_install' ]; then
   if [ $INTEGRATION -eq 1 ]; then
-    echo '*** Installing Python 3.5.3'
-    pyenv install 3.5.3
-    echo '*** Setting global Python version'
-    pyenv global 3.5.3
+    echo '*** Installing nvm'
+    curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.33.8/install.sh | bash
+    export NVM_DIR="$HOME/.nvm"
+    [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+    echo '*** Installing Node.js 8.8'
+    nvm install 8.8
+    echo '*** Setting global Node.js version'
+    nvm use 8.8
   fi
   echo '*** Running xvfb'
   sh -e /etc/init.d/xvfb start
