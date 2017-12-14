@@ -5,6 +5,8 @@ set -e
 TYPE=$1
 if [ $TYPE = 'before_install' ]; then
   if [ $INTEGRATION -eq 1 ]; then
+    echo '*** Installing Python 3.5.3'
+    pyenv install 3.5.3
     echo '*** Setting global Python version'
     pyenv global 3.5.3
   fi
