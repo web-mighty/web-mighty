@@ -533,6 +533,24 @@ describe('WebSocketEffects', () => {
           ready: false,
         }),
       },
+      {
+        name: 'generic error',
+        given: { event: 'error', data: { type: 'foo', reason: 'bar' } },
+        expect: new WebSocketActions.WebSocketError({
+          type: 'foo',
+          reason: 'bar',
+        }),
+      },
+      {
+        name: 'error of connection-dup',
+        given: { event: 'error', data: { type: 'connection-dup', reason: 'Session duplication detected' } },
+        expect: null,
+      },
+      {
+        name: 'error of connection-auth',
+        given: { event: 'error', data: { type: 'connection-auth', reason: 'Not authenticated' } },
+        expect: null,
+      },
     ];
 
     for (const spec of expects) {
@@ -544,8 +562,12 @@ describe('WebSocketEffects', () => {
         effects.event$.subscribe(action => list.push(action));
         tick();
 
-        expect(list.length).toBe(1);
-        expect(list[0]).toEqual(spec.expect);
+        if (spec.expect === null) {
+          expect(list.length).toBe(0);
+        } else {
+          expect(list.length).toBe(1);
+          expect(list[0]).toEqual(spec.expect);
+        }
       }));
     }
   });
