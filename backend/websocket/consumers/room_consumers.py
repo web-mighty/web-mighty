@@ -92,6 +92,9 @@ def room_join_consumer(message):
         'players': response_players,
     }
 
+    room.player_count += 1
+    room.save()
+
     cache.set(room_cache_key, room_cache)
     cache.set(player_room_cache_key, room_id)
 
@@ -157,6 +160,12 @@ def room_leave_consumer(message):
             pass
     else:
         cache.set(room_cache_key, room_cache)
+        try:
+            room = Room.objects.get(room_id=room_id)
+            room.player_count -= 1
+            room.save()
+        except Room.DoesNotExist:
+            pass
 
         event_data = {
             'player': username,
