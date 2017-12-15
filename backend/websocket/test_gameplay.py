@@ -4,12 +4,19 @@ from django.core.cache import cache
 from websocket.consumers.card import win_card, code_to_card
 from websocket.consumers.consumer_utils import new_room_data, new_player_data
 from websocket.consumers.state import RoomState
+from api.models import User, GameHistory, create_user
+import os
 
 
 class GameplayTest(ChannelTestCase):
     def setUp(self):
         cache.clear()
         self.clients = []
+
+    def tearDown(self):
+        users = User.objects.all()
+        for user in users:
+            os.remove(user.profile.avatar.path)
 
     def receive_until_none(self, client):
         while True:
@@ -122,7 +129,26 @@ class GameplayTest(ChannelTestCase):
         client.send_and_consume('gameplay-play', content)
         self.flush_all()
 
+    def game_continue(self, username, cont):
+        index = int(username[-1])
+        client = self.clients[index]
+        content = {
+            'username': username,
+            'nonce': username,
+            'reply': client.reply_channel,
+            'continue': cont,
+        }
+        client.send_and_consume('gameplay-continue', content)
+        self.flush_all()
+
     def test_record_one(self):
+        for i in range(5):
+            create_user(
+                username='doge{}'.format(i),
+                password='doge',
+                nickname='nick{}'.format(i),
+                email='asdf@asdf.com'
+            )
         # set up initial room state
         room = new_room_data(
             room_id='test',
@@ -229,6 +255,31 @@ class GameplayTest(ChannelTestCase):
         self.play('doge3', 'C8')
         self.play('doge4', 'CK')
         ###
+        room = cache.get('room:test')
+        self.assertIs(room['game']['state'], RoomState.RESULT)
+        self.assertEqual(room['players'][0]['username'], 'doge3')
+
+        history = GameHistory.objects.get(id=1)
+        self.assertEqual(history.bid, 13)
+        self.assertEqual(history.giruda, 'S')
+        self.assertEqual(history.president.username, 'doge0')
+        self.assertEqual(history.friend.username, 'doge3')
+        doge2 = User.objects.get(username='doge2')
+        self.assertEqual(doge2.game_histories.all()[0], history)
+
+        self.game_continue('doge0', True)
+        self.game_continue('doge0', True)
+        self.game_continue('doge1', True)
+        self.game_continue('doge2', True)
+        self.game_continue('doge3', True)
+        room = cache.get('room:test')
+        self.assertIs(room['game']['state'], RoomState.RESULT)
+        self.game_continue('doge4', True)
+        from websocket.consumers.gameplay_consumers import gameplay_start_consumer
+        message = self.get_next_message('gameplay-start')
+        gameplay_start_consumer(message)
+        room = cache.get('room:test')
+        self.assertIs(room['game']['state'], RoomState.BIDDING)
 
     def test_record_six_mighty(self):
         # set up initial room state

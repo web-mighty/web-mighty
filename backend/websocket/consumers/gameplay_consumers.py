@@ -1039,7 +1039,6 @@ def gameplay_continue_consumer(message):
         ))
         return
 
-    room = cache.get('room:' + room_id)
     cont = data.get('continue', None)
     if cont is None:
         reply_channel.send(reply_error(
@@ -1056,6 +1055,7 @@ def gameplay_continue_consumer(message):
         ))
         return
 
+    room = cache.get('room:' + room_id)
     continue_count = 0
     for player in room['players']:
         if player['username'] == username:
