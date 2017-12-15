@@ -55,6 +55,12 @@ def room_join_consumer(message):
 
     room_cache = cache.get(room_cache_key)
 
+    if room_cache is None:
+        room.delete()
+        reply_channel.send(
+            reply_error('Room does not exist', nonce=nonce, type='room-join'))
+        return
+
     if len(room_cache['players']) >= room_cache['options']['player_number']:
         reply_channel.send(
             reply_error('Room is full', nonce=nonce, type='room'))
