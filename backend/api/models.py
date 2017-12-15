@@ -16,6 +16,7 @@ class Room(models.Model):
     is_private = models.BooleanField()
     password = models.CharField(max_length=120)
     created = models.DateTimeField(auto_now=True)
+    player_count = models.SmallIntegerField(default=0)
 
     # Options
     player_number = models.SmallIntegerField(default=0)
@@ -27,6 +28,11 @@ class Room(models.Model):
     @receiver(pre_save, sender='api.Room')
     def room_save_handler(sender, instance, **kwargs):
         room_id = instance.room_id
+        room = cache.get('room:' + room_id)
+
+        if room:
+            return
+
         player_number = instance.player_number
 
         room_data = new_room_data(

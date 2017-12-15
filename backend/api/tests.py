@@ -75,6 +75,7 @@ class ApiRoomListTest(TestCase):
 
         self.assertEqual(rooms[0]['title'], 'doge room')
         self.assertEqual(rooms[0]['is_private'], False)
+        self.assertEqual(rooms[0]['player_count'], 0)
 
     def test_room_create_with_password(self):
         client = Client()
@@ -115,6 +116,7 @@ class ApiRoomListTest(TestCase):
 
         self.assertEqual(rooms[0]['title'], 'doge room')
         self.assertEqual(rooms[0]['is_private'], True)
+        self.assertEqual(rooms[0]['player_count'], 0)
         self.assertTrue(is_password_valid)
 
 

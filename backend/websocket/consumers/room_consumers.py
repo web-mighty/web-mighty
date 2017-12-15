@@ -55,6 +55,12 @@ def room_join_consumer(message):
 
     room_cache = cache.get(room_cache_key)
 
+    if room_cache is None:
+        room.delete()
+        reply_channel.send(
+            reply_error('Room does not exist', nonce=nonce, type='room-join'))
+        return
+
     if len(room_cache['players']) >= room_cache['options']['player_number']:
         reply_channel.send(
             reply_error('Room is full', nonce=nonce, type='room'))
@@ -85,6 +91,9 @@ def room_join_consumer(message):
         'title': room.title,
         'players': response_players,
     }
+
+    room.player_count += 1
+    room.save()
 
     cache.set(room_cache_key, room_cache)
     cache.set(player_room_cache_key, room_id)
@@ -151,6 +160,12 @@ def room_leave_consumer(message):
             pass
     else:
         cache.set(room_cache_key, room_cache)
+        try:
+            room = Room.objects.get(room_id=room_id)
+            room.player_count -= 1
+            room.save()
+        except Room.DoesNotExist:
+            pass
 
         event_data = {
             'player': username,
