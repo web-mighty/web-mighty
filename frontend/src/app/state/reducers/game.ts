@@ -4,6 +4,22 @@ import * as WebSocketActions from '../actions/websocket';
 
 import * as WebSocket from '../../websocket';
 
+export namespace MightyState {
+  export interface Bidding {
+    type: 'bidding';
+    bidHistory: { username: string, bid: WebSocket.Data.Bid }[];
+  }
+  export interface Elected {
+    type: 'elected';
+    result: WebSocket.Data.ElectionResult;
+  }
+
+  export type State
+    = Bidding
+    | Elected
+  ;
+}
+
 export namespace GameRoomState {
   export interface NotInRoom {
     type: 'not-in-room';
@@ -16,6 +32,13 @@ export namespace GameRoomState {
     type: 'not-started';
     room: WebSocket.Data.Room;
   }
+  export interface Started {
+    type: 'started';
+    hand: WebSocket.Data.Card[];
+    playerUsername: string[];
+    turnOf: string;
+    state: MightyState.State;
+  }
   export interface Leaving {
     type: 'leaving';
   }
@@ -24,6 +47,7 @@ export namespace GameRoomState {
     = NotInRoom
     | Joining
     | NotStarted
+    | Started
     | Leaving
   ;
 }
@@ -87,6 +111,30 @@ export function gameReducer(
         return state;
       }
       return { ...state, room: applyPlayerState(state.room, action.payload) };
+    case GameActions.STARTED:
+      if (state.type !== 'not-started') {
+        console.error('STARTED received outside room.');
+        return state;
+      }
+      return {
+        type: 'started',
+        hand: [],
+        playerUsername: state.room.players.map(player => player.username),
+        turnOf: state.room.players[0].username,
+        state: {
+          type: 'bidding',
+          bidHistory: [],
+        },
+      };
+    case GameActions.DEAL:
+      if (state.type !== 'started') {
+        console.error('DEAL received, but game haven\'t started');
+        return state;
+      }
+      return {
+        ...state,
+        hand: action.cards,
+      };
     case WebSocketActions.DISCONNECTED:
     case WebSocketActions.DUPLICATE_SESSION:
       return initialState;

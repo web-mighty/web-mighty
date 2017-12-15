@@ -8,7 +8,9 @@ export const LEAVE_ROOM = 'Game: Leave room';
 export const LEAVE_ROOM_DONE = 'Game: Leave room: Done';
 export const READY = 'Game: Ready';
 export const START = 'Game: Start';
+
 export const STARTED = 'Game: Started';
+export const DEAL = 'Game: Deal';
 
 export const ROOM_INFO = 'Game: Room info';
 export const PLAYER_STATE_CHANGE = 'Game: Player state change';
@@ -57,6 +59,12 @@ export class Started implements Action {
   readonly type = STARTED;
 }
 
+export class Deal implements Action {
+  readonly type = DEAL;
+
+  constructor(public cards: WebSocket.Data.Card[]) {}
+}
+
 export class RoomInfo implements Action {
   readonly type = ROOM_INFO;
 
@@ -77,6 +85,7 @@ export type Actions
   | Ready
   | Start
   | Started
+  | Deal
   | RoomInfo
   | PlayerStateChange
 ;

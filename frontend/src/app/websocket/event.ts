@@ -1,4 +1,4 @@
-import { GenericError } from './data';
+import { GenericError, Card } from './data';
 
 export interface Error {
   event: 'error';
@@ -31,6 +31,12 @@ export interface RoomStart {
   event: 'room-start';
   data: {};
 }
+export interface Deal {
+  event: 'gameplay-deal';
+  data: {
+    cards: Card[];
+  };
+}
 export type Event
   = Error
   | Connected
@@ -38,4 +44,5 @@ export type Event
   | RoomLeave
   | RoomReady
   | RoomStart
+  | Deal
 ;

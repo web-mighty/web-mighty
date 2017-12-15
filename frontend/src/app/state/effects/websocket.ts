@@ -94,8 +94,9 @@ function mapEvent(ev: WebSocketActions.Event): Action | null {
         ready: payload.data.ready,
       });
     case 'room-start':
-      console.log('foo');
       return new GameActions.Started();
+    case 'gameplay-deal':
+      return new GameActions.Deal(payload.data.cards);
     case 'error':
       // TODO: Emit appropriate error action
       switch (payload.data.type) {
