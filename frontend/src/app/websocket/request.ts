@@ -10,7 +10,16 @@ export class RoomLeave {
   data = {};
 }
 
+export class RoomReady {
+  action = 'room-ready';
+  data: { ready: boolean };
+  constructor(ready: boolean) {
+    this.data = { ready };
+  }
+}
+
 export type Request
   = RoomJoin
   | RoomLeave
+  | RoomReady
 ;

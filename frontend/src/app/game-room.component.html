@@ -5,12 +5,18 @@
       <h3>{{roomData.title}}</h3>
       <div class="mdl-list">
         <div class="mdl-list__item" *ngFor="let player of roomData.players">
-          <span class="mdl-list__item-primary-content">
+          <label class="mdl-list__item-primary-content mdl-checkbox mdl-js-checkbox mdl-js-ripple-effect" [for]="player.username + '_check'">
+            <input type="checkbox" [id]="player.username + '_check'" class="mdl-checkbox__input" [checked]="player.ready" disabled>
             <i class="material-icons mdl=list__item-avatar">account_circle</i>
-            {{player.username}}{{player.ready ? '✓' : ''}}
-          </span>
+            {{player.username}}
+          </label>
         </div>
       </div>
+      <button
+        class="ready-toggle-button mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent"
+        (click)="toggleReady()">
+        {{readyStatus ? 'Not Ready' : 'Ready'}}
+      </button>
     </div>
     <div *ngIf="roomData == null">
       <h4>Joining to {{roomId}}...</h4>

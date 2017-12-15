@@ -95,4 +95,24 @@ describe('GameEffects', () => {
       expect(list[0].payload.data).toEqual({});
     }));
   });
+
+  describe('ready$', () => {
+    it('should convert action', fakeAsync(() => {
+      actions = new ReplaySubject(2);
+      actions.next(new GameActions.Ready(true));
+      actions.next(new GameActions.Ready(false));
+
+      const list = [];
+      effects.ready$.subscribe(action => list.push(action));
+      tick();
+
+      expect(list.length).toBe(2);
+      expect(list[0].payload.nonce).toBeTruthy();
+      expect(list[0].payload.action).toBe('room-ready');
+      expect(list[0].payload.data).toEqual({ ready: true });
+      expect(list[1].payload.nonce).toBeTruthy();
+      expect(list[1].payload.action).toBe('room-ready');
+      expect(list[1].payload.data).toEqual({ ready: false });
+    }));
+  });
 });

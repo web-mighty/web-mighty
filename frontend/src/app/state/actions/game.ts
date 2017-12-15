@@ -6,6 +6,7 @@ export const JOIN_ROOM = 'Game: Join room';
 export const JOIN_ROOM_FAILED = 'Game: Join room: Failed';
 export const LEAVE_ROOM = 'Game: Leave room';
 export const LEAVE_ROOM_DONE = 'Game: Leave room: Done';
+export const READY = 'Game: Ready';
 
 export const ROOM_INFO = 'Game: Room info';
 export const PLAYER_STATE_CHANGE = 'Game: Player state change';
@@ -40,6 +41,12 @@ export class LeaveRoomDone implements Action {
   readonly type = LEAVE_ROOM_DONE;
 }
 
+export class Ready implements Action {
+  readonly type = READY;
+
+  constructor(public ready: boolean) {}
+}
+
 export class RoomInfo implements Action {
   readonly type = ROOM_INFO;
 
@@ -57,6 +64,7 @@ export type Actions
   | JoinRoomFailed
   | LeaveRoom
   | LeaveRoomDone
+  | Ready
   | RoomInfo
   | PlayerStateChange
 ;

@@ -49,6 +49,14 @@ function mapResponse(resp: WebSocketActions.Response): Action | null {
         return new GameActions.LeaveRoomDone();
       }
     }
+    case 'room-ready': {
+      const result = resp.downcast<{}>(); // We don't need result
+      if (typeof result === 'string') {
+        return new WebSocketActions.WebSocketError(result);
+      } else {
+        return null;
+      }
+    }
     default:
       return null;
   }
@@ -70,6 +78,12 @@ function mapEvent(ev: WebSocketActions.Event): Action | null {
         username: payload.data.player,
         left: true,
         ready: false,
+      });
+    case 'room-ready':
+      return new GameActions.PlayerStateChange({
+        username: payload.data.player,
+        left: false,
+        ready: payload.data.ready,
       });
     case 'error':
       // TODO: Emit appropriate error action

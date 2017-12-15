@@ -20,9 +20,17 @@ export interface RoomLeave {
     player: string;
   };
 }
+export interface RoomReady {
+  event: 'room-ready';
+  data: {
+    player: string;
+    ready: boolean;
+  };
+}
 export type Event
   = Error
   | Connected
   | RoomJoin
   | RoomLeave
+  | RoomReady
 ;
