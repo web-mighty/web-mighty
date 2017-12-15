@@ -393,7 +393,10 @@ def gameplay_kill_consumer(message):
         return
 
     floor_cards = room['game']['floor_cards']
+    killed = False
     for i, player in enumerate(room['players']):
+        if killed:
+            break
         if player['username'] == username:
             if card_in(kill_card, player['cards']):
                 reply_channel.send(reply_error(
@@ -407,6 +410,7 @@ def gameplay_kill_consumer(message):
                 # President kill
                 room['game']['killed_player'] = player
                 killed_card = room['players'][i]['cards']
+                room['player'][i]['cards'] = []
                 del room['players'][i]
 
                 event_data = {
@@ -437,6 +441,7 @@ def gameplay_kill_consumer(message):
                 room['game']['president'] = ''
                 room['game']['bid_score'] = 0
                 room['game']['giruda'] = ''
+                room['game']['floor_cards'] = []
                 room['game']['current_bid'] = {
                     'bidder': '',
                     'score': 0,
@@ -457,6 +462,7 @@ def gameplay_kill_consumer(message):
             room['game']['killed_player'] = player
             killed_card = room['players'][i]['cards'] + floor_cards
             del room['players'][i]
+            killed = True
 
             event_data = {
                 'player': player['username'],
@@ -488,6 +494,7 @@ def gameplay_kill_consumer(message):
                 ))
 
             room['game']['state'] = RoomState.FRIEND_SELECTING
+            room['game']['floor_cards'] = []
             room['game']['player_number'] = 5
             room['game']['turn'] = 0
             cache.set('room:' + room_id, room)
@@ -818,7 +825,7 @@ def gameplay_play_consumer(message):
                 ))
                 return
 
-        if card['rank'] != 'JK':
+        if card['rank'] != 'JK' and not is_mighty(card, giruda):
             table_suit = room['game']['table_cards'][0]['suit']
             if table_suit != card['suit']:
                 found = False
@@ -835,7 +842,7 @@ def gameplay_play_consumer(message):
                     return
                 if card['suit'] == giruda:
                     event_data['gan'] = True
-        else:
+        elif card['rank'] == 'JK':
             card['suit'] = None
 
     # valiation done
@@ -909,7 +916,6 @@ def gameplay_play_consumer(message):
         room['game']['round'] += 1
 
         if room['game']['round'] == 11:
-            print('game end')
             pass
 
         room['game']['table_cards'] = []

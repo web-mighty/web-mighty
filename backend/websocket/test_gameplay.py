@@ -10,24 +10,6 @@ class GameplayTest(ChannelTestCase):
     def setUp(self):
         cache.clear()
         self.clients = []
-        room = new_room_data(
-            room_id='test',
-            player_number=5,
-        )
-
-        for i in range(5):
-            client = Client()
-            username = 'doge{}'.format(i)
-            player_data = new_player_data(
-                username=username,
-                reply=client.reply_channel,
-                ready=True,
-            )
-            room['players'].append(player_data)
-            cache.set('player-room:' + username, 'test')
-            self.clients.append(client)
-        room['game']['state'] = RoomState.BIDDING
-        cache.set('room:test', room)
 
     def receive_until_none(self, client):
         while True:
@@ -121,6 +103,26 @@ class GameplayTest(ChannelTestCase):
         self.flush_all()
 
     def test_record_one(self):
+        # set up initial room state
+        room = new_room_data(
+            room_id='test',
+            player_number=5,
+        )
+
+        for i in range(5):
+            client = Client()
+            username = 'doge{}'.format(i)
+            player_data = new_player_data(
+                username=username,
+                reply=client.reply_channel,
+                ready=True,
+            )
+            room['players'].append(player_data)
+            cache.set('player-room:' + username, 'test')
+            self.clients.append(client)
+        room['game']['state'] = RoomState.BIDDING
+        cache.set('room:test', room)
+
         self.floor_card(['SJ', 'C9', 'JK'])
         self.deal('doge0', ['SA', 'SQ', 'S2', 'HJ', 'D6', 'DK', 'C10', 'D7', 'C7', 'D4'])
         self.deal('doge1', ['SK', 'S8', 'H3', 'C4', 'H10', 'D8', 'S5', 'HK', 'C6', 'HQ'])
@@ -207,6 +209,79 @@ class GameplayTest(ChannelTestCase):
         self.play('doge3', 'C8')
         self.play('doge4', 'CK')
         ###
+
+    def test_record_two(self):
+        # set up initial room state
+        room = new_room_data(
+            room_id='test',
+            player_number=6,
+        )
+
+        for i in range(6):
+            client = Client()
+            username = 'doge{}'.format(i)
+            player_data = new_player_data(
+                username=username,
+                reply=client.reply_channel,
+                ready=True,
+            )
+            room['players'].append(player_data)
+            cache.set('player-room:' + username, 'test')
+            self.clients.append(client)
+        room['game']['state'] = RoomState.BIDDING
+        cache.set('room:test', room)
+
+        self.floor_card(['CK', 'D10', 'H6', 'S6', 'C3'])
+        self.deal('doge0', ['HA', 'SQ', 'H4', 'CQ', 'H8', 'DQ', 'D8', 'S3'])
+        self.deal('doge1', ['S2', 'S7', 'C2', 'H5', 'CA', 'S10', 'HJ', 'D5'])
+        self.deal('doge2', ['D6', 'DK', 'S9', 'DJ', 'S4', 'C5', 'C7', 'D4'])
+        self.deal('doge3', ['C10', 'D7', 'H9', 'C8', 'DA', 'H3', 'SK', 'S8'])
+        self.deal('doge4', ['SJ', 'C9', 'D2', 'S5', 'C4', 'H2', 'HQ', 'H7'])
+        self.deal('doge5', ['D3', 'CJ', 'HK', 'JK', 'SA', 'C6', 'H10', 'D9'])
+        self.bid('doge0', 14, 'H', True)
+        self.bid('doge1', 0, '', False)
+        self.bid('doge2', 15, 'D', True)
+        self.bid('doge3', 0, '', False)
+        self.bid('doge4', 0, '', False)
+        self.bid('doge5', 0, '', False)
+        self.bid('doge0', 0, '', False)
+        room = cache.get('room:test')
+        self.assertIs(room['game']['state'], RoomState.KILL_SELECTING)
+        # kill doge3
+        self.kill('doge2', 'DA')
+        room = cache.get('room:test')
+        self.assertEqual(room['game']['killed_player']['username'], 'doge3')
+        self.assertIs(room['game']['state'], RoomState.FRIEND_SELECTING)
+
+        # set kill-deal to our prebuilt data
+        self.deal('doge0', ['HA', 'SQ', 'H4', 'CQ', 'H8', 'DQ', 'D8', 'S3', 'H3', 'CK'])
+        self.deal('doge1', ['S2', 'S7', 'C2', 'H5', 'CA', 'S10', 'HJ', 'D5', 'DA', 'C3'])
+        self.deal('doge2', ['D6', 'DK', 'S9', 'DJ', 'S4', 'C5', 'C7', 'D4', 'D10, D7', 'C10', 'S6', 'C8'])
+        self.deal('doge4', ['SJ', 'C9', 'D2', 'S5', 'C4', 'H2', 'HQ', 'H7', 'SK', 'H6'])
+        self.deal('doge5', ['D3', 'CJ', 'HK', 'JK', 'SA', 'C6', 'H10', 'D9', 'S8', 'H9'])
+        self.friend_select(
+            'doge2',
+            {
+                'type': 'card',
+                'card': 'SA',
+                'floor_cards': ['S9', 'S4', 'S6'],
+            }
+        )
+        room = cache.get('room:test')
+        self.assertIs(room['game']['state'], RoomState.PLAYING)
+
+        # round 1
+        self.play('doge2', 'C10')
+        self.play('doge4', 'C4')
+        self.play('doge5', 'C6')
+        self.play('doge0', 'CQ')
+        self.play('doge1', 'CA')
+        # round 2
+        self.play('doge1', 'C3', joker_call=True)
+        self.play('doge2', 'C8')
+        self.play('doge4', 'C9')
+        self.play('doge5', 'SA')
+        self.play('doge0', 'CK')
 
 
 class CardTest(TestCase):
