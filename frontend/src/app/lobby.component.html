@@ -5,41 +5,22 @@
       {{error | async}}
     </h4>
     <div class="mdl-layout-spacer"></div>
-    <button
-      class="new-game-button mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent"
-      (click)="gotoCreateGame()">
-      <i class="material-icons">add</i>
-      New Game
-    </button>
   </div>
-  <table class="room-list mdl-data-table mdl-js-data-table">
-    <thead>
-      <tr>
-        <th></th>
-        <th class="mdl-data-table__cell--non-numeric">Title</th>
-        <th class="mdl-data-table__cell--non-numeric">Private</th>
-        <th class="mdl-data-table__cell--non-numeric"></th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr *ngFor="let room of roomList | async">
-        <td class="mdl-data-table__cell--non-numeric">
-          <span class="mdl-chip">
-            <span class="mdl-chip__text">{{room.player_number}}-player</span>
-          </span>
-        </td>
-        <td class="mdl-data-table__cell--non-numeric">{{room.title}}</td>
-        <td class="mdl-data-table__cell--non-numeric">
-          <i class="material-icons" *ngIf="room.is_private">lock</i>
-        </td>
-        <td class="mdl-data-table__cell--non-numeric">
-          <button
-            class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent"
-            (click)="joinRoom(room.room_id)">
-            Join
-          </button>
-        </td>
-      </tr>
-    <tbody>
-  </table>
+  <ul class="room-list mdl-list">
+    <li class="room-list__item mdl-list__item mdl-list__item--two-line" *ngFor="let room of roomList | async" (click)="joinRoom(room.room_id)">
+      <span class="mdl-list__item-primary-content">
+        <span class="mdl-list__item-avatar">{{room.player_number}}</span>
+        <span>{{room.title}}</span>
+        <span class="mdl-list__item-sub-title">0/{{room.player_number}}</span>
+      </span>
+      <span class="mdl-list__item-secondary-content" style="align-items: center">
+        <i class="mdl-list__item-icon material-icons" *ngIf="room.is_private">lock</i>
+      </span>
+    </li>
+  </ul>
+  <button
+    class="new-game-button mdl-button mdl-js-button mdl-button--fab mdl-js-ripple-effect mdl-button--colored"
+    (click)="gotoCreateGame()">
+    <i class="material-icons">add</i>
+  </button>
 </div>

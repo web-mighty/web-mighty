@@ -1,12 +1,11 @@
 .lobby {
   max-width: 840px;
-  margin: 0 auto;
 
   display: flex;
   flex-direction: column;
   align-items: stretch;
+  margin: 0 auto;
 }
-
 .lobby > * {
   margin: 8px 0;
 }
@@ -15,7 +14,14 @@
   display: flex;
   align-items: center;
 }
-
-.room-list {
-  width: 100%;
+.room-list__item {
+  border: 1px solid rgba(0,0,0,0.12);
+}
+.mdl-list__item-avatar {
+  text-align: center;
+}
+.new-game-button {
+  position: fixed;
+  bottom: 18px;
+  right: 18px;
 }
