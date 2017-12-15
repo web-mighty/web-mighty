@@ -7,6 +7,7 @@ from django.core.cache import cache
 from django.core.mail import send_mail
 from django.core.exceptions import ValidationError
 from django.views.decorators.csrf import ensure_csrf_cookie
+from django.db.models import Q
 from .models import create_user
 from backend.settings import DOMAIN_NAME
 import json
@@ -28,7 +29,7 @@ def sign_up(request):
         if not all([username, password, email, nickname]):
             return HttpResponseBadRequest()
 
-        userset = User.objects.filter(username=username)
+        userset = User.objects.filter(Q(username=username) | Q(email=email))
         if userset.exists():
             user = userset[0]
             if user.is_active:
@@ -37,10 +38,6 @@ def sign_up(request):
                 user.delete()
             else:
                 return HttpResponseBadRequest()
-
-        userset = User.objects.filter(email=email)
-        if userset.exists():
-            return HttpResponseBadRequest()
 
         user = User(
             username=username,
