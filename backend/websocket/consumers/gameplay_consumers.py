@@ -1,10 +1,11 @@
 from channels import Channel, Group
 from .card import shuffled_card, hand_score, is_valid_card, card_in, is_same_card
 from .card import is_mighty, is_joker_call, card_index, win_card, suit_count
-from .card import filter_score_card
+from .card import filter_score_card, card_score
 from .consumer_utils import event, reply_error, response, reset_room_data
 from django.core.cache import cache
 from .state import RoomState
+from api.models import User, GameHistory
 from random import shuffle
 
 
@@ -589,6 +590,7 @@ def gameplay_friend_select_consumer(message):
     room['floor_cards'] = []
     for p in room['players']:
         if p['username'] == username:
+            bidder = p
             player_card = p['cards']
             break
 
@@ -602,6 +604,7 @@ def gameplay_friend_select_consumer(message):
             ))
             return
         room['floor_cards'].append(c)
+        bidder['score'] += card_score(c)
         del player_card[ci]
 
     type = data.get('type', None)
@@ -955,8 +958,58 @@ def gameplay_play_consumer(message):
         room['game']['round'] += 1
 
         if room['game']['round'] == 11:
-            # game end
-            pass
+            # room cache set
+            scores = {}
+            fi, pi = -1, -1
+            total_score = 0
+            president_user, friend_user = None, None
+            for i, player in enumerate(room['players']):
+                scores[player['username']] = player['score']
+                if player['username'] == room['game']['president']:
+                    pi = i
+                    total_score += player['score']
+                    president_user = User.objects.get(username=player['username'])
+                elif player['username'] == room['game']['friend']:
+                    fi = i
+                    total_score += player['score']
+                    friend_user = User.objects.get(username=player['username'])
+            if fi == -1:
+                fi = pi
+            event_data = {
+                'scores': scores,
+                'president': room['game']['president'],
+                'friend': room['game']['friend'],
+                'bid': room['game']['bid_score'],
+                'giruda': room['game']['giruda'],
+            }
+
+            history = GameHistory(
+                president=president_user,
+                friend=friend_user,
+                bid=room['game']['bid_score'],
+                giruda=room['game']['giruda'],
+                score=total_score,
+            )
+            history.save()
+
+            for player in room['players']:
+                if player['username'] == room['game']['president']:
+                    history.players.add(president_user)
+                elif player['username'] == room['game']['friend']:
+                    history.players.add(friend_user)
+                else:
+                    user = User.objects.get(username=player['username'])
+                    history.players.add(user)
+
+            room = reset_room_data(room)
+            room['game']['state'] = RoomState.RESULT
+            room['players'] = room['players'][fi:] + room['players'][:fi]
+            cache.set('room:' + room_id, room)
+            Group(room_id).send(event(
+                'gameplay-game-end',
+                event_data,
+            ))
+            return
 
         room['game']['table_cards'] = []
         room['game']['joker_call'] = False
@@ -986,9 +1039,24 @@ def gameplay_continue_consumer(message):
         ))
         return
 
+    cont = data.get('continue', None)
+    if cont is None:
+        reply_channel.send(reply_error(
+            'Continue is required',
+            nonce=nonce,
+            type='gameplay-continue',
+        ))
+        return
+
+    if cont is False:
+        reply_channel.send(response(
+            {},
+            nonce=nonce,
+        ))
+        return
+
     room = cache.get('room:' + room_id)
     continue_count = 0
-
     for player in room['players']:
         if player['username'] == username:
             if player['continue'] is True:
@@ -1001,6 +1069,12 @@ def gameplay_continue_consumer(message):
             player['continue'] = True
         if player['continue'] is True:
             continue_count += 1
+
+    reply_channel.send(response(
+        {},
+        nonce=nonce,
+    ))
+    cache.set('room:' + room_id, room)
 
     if continue_count == room['options']['player_number']:
         Group(room_id).send(event('gameplay-continue', {}))

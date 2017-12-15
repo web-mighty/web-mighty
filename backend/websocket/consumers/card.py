@@ -25,6 +25,12 @@ def hand_score(cards, giruda):
     return score
 
 
+def card_score(card):
+    if card['rank'] in ['A', 'K', 'Q', 'J', '10']:
+        return 1
+    return 0
+
+
 def is_valid_card(card):
     if isinstance(card, dict) is False:
         return False
