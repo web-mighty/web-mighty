@@ -2,7 +2,9 @@ from channels import Channel, Group
 from django.core.cache import cache
 from django.contrib.auth.hashers import check_password
 from api.models import Room
-from .consumer_utils import reply_error, response, event
+from .consumer_utils import reply_error, response, event, reset_room_data
+from .consumer_utils import new_player_data
+from .state import RoomState
 
 
 def room_join_consumer(message):
@@ -58,22 +60,31 @@ def room_join_consumer(message):
             reply_error('Room is full', nonce=nonce, type='room'))
         return
 
-    player_data = {
-        'username': username,
-        'ready': False,
-    }
-
-    response_data = {
-        'room_id': room_id,
-        'title': room.title,
-        'players': room_cache['players'],
-    }
+    player_data = new_player_data(
+        username=username,
+        reply=reply_channel.name,
+        ready=False,
+    )
 
     event_data = {
         'player': username,
     }
 
     room_cache['players'].append(player_data)
+
+    response_players = []
+
+    for player in room_cache['players']:
+        response_players.append({
+            'username': player['username'],
+            'ready': player['ready'],
+        })
+
+    response_data = {
+        'room_id': room_id,
+        'title': room.title,
+        'players': response_players,
+    }
 
     cache.set(room_cache_key, room_cache)
     cache.set(player_room_cache_key, room_id)
@@ -148,7 +159,7 @@ def room_leave_consumer(message):
         Group(room_id).send(event('room-leave', event_data))
 
         # only when game is playing
-        if room_cache['is_playing']:
+        if room_cache['game']['state'] is not RoomState.NOT_PLAYING:
             Channel('room-reset').send({'room_id': room_id})
 
 
@@ -248,12 +259,13 @@ def room_start_consumer(message):
             reply_error('Not all people are ready', nonce=nonce, type='room-start'))
         return
 
-    room_cache['is_playing'] = True
-
     cache.set(room_cache_key, room_cache)
 
     reply_channel.send(response({}, nonce=nonce))
     Group(room_id).send(event('room-start', {}))
+
+    # yeah, start it!
+    Channel('gameplay-start').send({'room_id': room_id})
 
 
 def room_reset_consumer(message):
@@ -269,24 +281,7 @@ def room_reset_consumer(message):
     if len(room_cache['players']) == 0:
         return
 
-    for player in room_cache['players']:
-        player['ready'] = False
-
-    new_room_data = {
-        'room_id': room_id,
-        'players': room_cache['players'],
-        'options': {
-            'player_number': room_cache['options']['player_number'],
-        },
-        'state': {
-            'round': 0,
-            'turn': 0,
-            'giruda': '',
-            'joker_call': False,
-            'joker_suit': '',
-            'table_cards': [],
-        },
-    }
+    new_room_data = reset_room_data(room_cache)
 
     cache.set(room_cache_key, new_room_data)
 

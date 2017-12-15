@@ -10,6 +10,8 @@ from django.contrib.auth.models import User
 from django.core.cache import cache
 from api.models import Room
 from api.models import create_user
+from websocket.consumers.consumer_utils import reset_room_data
+from websocket.consumers.state import RoomState
 
 import os
 
@@ -76,6 +78,7 @@ class RoomJoinTest(ChannelTestCase):
         self.assertEqual(result['room_id'], player_room_cache)
         self.assertEqual(len(room_cache['players']), 1)
         self.assertEqual(room_cache['players'][0]['username'], 'skystar1')
+        self.assertNotIn('reply', result['players'][0])
 
     def test_room_join_with_password(self):
         client = WSClient()
@@ -519,7 +522,7 @@ class RoomStartTest(ChannelTestCase):
 
         room_cache = cache.get('room:room')
 
-        self.assertFalse(room_cache['is_playing'])
+        self.assertIs(room_cache['game']['state'], RoomState.NOT_PLAYING)
 
         req = request('room-start', {}, nonce='test')
         client1.send_and_consume('websocket.receive', req, path='/api/websocket/')
@@ -534,10 +537,6 @@ class RoomStartTest(ChannelTestCase):
 
         response = client2.receive()
         self.assertEqual(response['event'], 'room-start')
-
-        room_cache = cache.get('room:room')
-
-        self.assertTrue(room_cache['is_playing'])
 
 
 class RoomResetTest(ChannelTestCase):
@@ -599,7 +598,7 @@ class RoomResetTest(ChannelTestCase):
         client1.receive()
 
         room_cache = cache.get('room:room')
-        room_cache['is_playing'] = True
+        room_cache['game']['state'] = RoomState.PLAYING
         cache.set('room:room', room_cache)
 
         req = request('room-leave', {}, nonce='test')
@@ -622,20 +621,6 @@ class RoomResetTest(ChannelTestCase):
 
         room_cache = cache.get('room:room')
 
-        new_room_data = {
-            'room_id': 'room',
-            'players': players,
-            'options': {
-                'player_number': 2,
-            },
-            'state': {
-                'round': 0,
-                'turn': 0,
-                'giruda': '',
-                'joker_call': False,
-                'joker_suit': '',
-                'table_cards': [],
-            },
-        }
+        new_room_data_ = reset_room_data(room_cache)
 
-        self.assertEqual(room_cache, new_room_data)
+        self.assertEqual(room_cache, new_room_data_)

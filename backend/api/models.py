@@ -6,6 +6,7 @@ from django.db.models.signals import pre_save, post_delete
 from django.core.cache import cache
 from backend.settings import BASE_DIR, DEFAULT_AVATAR_NAME
 from django.core.files import File
+from websocket.consumers.consumer_utils import new_room_data
 import os
 
 
@@ -27,22 +28,12 @@ class Room(models.Model):
     def room_save_handler(sender, instance, **kwargs):
         room_id = instance.room_id
         player_number = instance.player_number
-        room_data = {
-            'room_id': room_id,
-            'is_playing': False,
-            'players': [],
-            'options': {
-                'player_number': player_number,
-            },
-            'state': {
-                'round': 0,
-                'turn': 0,
-                'giruda': '',
-                'joker_call': False,
-                'joker_suit': '',
-                'table_cards': [],
-            },
-        }
+
+        room_data = new_room_data(
+            room_id=room_id,
+            player_number=player_number,
+        )
+
         cache.set('room:' + room_id, room_data)
 
     @classmethod

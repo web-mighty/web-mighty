@@ -23,10 +23,13 @@ available_channels = [
     'room-ready',
     'room-start',
     'room-reset',
+    'gameplay-start',
     'gameplay-bid',
     'gameplay-deal-miss',
+    'gameplay-kill',
     'gameplay-friend-select',
     'gameplay-play',
+    'gameplay-continue',
 ]
 
 multiplexer_routings = [
@@ -35,12 +38,16 @@ multiplexer_routings = [
     route('room-ready', 'websocket.consumers.room_consumers.room_ready_consumer'),
     route('room-start', 'websocket.consumers.room_consumers.room_start_consumer'),
     route('room-reset', 'websocket.consumers.room_consumers.room_reset_consumer'),
+    route('gameplay-start', 'websocket.consumers.gameplay_consumers.gameplay_start_consumer'),
     route('gameplay-bid', 'websocket.consumers.gameplay_consumers.gameplay_bid_consumer'),
     route('gameplay-deal-miss',
           'websocket.consumers.gameplay_consumers.gameplay_deal_miss_consumer'),
+    route('gameplay-kill',
+          'websocket.consumers.gameplay_consumers.gameplay_kill_consumer'),
     route('gameplay-friend-select',
           'websocket.consumers.gameplay_consumers.gameplay_friend_select_consumer'),
     route('gameplay-play', 'websocket.consumers.gameplay_consumers.gameplay_play_consumer'),
+    route('gameplay-continue', 'websocket.consumers.gameplay_consumers.gameplay_continue_consumer'),
 ]
 
 
