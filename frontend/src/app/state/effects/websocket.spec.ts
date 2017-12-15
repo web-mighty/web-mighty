@@ -445,6 +445,7 @@ describe('WebSocketEffects', () => {
     const sampleRoom: WebSocket.Data.Room = {
       room_id: 'foo',
       title: 'foobar',
+      player_number: 5,
       players: [
         { username: 'foo', ready: false },
       ],

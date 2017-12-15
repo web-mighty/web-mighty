@@ -89,6 +89,7 @@ def room_join_consumer(message):
     response_data = {
         'room_id': room_id,
         'title': room.title,
+        'player_number': room_cache['options']['player_number'],
         'players': response_players,
     }
 

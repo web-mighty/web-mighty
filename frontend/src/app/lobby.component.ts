@@ -28,8 +28,8 @@ export class LobbyComponent implements OnInit {
     this.roomList = this.store.select('room', 'roomList');
     this.error = this.store.select('room', 'currentError');
     this.leaving =
-      this.store.select('game', 'leaving')
-      .filter(leaving => leaving != null);
+      this.store.select('game', 'type')
+      .map(type => type === 'leaving');
     const loading =
       this.store.select('room', 'roomLoading')
       .filter(loading => loading != null);

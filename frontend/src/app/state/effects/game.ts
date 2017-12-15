@@ -53,6 +53,15 @@ export class GameEffects {
       )
     );
 
+  @Effect()
+  start$ =
+    this.actions$.ofType(GameActions.START)
+    .map(() =>
+      new WebSocketActions.Request(
+        new WebSocket.Requests.RoomStart()
+      )
+    );
+
   constructor(
     private actions$: Actions,
   ) {}

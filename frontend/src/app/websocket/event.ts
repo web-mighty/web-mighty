@@ -27,10 +27,15 @@ export interface RoomReady {
     ready: boolean;
   };
 }
+export interface RoomStart {
+  event: 'room-start';
+  data: {};
+}
 export type Event
   = Error
   | Connected
   | RoomJoin
   | RoomLeave
   | RoomReady
+  | RoomStart
 ;

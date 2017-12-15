@@ -18,8 +18,14 @@ export class RoomReady {
   }
 }
 
+export class RoomStart {
+  action = 'room-start';
+  data = {};
+}
+
 export type Request
   = RoomJoin
   | RoomLeave
   | RoomReady
+  | RoomStart
 ;

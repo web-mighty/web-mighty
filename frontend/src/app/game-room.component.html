@@ -1,10 +1,10 @@
 <div class="mdl-grid">
   <div class="mdl-layout-spacer"></div>
   <div class="mdl-cell mdl-cell--6-col-desktop mdl-cell--8-col-tablet mdl-cell--4-col-phone">
-    <div *ngIf="roomData != null">
-      <h3>{{roomData.title}}</h3>
+    <div *ngIf="roomData | async">
+      <h3>{{(roomData | async).title}}</h3>
       <div class="mdl-list">
-        <div class="mdl-list__item" *ngFor="let player of roomData.players">
+        <div class="mdl-list__item" *ngFor="let player of (roomData | async).players">
           <label class="mdl-list__item-primary-content mdl-checkbox mdl-js-checkbox mdl-js-ripple-effect" [for]="player.username + '_check'">
             <input type="checkbox" [id]="player.username + '_check'" class="mdl-checkbox__input" [checked]="player.ready" disabled>
             <i class="material-icons mdl=list__item-avatar">account_circle</i>
@@ -13,13 +13,20 @@
         </div>
       </div>
       <button
-        class="ready-toggle-button mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent"
+        class="ready-toggle-button mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect"
         (click)="toggleReady()">
-        {{readyStatus ? 'Not Ready' : 'Ready'}}
+        {{(readyStatus | async) ? 'Not Ready' : 'Ready'}}
+      </button>
+      <button
+        *ngIf="isHost | async"
+        [disabled]="!(isStartable | async)"
+        class="ready-toggle-button mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent"
+        (click)="startGame()">
+        Start
       </button>
     </div>
-    <div *ngIf="roomData == null">
-      <h4>Joining to {{roomId}}...</h4>
+    <div *ngIf="!(roomData | async)">
+      <h4>Joining to {{(roomId | async)}}...</h4>
     </div>
   </div>
   <div class="mdl-layout-spacer"></div>

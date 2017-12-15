@@ -34,25 +34,86 @@ export class GameRoomComponent implements OnInit, OnDestroy {
 
   private readyToggler = new ReplaySubject(1);
 
-  roomId: string;
-  roomData: WebSocket.Data.Room;
-  myUsername: string | null = null;
+  roomId: Observable<string>;
+  roomData: Observable<WebSocket.Data.Room | null>;
+  myUsername: Observable<string | null>;
+
+  readyStatus: Observable<boolean>;
+  isHost: Observable<boolean>;
+  isStartable: Observable<boolean>;
 
   constructor(
     private store: Store<State>,
     private route: ActivatedRoute,
-  ) {}
+  ) {
+    this.roomId = this.route.paramMap.map(params => params.get('roomId'));
 
-  get readyStatus() {
-    if (this.myUsername === null) {
-      return false;
-    }
+    this.myUsername =
+      this.store.select('user', 'authUser')
+      .filter(user => user != null)
+      .map(user => user.username);
 
-    return (
-      this.roomData.players
-      .find(player => player.username === this.myUsername)
-      .ready
-    );
+    this.roomData =
+      this.store.select('game')
+      .map(game => {
+        if (game == null) {
+          return null;
+        }
+        if (game.type === 'not-started') {
+          return game.room;
+        }
+        return null;
+      });
+
+    this.readyStatus =
+      this.roomData
+      .withLatestFrom(
+        this.myUsername,
+        (room, username) => {
+          if (room === null) {
+            return false;
+          }
+          if (username === null) {
+            return false;
+          }
+
+          return (
+            room.players
+            .find(player => player.username === username)
+            .ready
+          );
+        }
+      );
+
+    this.isHost =
+      this.roomData
+      .withLatestFrom(
+        this.myUsername,
+        (room, username) => {
+          if (room === null) {
+            return false;
+          }
+          if (username === null) {
+            return false;
+          }
+          if (room.players.length === 0) {
+            console.error('No players in the room. What?');
+            return false;
+          }
+
+          return room.players[0].username === username;
+        }
+      );
+
+    this.isStartable =
+      this.roomData
+      .map(room => {
+        if (room === null) {
+          return false;
+        }
+        const readyUsers = room.players.filter(player => player.ready);
+        return readyUsers.length === room.player_number;
+      });
   }
 
   ngOnInit() {
@@ -62,20 +123,19 @@ export class GameRoomComponent implements OnInit, OnDestroy {
         if (game == null) {
           return '';
         }
-        if (game.room != null) {
+        if (game.type === 'not-started') {
           return game.room.room_id;
         }
-        if (game.joiningTo != null) {
-          return game.joiningTo;
+        if (game.type === 'joining') {
+          return game.to;
         }
         return '';
       });
-    const roomId = this.route.paramMap.map(params => params.get('roomId'));
 
     const action =
       Observable.combineLatest(
         joinedRoomId.first(),
-        roomId,
+        this.roomId,
         (joinedRoomId, roomId) => {
           if (joinedRoomId === '') {
             // Not joined in; try to join (without password)
@@ -103,16 +163,15 @@ export class GameRoomComponent implements OnInit, OnDestroy {
       .takeWhile(stat => stat !== 'connected')
       .ignoreElements() as Observable<never>;
 
-    this.userNameSubscription =
-      this.store.select('user', 'authUser')
-      .filter(user => user != null)
-      .subscribe(user => this.myUsername = user.username);
-
     this.readyTogglerSubscription =
       this.readyToggler
-      .subscribe(_ => {
+      .withLatestFrom(
+        this.readyStatus,
+        (_, ready) => ready
+      )
+      .subscribe(ready => {
         this.store.dispatch(
-          new GameActions.Ready(!this.readyStatus)
+          new GameActions.Ready(!ready)
         );
       });
 
@@ -129,28 +188,12 @@ export class GameRoomComponent implements OnInit, OnDestroy {
           );
         }
       });
-    this.roomIdSubscription = roomId.subscribe(roomId => this.roomId = roomId);
-    this.roomDataSubscription =
-      this.store.select('game', 'room')
-      .subscribe(room => this.roomData = room);
   }
 
   ngOnDestroy() {
     if (this.subscription != null) {
       this.subscription.unsubscribe();
       this.subscription = null;
-    }
-    if (this.roomIdSubscription != null) {
-      this.roomIdSubscription.unsubscribe();
-      this.roomIdSubscription = null;
-    }
-    if (this.roomDataSubscription != null) {
-      this.roomDataSubscription.unsubscribe();
-      this.roomDataSubscription = null;
-    }
-    if (this.userNameSubscription != null) {
-      this.userNameSubscription.unsubscribe();
-      this.userNameSubscription = null;
     }
     if (this.readyTogglerSubscription != null) {
       this.readyTogglerSubscription.unsubscribe();
@@ -164,13 +207,16 @@ export class GameRoomComponent implements OnInit, OnDestroy {
         if (game == null) {
           return false;
         }
-        if (game.joiningTo !== null) {
+        if (game.type === 'joining') {
           return false;
         }
         return true;
       })
       .map(game => {
-        return game.room !== null;
+        return (
+          game.type !== 'leaving' &&
+          game.type !== 'not-in-room'
+        );
       })
       .first()
       .subscribe(joined => {
@@ -182,5 +228,9 @@ export class GameRoomComponent implements OnInit, OnDestroy {
 
   toggleReady() {
     this.readyToggler.next(true);
+  }
+
+  startGame() {
+    this.store.dispatch(new GameActions.Start());
   }
 }
