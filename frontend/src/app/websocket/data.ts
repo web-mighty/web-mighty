@@ -3,17 +3,14 @@ export interface Player {
   ready: boolean;
 }
 
-export class Card {
-  constructor(
-    public rank: number,
-    public suit: 'S' | 'D' | 'C' | 'H' | 'JK'
-  ) {}
-
-  toString() {
-    if (this.suit === 'JK') return 'JK';
-    return `${this.rank}${this.suit}`;
-  }
+export interface NormalCard {
+  rank: '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9' | '10' | 'J' | 'Q' | 'K' | 'A';
+  suit: 'S' | 'D' | 'C' | 'H';
 }
+export interface JokerCard {
+  rank: 'JK';
+}
+export type Card = NormalCard | JokerCard;
 
 export interface GenericError {
   type: string;

@@ -35,12 +35,37 @@ export class GameRoomComponent implements OnInit, OnDestroy {
   private readyToggler = new ReplaySubject(1);
 
   roomId: Observable<string>;
+  currentScene: Observable<string>;
   roomData: Observable<WebSocket.Data.Room | null>;
+  hand: Observable<WebSocket.Data.Card[] | null>;
   myUsername: Observable<string | null>;
 
   readyStatus: Observable<boolean>;
   isHost: Observable<boolean>;
   isStartable: Observable<boolean>;
+
+  cardToString(card: WebSocket.Data.Card): string {
+    if (card.rank === 'JK') {
+      return 'Joker';
+    }
+    let suitIcon;
+    switch (card.suit) {
+      case 'S':
+        suitIcon = '♠';
+        break;
+      case 'D':
+        suitIcon = '◆';
+        break;
+      case 'C':
+        suitIcon = '♣';
+        break;
+      case 'H':
+        suitIcon = '♥';
+        break;
+    }
+
+    return `${suitIcon} ${card.rank}`;
+  }
 
   constructor(
     private store: Store<State>,
@@ -48,22 +73,34 @@ export class GameRoomComponent implements OnInit, OnDestroy {
   ) {
     this.roomId = this.route.paramMap.map(params => params.get('roomId'));
 
-    this.myUsername =
-      this.store.select('user', 'authUser')
-      .filter(user => user != null)
-      .map(user => user.username);
+    this.currentScene =
+      this.store.select('game', 'type')
+      .filter(type => type != null);
 
     this.roomData =
       this.store.select('game')
+      .filter(game => game != null)
       .map(game => {
-        if (game == null) {
-          return null;
-        }
         if (game.type === 'not-started') {
           return game.room;
         }
         return null;
       });
+
+    this.hand =
+      this.store.select('game')
+      .filter(game => game != null)
+      .map(game => {
+        if (game.type === 'started') {
+          return game.hand;
+        }
+        return null;
+      });
+
+    this.myUsername =
+      this.store.select('user', 'authUser')
+      .filter(user => user != null)
+      .map(user => user.username);
 
     this.readyStatus =
       this.roomData
