@@ -534,6 +534,15 @@ describe('WebSocketEffects', () => {
         }),
       },
       {
+        name: 'room-ready',
+        given: { event: 'room-ready', data: { player: 'foo', ready: true } },
+        expect: new GameActions.PlayerStateChange({
+          username: 'foo',
+          left: false,
+          ready: true,
+        }),
+      },
+      {
         name: 'generic error',
         given: { event: 'error', data: { type: 'foo', reason: 'bar' } },
         expect: new WebSocketActions.WebSocketError({
