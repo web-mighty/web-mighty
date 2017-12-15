@@ -57,7 +57,7 @@ export function userReducer(
       return { ...state, authUser: action.user, currentError: null };
     case UserActions.SIGN_IN_FAILED:
       return { ...state, currentError: action.error };
-    case UserActions.SIGN_OUT_DONE:
+    case UserActions.SIGN_OUT_START:
       return { ...state, authUser: null, currentError: null };
     case UserActions.VERIFY_SESSION:
       return { ...state, verifying: true };

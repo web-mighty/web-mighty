@@ -165,6 +165,11 @@ export class WebSocketEffects {
             obs.next(new WebSocketActions.RawResponse(data));
           }
         });
+        return () => {
+          if (this.socket != null) {
+            this.socket.close();
+          }
+        };
       });
     });
 
