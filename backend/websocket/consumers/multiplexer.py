@@ -19,6 +19,7 @@ available_channels = [
     'gameplay-kill',
     'gameplay-friend-select',
     'gameplay-play',
+    'gameplay-continue',
 ]
 
 multiplexer_routings = [
@@ -36,6 +37,7 @@ multiplexer_routings = [
     route('gameplay-friend-select',
           'websocket.consumers.gameplay_consumers.gameplay_friend_select_consumer'),
     route('gameplay-play', 'websocket.consumers.gameplay_consumers.gameplay_play_consumer'),
+    route('gameplay-continue', 'websocket.consumers.gameplay_consumers.gameplay_continue_consumer'),
 ]
 
 

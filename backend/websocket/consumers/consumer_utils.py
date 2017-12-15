@@ -69,6 +69,7 @@ def reset_room_data(room_data):
         player['cards'] = []
         player['bid'] = 0
         player['score'] = 0
+        player['continue'] = False
 
     new_room_data_ = new_room_data(
         room_id=room_data['room_id'],
@@ -126,6 +127,7 @@ def new_player_data(**kwargs):
         'cards': [],
         'bid': 0,  # 0 - not bid, 1 - bid, 2 - give up
         'score': 0,
+        'continue': False,
     }
 
     return player_data

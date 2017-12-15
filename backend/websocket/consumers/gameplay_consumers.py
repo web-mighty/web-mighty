@@ -2,10 +2,18 @@ from channels import Channel, Group
 from .card import shuffled_card, hand_score, is_valid_card, card_in, is_same_card
 from .card import is_mighty, is_joker_call, card_index, win_card, suit_count
 from .card import filter_score_card
-from .consumer_utils import event, reply_error, response
+from .consumer_utils import event, reply_error, response, reset_room_data
 from django.core.cache import cache
 from .state import RoomState
 from random import shuffle
+
+
+def restart_room(room_id):
+    room = cache.get('room:' + room_id)
+    if room is None:
+        return
+    room = reset_room_data(room)
+    cache.set('room:' + room_id, room)
 
 
 def gameplay_start_consumer(message):
@@ -120,6 +128,9 @@ def gameplay_bid_consumer(message):
             elif player['bid'] == 2:
                 giveup_count += 1
 
+        if giveup_count == player_number:
+            Channel('gameplay-deal-miss').send({'all_pass': True, 'room_id': room_id})
+            return
         if bidder_count == 1 and giveup_count == (player_number - 1):
             reply_channel.send(response(
                 {},
@@ -290,6 +301,22 @@ def gameplay_bid_consumer(message):
 
 def gameplay_deal_miss_consumer(message):
     data = message.content
+    all_pass = data.get('all_pass', False)
+    if all_pass:
+        room_id = data['room_id']
+        event_data = {
+            'all_pass': True,
+        }
+
+        Group(room_id).send(event(
+            'gameplay-deal-miss',
+            event_data,
+        ))
+        restart_room(room_id)
+        Group(room_id).send(event('gameplay-restart', {}))
+        Channel('gameplay-start').send({'room_id': room_id})
+        return
+
     username = data['username']
     nonce = data['nonce']
     reply_channel = Channel(data['reply'])
@@ -299,7 +326,7 @@ def gameplay_deal_miss_consumer(message):
         reply_channel.send(reply_error(
             'You are not in room',
             nonce=nonce,
-            type='gameplay-bid',
+            type='gameplay-deal-miss',
         ))
         return
 
@@ -309,7 +336,7 @@ def gameplay_deal_miss_consumer(message):
         reply_channel.send(reply_error(
             'Invalid request',
             nonce=nonce,
-            type='gameplay-bid',
+            type='gameplay-deal-miss',
         ))
         return
 
@@ -318,27 +345,34 @@ def gameplay_deal_miss_consumer(message):
     for player in room['players']:
         if player['username'] == username:
             cards = player['cards']
-            score = hand_score(cards)
+            giruda = room['game']['giruda']
+            if giruda == '':
+                giruda = 'N'
+            score = hand_score(cards, giruda)
             break
 
     if score > 0:
         reply_channel.send(reply_error(
             'Invalid score',
             nonce=nonce,
-            type='gameplay-bid',
+            type='gameplay-deal-miss',
         ))
         return
 
     event_data = {
         'player': username,
         'cards': cards,
+        'all_pass': False,
     }
 
     Group(room_id).send(event(
         'gameplay-deal-miss',
         event_data,
     ))
-    Channel('room-reset').send({'room_id': room_id})
+
+    restart_room(room_id)
+    Group(room_id).send(event('room-start', {}))
+    Channel('gameplay-start').send({'room_id': room_id})
 
 
 def gameplay_kill_consumer(message):
@@ -409,8 +443,8 @@ def gameplay_kill_consumer(message):
             if card_in(kill_card, floor_cards):
                 # President kill
                 room['game']['killed_player'] = player
-                killed_card = room['players'][i]['cards']
-                room['player'][i]['cards'] = []
+                killed_card = room['players'][i]['cards'] + room['game']['floor_cards']
+                room['players'][i]['cards'] = []
                 del room['players'][i]
 
                 event_data = {
@@ -429,6 +463,7 @@ def gameplay_kill_consumer(message):
                         'cards': killed_card[:2],
                     }
                     p['cards'] += killed_card[:2]
+                    p['bid'] = 0
                     Channel(p['reply']).send(event(
                         'gameplay-kill-deal',
                         event_data,
@@ -441,7 +476,7 @@ def gameplay_kill_consumer(message):
                 room['game']['president'] = ''
                 room['game']['bid_score'] = 0
                 room['game']['giruda'] = ''
-                room['game']['floor_cards'] = []
+                room['game']['floor_cards'] = killed_card
                 room['game']['current_bid'] = {
                     'bidder': '',
                     'score': 0,
@@ -650,6 +685,7 @@ def gameplay_friend_select_consumer(message):
         event_data['round'] = t
 
     change_bid = data.get('change-bid', None)
+    event_data['change_bid'] = False
 
     if change_bid is not None and isinstance(change_bid, dict):
         bid = change_bid.get('bid', None)
@@ -676,6 +712,9 @@ def gameplay_friend_select_consumer(message):
 
         room['game']['bid_score'] = bid
         room['game']['giruda'] = giruda
+        event_data['change_bid'] = True
+        event_data['score'] = bid
+        event_data['giruda'] = giruda
 
     room['game']['state'] = RoomState.PLAYING
     room['game']['turn'] = 0
@@ -770,7 +809,7 @@ def gameplay_play_consumer(message):
     if round == 1:
         if turn == 0 and card['suit'] == giruda:
             giruda_count = suit_count(player_card, giruda)
-            if giruda_count != 10 or not (giruda_count == 9 and is_joker_in):
+            if giruda_count != 10:
                 reply_channel.send(reply_error(
                     'You cannot play giruda at first round, first turn',
                     nonce=nonce,
@@ -916,6 +955,7 @@ def gameplay_play_consumer(message):
         room['game']['round'] += 1
 
         if room['game']['round'] == 11:
+            # game end
             pass
 
         room['game']['table_cards'] = []
@@ -929,3 +969,41 @@ def gameplay_play_consumer(message):
         'gameplay-turn',
         {'player': room['players'][turn]['username']},
     ))
+
+
+def gameplay_continue_consumer(message):
+    data = message.content
+    username = data['username']
+    nonce = data['nonce']
+    reply_channel = Channel(data['reply'])
+    room_id = cache.get('player-room:' + username)
+
+    if room_id is None:
+        reply_channel.send(reply_error(
+            'You are not in room',
+            nonce=nonce,
+            type='gameplay-continue',
+        ))
+        return
+
+    room = cache.get('room:' + room_id)
+    continue_count = 0
+
+    for player in room['players']:
+        if player['username'] == username:
+            if player['continue'] is True:
+                reply_channel.send(reply_error(
+                    'You already continued',
+                    nonce=nonce,
+                    type='gameplay-continue',
+                ))
+                return
+            player['continue'] = True
+        if player['continue'] is True:
+            continue_count += 1
+
+    if continue_count == room['options']['player_number']:
+        Group(room_id).send(event('gameplay-continue', {}))
+        restart_room(room_id)
+        Group(room_id).send(event('gameplay-restart', {}))
+        Channel('gameplay-start').send({'room_id': room_id})

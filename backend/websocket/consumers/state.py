@@ -7,3 +7,4 @@ class RoomState(Enum):
     KILL_SELECTING = 2
     FRIEND_SELECTING = 3
     PLAYING = 4
+    RESULT = 5
