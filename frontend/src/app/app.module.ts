@@ -1,6 +1,5 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
-import { APP_BASE_HREF } from '@angular/common';
 import { StoreRouterConnectingModule } from '@ngrx/router-store';
 import { AppRoutingModule } from './app-routing.module';
 import { AppStateModule } from './state/app-state.module';
@@ -27,7 +26,6 @@ import { xsrfFactory } from './xsrf-factory';
     StoreRouterConnectingModule,
   ],
   providers: [
-    { provide: APP_BASE_HREF, useValue: '/' },
     { provide: XSRFStrategy, useFactory: xsrfFactory },
   ],
   bootstrap: [AppComponent]
