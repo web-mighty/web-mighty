@@ -1,6 +1,7 @@
 from .models import Room
 from django.contrib.auth.hashers import make_password
 import uuid
+from django.core.cache import cache
 
 
 def get_room_list(page, count_per_page):
@@ -37,16 +38,17 @@ def create_room(**kwargs):
     if not all([title, ]):
         return None
 
-    new_room = Room(
-        room_id=room_id,
-        title=title,
-        password=password,
-        is_private=bool(password),
+    with cache.lock('lock:room:' + room_id):
+        new_room = Room(
+            room_id=room_id,
+            title=title,
+            password=password,
+            is_private=bool(password),
 
-        player_number=player_number,
-    )
+            player_number=player_number,
+        )
 
-    new_room.save()
+        new_room.save()
 
     result_data = {
         'room_id': room_id,

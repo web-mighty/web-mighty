@@ -59,21 +59,21 @@ def websocket_connect(message):
         message.reply_channel.send({'close': WEBSOCKET_REJECT_UNAUTHORIZED})
         return
 
+    try:
+        if isinstance(message.content['query_string'], bytes):
+            query_string = parse_qs(message.content['query_string'].decode('utf-8'))
+        elif isinstance(message.content['query_string'], str):
+            query_string = parse_qs(message.content['query_string'])
+        else:
+            query_string = {}
+    except UnicodeDecodeError:
+        query_string = {}
+    except KeyError:
+        query_string = {}
+
     cache_key = 'session:' + message.user.username
     with cache.lock('lock:' + cache_key):
         current_session = cache.get(cache_key)
-        try:
-            if isinstance(message.content['query_string'], bytes):
-                query_string = parse_qs(message.content['query_string'].decode('utf-8'))
-            elif isinstance(message.content['query_string'], str):
-                query_string = parse_qs(message.content['query_string'])
-            else:
-                query_string = {}
-        except UnicodeDecodeError:
-            query_string = {}
-        except KeyError:
-            query_string = {}
-
         # if user is connecting the websocket first time, set the session
         if current_session is None:
             cache.set(cache_key, message.reply_channel.name)

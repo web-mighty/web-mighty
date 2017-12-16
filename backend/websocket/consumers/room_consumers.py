@@ -51,56 +51,53 @@ def room_join_consumer(message):
                     reply_error('Password mismatch', nonce=nonce, type='room-join'))
                 return
 
-    room_cache_key = 'room:' + room_id
-    player_room_cache_key = 'player-room:' + username
+        room_cache_key = 'room:' + room_id
 
-    with cache.lock('lock:' + room_cache_key):
-        room_cache = cache.get(room_cache_key)
+        with cache.lock('lock:' + room_cache_key):
+            room_cache = cache.get(room_cache_key)
 
-        if room_cache is None:
-            room.delete()
-            reply_channel.send(
-                reply_error('Room does not exist', nonce=nonce, type='room-join'))
-            return
+            if room_cache is None:
+                room.delete()
+                reply_channel.send(
+                    reply_error('Room does not exist', nonce=nonce, type='room-join'))
+                return
 
-        if len(room_cache['players']) >= room_cache['options']['player_number']:
-            reply_channel.send(
-                reply_error('Room is full', nonce=nonce, type='room'))
-            return
+            if len(room_cache['players']) >= room_cache['options']['player_number']:
+                reply_channel.send(
+                    reply_error('Room is full', nonce=nonce, type='room'))
+                return
 
-        player_data = new_player_data(
-            username=username,
-            reply=reply_channel.name,
-            ready=False,
-        )
+            player_data = new_player_data(
+                username=username,
+                reply=reply_channel.name,
+                ready=False,
+            )
 
-        event_data = {
-            'player': username,
-        }
+            event_data = {
+                'player': username,
+            }
 
-        room_cache['players'].append(player_data)
+            room_cache['players'].append(player_data)
 
-        response_players = []
+            response_players = []
 
-        for player in room_cache['players']:
-            response_players.append({
-                'username': player['username'],
-                'ready': player['ready'],
-            })
+            for player in room_cache['players']:
+                response_players.append({
+                    'username': player['username'],
+                    'ready': player['ready'],
+                })
 
-        response_data = {
-            'room_id': room_id,
-            'title': room.title,
-            'player_number': room_cache['options']['player_number'],
-            'players': response_players,
-        }
+            response_data = {
+                'room_id': room_id,
+                'title': room.title,
+                'player_number': room_cache['options']['player_number'],
+                'players': response_players,
+            }
 
-    room.player_count += 1
-    room.save()
-    with cache.lock('lock:' + room_cache_key):
-        cache.set(room_cache_key, room_cache)
-    with cache.lock('lock:' + player_room_cache_key):
-        cache.set(player_room_cache_key, room_id)
+            room.player_count += 1
+            room.save()
+            cache.set(room_cache_key, room_cache)
+            cache.set(player_room_cache_key, room_id)
 
     reply_channel.send(response(response_data, nonce=nonce))
 
@@ -125,64 +122,60 @@ def room_leave_consumer(message):
                 reply_error('You are currently not in the room', nonce=nonce, type='room-leave'))
             return
 
-    room_cache_key = 'room:' + room_id
-    with cache.lock('lock:' + room_cache_key):
-        room_cache = cache.get(room_cache_key)
+        room_cache_key = 'room:' + room_id
+        with cache.lock('lock:' + room_cache_key):
+            room_cache = cache.get(room_cache_key)
+            if room_cache is None:
+                try:
+                    room = Room.objects.get(room_id=room_id)
+                    room.delete()
+                except Room.DoesNotExist:
+                    pass
+                Group(room_id).discard(reply_channel)
+                cache.delete(player_room_cache_key)
+                return
 
-        if room_cache is None:
-            try:
-                room = Room.objects.get(room_id=room_id)
-                room.delete()
-            except Room.DoesNotExist:
-                pass
+            found = False
+            for i, player in enumerate(room_cache['players']):
+                if player['username'] == username:
+                    del room_cache['players'][i]
+                    found = True
+                    break
+
+            if not found:
+                reply_channel.send(
+                    reply_error('You are currently not in the room', nonce=nonce, type='room-leave'))
+                return
+
             Group(room_id).discard(reply_channel)
             cache.delete(player_room_cache_key)
-            return
 
-        found = False
-        for i, player in enumerate(room_cache['players']):
-            if player['username'] == username:
-                del room_cache['players'][i]
-                found = True
-                break
+            if not disconnected:
+                reply_channel.send(
+                    response({}, nonce=nonce))
+            player_count = len(room_cache['players'])
 
-        if not found:
-            reply_channel.send(
-                reply_error('You are currently not in the room', nonce=nonce, type='room-leave'))
-            return
+            if player_count == 0:
+                try:
+                    room = Room.objects.get(room_id=room_id)
+                    room.delete()
+                except Room.DoesNotExist:
+                    pass
+            else:
+                cache.set(room_cache_key, room_cache)
+                try:
+                    room = Room.objects.get(room_id=room_id)
+                    room.player_count -= 1
+                    room.save()
+                except Room.DoesNotExist:
+                    pass
 
-        Group(room_id).discard(reply_channel)
-        with cache.lock('lock:' + player_room_cache_key):
-            cache.delete(player_room_cache_key)
+            event_data = {
+                'player': username,
+            }
 
-        if not disconnected:
-            reply_channel.send(
-                response({}, nonce=nonce))
-        player_count = len(room_cache['players'])
+            Group(room_id).send(event('room-leave', event_data))
 
-    if player_count == 0:
-        try:
-            room = Room.objects.get(room_id=room_id)
-            room.delete()
-        except Room.DoesNotExist:
-            pass
-    else:
-        with cache.lock('lock:' + room_cache_key):
-            cache.set(room_cache_key, room_cache)
-        try:
-            room = Room.objects.get(room_id=room_id)
-            room.player_count -= 1
-            room.save()
-        except Room.DoesNotExist:
-            pass
-
-        event_data = {
-            'player': username,
-        }
-
-        Group(room_id).send(event('room-leave', event_data))
-
-        with cache.lock('lock:' + room_cache_key):
             # only when game is playing
             if room_cache['game']['state'] is not RoomState.NOT_PLAYING:
                 Channel('room-reset').send({'room_id': room_id})

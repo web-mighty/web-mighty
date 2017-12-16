@@ -27,27 +27,26 @@ class Room(models.Model):
     @classmethod
     @receiver(pre_save, sender='api.Room')
     def room_save_handler(sender, instance, **kwargs):
+        # Must be nested in cache lock
         room_id = instance.room_id
-        with cache.lock('lock:room:' + room_id):
-            room = cache.get('room:' + room_id)
+        room = cache.get('room:' + room_id)
 
-            if room:
-                return
+        if room:
+            return
 
-            player_number = instance.player_number
+        player_number = instance.player_number
 
-            room_data = new_room_data(
-                room_id=room_id,
-                player_number=player_number,
-            )
+        room_data = new_room_data(
+            room_id=room_id,
+            player_number=player_number,
+        )
 
-            cache.set('room:' + room_id, room_data)
+        cache.set('room:' + room_id, room_data)
 
     @classmethod
     @receiver(post_delete, sender='api.Room')
     def room_delete_handler(sender, instance, **kwargs):
-        with cache.lock('lock:room:' + instance.room_id):
-            cache.delete('room:' + instance.room_id)
+        cache.delete('room:' + instance.room_id)
 
 
 class Profile(models.Model):
