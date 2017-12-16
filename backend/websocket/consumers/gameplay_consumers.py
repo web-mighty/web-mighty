@@ -69,16 +69,20 @@ def gameplay_bid_consumer(message):
     username = data['username']
     nonce = data['nonce']
     reply_channel = Channel(data['reply'])
-    with cache.lock('lock:player-room:' + username):
-        room_id = cache.get('player-room:' + username)
+    ai = data.get('ai', False)
+    if not ai:
+        with cache.lock('lock:player-room:' + username):
+            room_id = cache.get('player-room:' + username)
 
-    if room_id is None:
-        reply_channel.send(reply_error(
-            'You are not in room',
-            nonce=nonce,
-            type='gameplay-bid',
-        ))
-        return
+        if room_id is None:
+            reply_channel.send(reply_error(
+                'You are not in room',
+                nonce=nonce,
+                type='gameplay-bid',
+            ))
+            return
+    else:
+        room_id = data['room_id']
 
     score = data.get('score', None)
     giruda = data.get('giruda', None)
@@ -306,16 +310,20 @@ def gameplay_deal_miss_consumer(message):
     username = data['username']
     nonce = data['nonce']
     reply_channel = Channel(data['reply'])
-    with cache.lock('lock:player-room:' + username):
-        room_id = cache.get('player-room:' + username)
+    ai = data.get('ai', False)
+    if not ai:
+        with cache.lock('lock:player-room:' + username):
+            room_id = cache.get('player-room:' + username)
 
-    if room_id is None:
-        reply_channel.send(reply_error(
-            'You are not in room',
-            nonce=nonce,
-            type='gameplay-deal-miss',
-        ))
-        return
+        if room_id is None:
+            reply_channel.send(reply_error(
+                'You are not in room',
+                nonce=nonce,
+                type='gameplay-deal-miss',
+            ))
+            return
+    else:
+        room_id = data['room_id']
 
     with cache.lock('lock:room:' + room_id):
         room = cache.get('room:' + room_id)
@@ -368,16 +376,20 @@ def gameplay_kill_consumer(message):
     username = data['username']
     nonce = data['nonce']
     reply_channel = Channel(data['reply'])
-    with cache.lock('lock:player-room' + username):
-        room_id = cache.get('player-room:' + username)
+    ai = data.get('ai', False)
+    if not ai:
+        with cache.lock('lock:player-room' + username):
+            room_id = cache.get('player-room:' + username)
 
-    if room_id is None:
-        reply_channel.send(reply_error(
-            'You are not in room',
-            nonce=nonce,
-            type='gameplay-kill',
-        ))
-        return
+        if room_id is None:
+            reply_channel.send(reply_error(
+                'You are not in room',
+                nonce=nonce,
+                type='gameplay-kill',
+            ))
+            return
+    else:
+        room_id = data['room_id']
 
     with cache.lock('lock:room:' + room_id):
         room = cache.get('room:' + room_id)
@@ -537,16 +549,20 @@ def gameplay_friend_select_consumer(message):
     username = data['username']
     nonce = data['nonce']
     reply_channel = Channel(data['reply'])
-    with cache.lock('lock:player-room:' + username):
-        room_id = cache.get('player-room:' + username)
+    ai = data.get('ai', False)
+    if not ai:
+        with cache.lock('lock:player-room:' + username):
+            room_id = cache.get('player-room:' + username)
 
-    if room_id is None:
-        reply_channel.send(reply_error(
-            'You are not in room',
-            nonce=nonce,
-            type='gameplay-friend-select',
-        ))
-        return
+        if room_id is None:
+            reply_channel.send(reply_error(
+                'You are not in room',
+                nonce=nonce,
+                type='gameplay-friend-select',
+            ))
+            return
+    else:
+        room_id = data['room_id']
 
     with cache.lock('lock:room:' + room_id):
         room = cache.get('room:' + room_id)
@@ -744,16 +760,20 @@ def gameplay_play_consumer(message):
     username = data['username']
     nonce = data['nonce']
     reply_channel = Channel(data['reply'])
-    with cache.lock('lock:player-room:' + username):
-        room_id = cache.get('player-room:' + username)
+    ai = data.get('ai', False)
+    if not ai:
+        with cache.lock('lock:player-room:' + username):
+            room_id = cache.get('player-room:' + username)
 
-    if room_id is None:
-        reply_channel.send(reply_error(
-            'You are not in room',
-            nonce=nonce,
-            type='gameplay-play',
-        ))
-        return
+        if room_id is None:
+            reply_channel.send(reply_error(
+                'You are not in room',
+                nonce=nonce,
+                type='gameplay-play',
+            ))
+            return
+    else:
+        room_id = data['room_id']
 
     with cache.lock('lock:room:' + room_id):
         room = cache.get('room:' + room_id)
@@ -882,6 +902,7 @@ def gameplay_play_consumer(message):
         del player_card[ci]
 
         room['game']['table_cards'].append(card)
+        room['game']['card_history'].append(card)
         room['players'][turn]['cards'] = player_card
 
         event_data['card'] = card
@@ -1039,16 +1060,20 @@ def gameplay_continue_consumer(message):
     username = data['username']
     nonce = data['nonce']
     reply_channel = Channel(data['reply'])
-    with cache.lock('lock:player-room:' + username):
-        room_id = cache.get('player-room:' + username)
+    ai = data.get('ai', False)
+    if not ai:
+        with cache.lock('lock:player-room:' + username):
+            room_id = cache.get('player-room:' + username)
 
-    if room_id is None:
-        reply_channel.send(reply_error(
-            'You are not in room',
-            nonce=nonce,
-            type='gameplay-continue',
-        ))
-        return
+        if room_id is None:
+            reply_channel.send(reply_error(
+                'You are not in room',
+                nonce=nonce,
+                type='gameplay-continue',
+            ))
+            return
+    else:
+        room_id = data['room_id']
 
     cont = data.get('continue', None)
     if cont is None:
