@@ -34,6 +34,7 @@
           {{cardToString(card)}}
         </li>
       </ul>
+      <app-game-bid *ngIf="(isMyTurn | async) && (gameProgressState | async) === 'bidding'"></app-game-bid>
     </div>
   </div>
   <div class="mdl-layout-spacer"></div>

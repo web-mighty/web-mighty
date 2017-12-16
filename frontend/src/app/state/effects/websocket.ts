@@ -65,6 +65,14 @@ function mapResponse(resp: WebSocketActions.Response): Action | null {
         return null;
       }
     }
+    case 'gameplay-bid': {
+      const result = resp.downcast<{}>();
+      if (typeof result === 'string') {
+        return new WebSocketActions.WebSocketError(result);
+      } else {
+        return null;
+      }
+    }
     default:
       return null;
   }
@@ -99,6 +107,10 @@ function mapEvent(ev: WebSocketActions.Event): Action | null {
       return new GameActions.Started();
     case 'gameplay-deal':
       return new GameActions.Deal(payload.data.cards);
+    case 'gameplay-bidding':
+      return new GameActions.Bidding(payload.data.player);
+    case 'gameplay-bid':
+      return new GameActions.BidEvent(payload.data);
     case 'error':
       // TODO: Emit appropriate error action
       switch (payload.data.type) {

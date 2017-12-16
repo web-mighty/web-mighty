@@ -4,10 +4,9 @@ import * as WebSocketActions from '../actions/websocket';
 
 import * as WebSocket from '../../websocket';
 
-export namespace MightyState {
-  export interface Bidding {
+export namespace MightyState { export interface Bidding {
     type: 'bidding';
-    bidHistory: { username: string, bid: WebSocket.Data.Bid }[];
+    bidHistory: WebSocket.Data.BidEvent[];
   }
   export interface Elected {
     type: 'elected';
@@ -151,6 +150,31 @@ export function gameReducer(
       return {
         ...state,
         hand: action.cards,
+      };
+    case GameActions.BIDDING:
+      if (state.type !== 'started') {
+        console.error('BIDDING received, but game haven\'t started');
+        return state;
+      }
+      return {
+        ...state,
+        turnOf: action.player,
+      };
+    case GameActions.BID_EVENT:
+      if (state.type !== 'started') {
+        console.error('BIDDING received, but game haven\'t started');
+        return state;
+      }
+      if (state.state.type !== 'bidding') {
+        console.error('BIDDING received, but game state is not in bidding');
+        return state;
+      }
+      return {
+        ...state,
+        state: {
+          ...state.state,
+          bidHistory: [...state.state.bidHistory, action.bid],
+        },
       };
     case WebSocketActions.DISCONNECTED:
     case WebSocketActions.DUPLICATE_SESSION:

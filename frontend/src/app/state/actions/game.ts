@@ -12,6 +12,11 @@ export const START = 'Game: Start';
 
 export const STARTED = 'Game: Started';
 export const DEAL = 'Game: Deal';
+export const BIDDING = 'Game: Bidding';
+export const BID = 'Game: Bid';
+export const BID_EVENT = 'Game: Bid (Event)';
+export const PRESIDENT_ELECTED = 'Game: President elected';
+export const FLOOR_CARDS = 'Game: Floor cards';
 
 export const ROOM_INFO = 'Game: Room info';
 export const PLAYER_STATE_CHANGE = 'Game: Player state change';
@@ -51,7 +56,7 @@ export class ResetRoom implements Action {
 
   constructor(
     public roomId: string,
-    public players: WebSocket.Data.Player[]
+    public players: WebSocket.Data.RoomPlayer[]
   ) {}
 }
 
@@ -73,6 +78,24 @@ export class Deal implements Action {
   readonly type = DEAL;
 
   constructor(public cards: WebSocket.Data.Card[]) {}
+}
+
+export class Bidding implements Action {
+  readonly type = BIDDING;
+
+  constructor(public player: string) {}
+}
+
+export class Bid implements Action {
+  readonly type = BID;
+
+  constructor(public bid: WebSocket.Data.Bid) {}
+}
+
+export class BidEvent implements Action {
+  readonly type = BID_EVENT;
+
+  constructor(public bid: WebSocket.Data.BidEvent) {}
 }
 
 export class RoomInfo implements Action {
@@ -97,6 +120,9 @@ export type Actions
   | Start
   | Started
   | Deal
+  | Bidding
+  | Bid
+  | BidEvent
   | RoomInfo
   | PlayerStateChange
 ;
