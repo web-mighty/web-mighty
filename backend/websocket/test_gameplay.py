@@ -143,6 +143,24 @@ class GameplayTest(ChannelTestCase):
         client.send_and_consume('gameplay-continue', content)
         self.flush_all()
 
+    def test_ai(self):
+        room = new_room_data(
+            room_id='test',
+            player_number=5,
+        )
+
+        for i in range(5):
+            from websocket.consumers.ai import AI
+            room['players'].append(AI(i))
+        room['game']['state'] = RoomState.BIDDING
+        cache.set('room:test', room)
+
+        client = Client()
+        client.send_and_consume('gameplay-start', {'room_id': 'test'})
+        client.consume('gameplay-bid')
+        room = cache.get('room:test')
+        self.assertEqual(room['game']['current_bid']['bidder'], 'AI0')
+
     def test_record_one(self):
         for i in range(5):
             create_user(

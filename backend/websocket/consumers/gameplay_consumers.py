@@ -18,6 +18,17 @@ def restart_room(room_id):
         cache.set('room:' + room_id, room)
 
 
+def build_ai_message(ai, ret):
+    ret['ai'] = True
+    ret['username'] = ai['username']
+    ret['reply'] = ai['reply']
+    ret['nonce'] = ''
+
+
+def gameplay_ai_consumer(message):
+    pass
+
+
 def gameplay_start_consumer(message):
     data = message.content
     room_id = data['room_id']
@@ -57,11 +68,23 @@ def gameplay_start_consumer(message):
 
         cache.set('room:' + room_id, room)
 
-    # send bidding event
-    event_data = {
-        'player': room['players'][0]['username']
-    }
-    Group(room_id).send(event('gameplay-bidding', event_data))
+        # send bidding event
+        event_data = {
+            'player': room['players'][0]['username']
+        }
+        Group(room_id).send(event('gameplay-bidding', event_data))
+
+        # AI
+        if room['players'][0]['ai'] is True:
+            ai = room['players'][0]
+            ret = ai.bid(room)
+            build_ai_message(ai, ret)
+            ret['room_id'] = room_id
+            if 'bid' in ret:
+                Channel('gameplay-bid').send(ret)
+            else:
+                # TODO: deal miss
+                pass
 
 
 def gameplay_bid_consumer(message):
@@ -287,6 +310,16 @@ def gameplay_bid_consumer(message):
         'gameplay-bidding',
         event_data,
     ))
+    if room['players'][turn]['ai'] is True:
+        ai = room['players'][turn]
+        ret = ai.bid(room)
+        build_ai_message(ai, ret)
+        ret['room_id'] = room_id
+        if 'bid' in ret:
+            Channel('gameplay-bid').send(ret)
+        else:
+            # TODO: deal miss
+            pass
 
 
 def gameplay_deal_miss_consumer(message):
@@ -493,6 +526,16 @@ def gameplay_kill_consumer(message):
                         }
                     }
                     Group(room_id).send(event('gameplay-bidding', event_data))
+                    # AI
+                    if room['players'][turn]['ai'] is True:
+                        ai = room['players'][turn]
+                        ret = ai.bid(room)
+                        build_ai_message(ai, ret)
+                        ret['room_id'] = room_id
+                        if 'bid' in ret:
+                            Channel('gameplay-bid').send(ret)
+                        else:
+                            pass
                     return
 
             elif card_in(kill_card, player['cards']):
