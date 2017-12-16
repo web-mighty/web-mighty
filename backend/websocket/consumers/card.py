@@ -11,6 +11,10 @@ def shuffled_card():
     return cards
 
 
+def c_(rank, suit):
+    return {'rank': rank, 'suit': suit}
+
+
 def hand_score(cards, giruda):
     score = 0
     for card in cards:
