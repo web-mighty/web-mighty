@@ -143,6 +143,14 @@ class GameplayTest(ChannelTestCase):
         client.send_and_consume('gameplay-continue', content)
         self.flush_all()
 
+    def flush_ai(self):
+        client = Client()
+        while True:
+            try:
+                client.consume('gameplay-ai')
+            except Exception as e:
+                break
+
     def test_ai(self):
         room = new_room_data(
             room_id='test',
@@ -157,7 +165,7 @@ class GameplayTest(ChannelTestCase):
 
         client = Client()
         client.send_and_consume('gameplay-start', {'room_id': 'test'})
-        client.consume('gameplay-bid')
+        client.consume('gameplay-bid', fail_on_none=False)
         room = cache.get('room:test')
         self.assertEqual(room['game']['current_bid']['bidder'], 'AI0')
 

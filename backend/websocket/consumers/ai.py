@@ -83,18 +83,41 @@ class AI():
         current_bid = room_data['game']['current_bid']
         giruda = current_bid['giruda']
         ret = {
-            'card': self.wanted_card(self.cards, giruda, 'kill'),
+            'card': self.wanted_card(self.data['cards'], giruda, 'kill'),
         }
         return ret
 
     def friend_select(self, room_data):
+        cards = self.data['cards']
         current_bid = room_data['game']['current_bid']
         giruda = current_bid['giruda']
+
+        def _k(giruda):
+            def __k(card):
+                ranks = ['A', 'K', 'Q', 'J', '10', '9', '8', '7', '6', '5', '4', '3', '2']
+                if is_mighty(card, giruda):
+                    return 0
+                elif card['rank'] == 'JK':
+                    return 1
+                elif card['suit'] == giruda:
+                    return ranks.index(card['rank']) + 2
+                else:
+                    return ranks.index(card['rank']) + 15
+            return __k
         ret = {
             'type': 'card',
-            'card': self.wanted_card(self.cards, giruda, 'friend'),
+            'card': self.wanted_card(self.data['cards'], giruda, 'friend'),
+            'floor_cards': sorted(cards, key=_k(giruda))[-3:]
         }
         return ret
 
     def play(self, room_data):
-        pass
+        cards = self.data['cards']
+        is_president = room_data['game']['president'] == self.data['username']
+        is_friend = False
+        if room_data['game']['friend']:
+            is_friend = room_data['game']['friend'] == self.data['username']
+        elif room_data['game']['friend_selection']['type'] == 'card':
+            friend_card = room_data['game']['friend_selection']['card']
+            if card_in(friend_card, cards):
+                is_friend = True
