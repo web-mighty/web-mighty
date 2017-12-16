@@ -5,3 +5,7 @@
     align-items: center;
     margin: 24px auto;
 }
+.error-message {
+    margin: 0 0 10px 0;
+    color: #d50000;
+}

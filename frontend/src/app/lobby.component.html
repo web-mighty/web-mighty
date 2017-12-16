@@ -1,26 +1,32 @@
-<div class="lobby">
-  <div class="room-header">
-    <div *ngIf="loading | async" class="spinner mdl-spinner mdl-js-spinner is-active"></div>
-    <h4 *ngIf="error | async" class="error-message mdl-color-text--red">
-      {{error | async}}
-    </h4>
-    <div class="mdl-layout-spacer"></div>
+<div class="mdl-grid--no-spacing">
+  <div class="lobby mdl-cell mdl-cell--8-col-desktop mdl-cell--12-col-tablet mdl-cell--12-col-phone mdl-shadow--3dp">
+    <div class="message mdl-color-text--red" *ngIf="error | async">
+      <h4>{{error | async}}</h4>
+    </div>
+    <div class="message no-games-message" *ngIf="!(error | async) && (roomList | async).length === 0">
+      <h4>No games available!<br>Press "+" to create new game.</h4>
+    </div>
+    <ul class="room-list mdl-list">
+      <div *ngIf="loading | async" class="spinner mdl-spinner mdl-js-spinner is-active"></div>
+      <li class="room-list__item mdl-list__item" *ngFor="let room of roomList | async" (click)="joinRoom(room.room_id)">
+        <span class="mdl-list__item-primary-content">
+          <span class="room-title">{{room.title}}</span>
+          <span class="mdl-layout-spacer"></span>
+          <i class="material-icons">person</i>
+          <i class="material-icons">person</i>
+          <i class="material-icons">person_outline</i>
+          <i class="material-icons">person_outline</i>
+          <i class="material-icons">person_outline</i>
+        </span>
+        <span class="private-icon mdl-list__item-secondary-content">
+          <i class="mdl-list__item-icon material-icons" *ngIf="room.is_private">lock</i>
+        </span>
+      </li>
+    </ul>
+    <button
+      class="new-game-button mdl-button mdl-js-button mdl-button--fab mdl-js-ripple-effect mdl-button--colored"
+      (click)="gotoCreateGame()">
+      <i class="material-icons">add</i>
+    </button>
   </div>
-  <ul class="room-list mdl-list">
-    <li class="room-list__item mdl-list__item mdl-list__item--two-line" *ngFor="let room of roomList | async" (click)="joinRoom(room.room_id)">
-      <span class="mdl-list__item-primary-content">
-        <span class="mdl-list__item-avatar">{{room.player_number}}</span>
-        <span>{{room.title}}</span>
-        <span class="mdl-list__item-sub-title">0/{{room.player_number}}</span>
-      </span>
-      <span class="mdl-list__item-secondary-content" style="align-items: center">
-        <i class="mdl-list__item-icon material-icons" *ngIf="room.is_private">lock</i>
-      </span>
-    </li>
-  </ul>
-  <button
-    class="new-game-button mdl-button mdl-js-button mdl-button--fab mdl-js-ripple-effect mdl-button--colored"
-    (click)="gotoCreateGame()">
-    <i class="material-icons">add</i>
-  </button>
 </div>

@@ -1,27 +1,38 @@
 .lobby {
-  max-width: 840px;
-
-  display: flex;
-  flex-direction: column;
-  align-items: stretch;
-  margin: 0 auto;
+  position: absolute;
+  min-height: 100%;
+  left: 50%;
+  transform: translate(-50%, 0);
+  margin: 0;
 }
-.lobby > * {
-  margin: 8px 0;
-}
-
-.room-header {
-  display: flex;
-  align-items: center;
-}
-.room-list__item {
-  border: 1px solid rgba(0,0,0,0.12);
-}
-.mdl-list__item-avatar {
+.message {
+  width: 350px;
+  position: absolute;
+  top: 30%;
+  left: 50%;
+  transform: translate(-50%, -50%);
   text-align: center;
 }
+.no-games-message {
+  color: grey;
+}
+.room-list__item {
+  border: 1px solid #e0e0e0;
+}
+.room-list__item:hover {
+  background-color: #e0e0e0;
+}
+.room-title {
+  width: 180px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.private-icon {
+  width: 24px;
+}
 .new-game-button {
-  position: fixed;
+  position: absolute;
   bottom: 18px;
   right: 18px;
 }
