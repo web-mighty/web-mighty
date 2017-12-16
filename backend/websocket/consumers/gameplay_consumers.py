@@ -527,8 +527,8 @@ def gameplay_kill_consumer(message):
                     }
                     Group(room_id).send(event('gameplay-bidding', event_data))
                     # AI
-                    if room['players'][turn]['ai'] is True:
-                        ai = room['players'][turn]
+                    if room['players'][0]['ai'] is True:
+                        ai = room['players'][0]
                         ret = ai.bid(room)
                         build_ai_message(ai, ret)
                         ret['room_id'] = room_id
