@@ -1,5 +1,8 @@
 sudo: required
 
+services:
+  - redis-server
+
 matrix:
   include:
     - language: node_js
