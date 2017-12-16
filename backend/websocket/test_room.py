@@ -48,6 +48,8 @@ class RoomJoinTest(ChannelTestCase):
         users = User.objects.all()
         for user in users:
             os.remove(user.profile.avatar.path)
+        from django_redis import get_redis_connection
+        get_redis_connection('default').flushdb()
 
     def test_room_join(self):
         client = WSClient()
@@ -241,6 +243,8 @@ class RoomLeaveTest(ChannelTestCase):
         users = User.objects.all()
         for user in users:
             os.remove(user.profile.avatar.path)
+        from django_redis import get_redis_connection
+        get_redis_connection('default').flushdb()
 
     def test_room_leave(self):
         client1 = WSClient()
@@ -362,6 +366,8 @@ class RoomReadyTest(ChannelTestCase):
         users = User.objects.all()
         for user in users:
             os.remove(user.profile.avatar.path)
+        from django_redis import get_redis_connection
+        get_redis_connection('default').flushdb()
 
     def test_room_ready(self):
         client1 = WSClient()
@@ -449,6 +455,8 @@ class RoomStartTest(ChannelTestCase):
         users = User.objects.all()
         for user in users:
             os.remove(user.profile.avatar.path)
+        from django_redis import get_redis_connection
+        get_redis_connection('default').flushdb()
 
     def test_room_start(self):
         client1 = WSClient()
@@ -563,6 +571,8 @@ class RoomResetTest(ChannelTestCase):
         users = User.objects.all()
         for user in users:
             os.remove(user.profile.avatar.path)
+        from django_redis import get_redis_connection
+        get_redis_connection('default').flushdb()
 
     def test_room_reset(self):
         client1 = WSClient()
