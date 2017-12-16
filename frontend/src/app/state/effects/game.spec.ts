@@ -4,15 +4,52 @@ import { provideMockActions } from '@ngrx/effects/testing';
 import { MockComponent, filterCallByAction } from '../../testing';
 import * as v4 from 'uuid/v4';
 
+import { Observable } from 'rxjs/Observable';
 import { ReplaySubject } from 'rxjs/ReplaySubject';
+import 'rxjs/add/observable/from';
+import 'rxjs/add/observable/concat';
+import 'rxjs/add/observable/zip';
+
+import { Action } from '@ngrx/store';
 import { Actions } from '@ngrx/effects';
+import * as WebSocket from '../../websocket';
 
 // Actions
 import * as RouterActions from '../actions/router';
+import * as WebSocketActions from '../actions/websocket';
 import * as GameActions from '../actions/game';
 
 // Effects
 import { GameEffects } from './game';
+
+function compareOutput(effect: Observable<Action>, output: Action[]) {
+  const list = [];
+  const subscription = effect.subscribe(
+    action => list.push(action),
+    err => {
+      fail(`Error from Observable: ${err}`);
+    },
+  );
+  tick();
+  subscription.unsubscribe();
+
+  if (list.length !== output.length) {
+    fail(`Action count does not match: expected ${output.length}, found ${list.length}`);
+    return;
+  }
+  for (let i = 0; i < list.length; i++) {
+    const found: any = list[i];
+    const expected: any = output[i];
+    if (expected instanceof WebSocketActions.Request) {
+      expect(found.payload).toBeTruthy();
+      expect(found.payload.nonce).toBeTruthy();
+      expect(found.payload.action).toBe(expected.payload.action);
+      expect(found.payload.data).toEqual(expected.payload.data);
+    } else {
+      expect(found).toEqual(expected);
+    }
+  }
+}
 
 describe('GameEffects', () => {
   let effects: GameEffects;
@@ -50,19 +87,16 @@ describe('GameEffects', () => {
       actions.next(new GameActions.JoinRoom({ roomId: roomId1 }));
       actions.next(new GameActions.JoinRoom({ roomId: roomId2, password: 'x' }));
 
-      const list = [];
-      effects.joinRoom$.subscribe(action => list.push(action));
-      tick();
-
-      expect(list.length).toBe(4);
-      expect(list[0].payload.nonce).toBeTruthy();
-      expect(list[0].payload.action).toBe('room-join');
-      expect(list[0].payload.data).toEqual({ room_id: roomId1 });
-      expect(list[1]).toEqual(new RouterActions.Go({ path: ['room', roomId1] }));
-      expect(list[2].payload.nonce).toBeTruthy();
-      expect(list[2].payload.action).toBe('room-join');
-      expect(list[2].payload.data).toEqual({ room_id: roomId2, password: 'x' });
-      expect(list[3]).toEqual(new RouterActions.Go({ path: ['room', roomId2] }));
+      compareOutput(effects.joinRoom$, [
+        new WebSocketActions.Request(
+          new WebSocket.Requests.RoomJoin({ room_id: roomId1 })
+        ),
+        new RouterActions.Go({ path: ['room', roomId1] }),
+        new WebSocketActions.Request(
+          new WebSocket.Requests.RoomJoin({ room_id: roomId2, password: 'x' })
+        ),
+        new RouterActions.Go({ path: ['room', roomId2] }),
+      ]);
     }));
   });
 
@@ -71,12 +105,9 @@ describe('GameEffects', () => {
       actions = new ReplaySubject(1);
       actions.next(new GameActions.JoinRoomFailed('foo'));
 
-      const list = [];
-      effects.joinRoomFailed$.subscribe(action => list.push(action));
-      tick();
-
-      expect(list.length).toBe(1);
-      expect(list[0]).toEqual(new RouterActions.GoByUrl('lobby'));
+      compareOutput(effects.joinRoomFailed$, [
+        new RouterActions.GoByUrl('lobby'),
+      ]);
     }));
   });
 
@@ -85,14 +116,11 @@ describe('GameEffects', () => {
       actions = new ReplaySubject(1);
       actions.next(new GameActions.LeaveRoom());
 
-      const list = [];
-      effects.leaveRoom$.subscribe(action => list.push(action));
-      tick();
-
-      expect(list.length).toBe(1);
-      expect(list[0].payload.nonce).toBeTruthy();
-      expect(list[0].payload.action).toBe('room-leave');
-      expect(list[0].payload.data).toEqual({});
+      compareOutput(effects.leaveRoom$, [
+        new WebSocketActions.Request(
+          new WebSocket.Requests.RoomLeave()
+        )
+      ]);
     }));
   });
 
@@ -102,17 +130,27 @@ describe('GameEffects', () => {
       actions.next(new GameActions.Ready(true));
       actions.next(new GameActions.Ready(false));
 
-      const list = [];
-      effects.ready$.subscribe(action => list.push(action));
-      tick();
+      compareOutput(effects.ready$, [
+        new WebSocketActions.Request(
+          new WebSocket.Requests.RoomReady(true)
+        ),
+        new WebSocketActions.Request(
+          new WebSocket.Requests.RoomReady(false)
+        ),
+      ]);
+    }));
+  });
 
-      expect(list.length).toBe(2);
-      expect(list[0].payload.nonce).toBeTruthy();
-      expect(list[0].payload.action).toBe('room-ready');
-      expect(list[0].payload.data).toEqual({ ready: true });
-      expect(list[1].payload.nonce).toBeTruthy();
-      expect(list[1].payload.action).toBe('room-ready');
-      expect(list[1].payload.data).toEqual({ ready: false });
+  describe('start$', () => {
+    it('should convert action', fakeAsync(() => {
+      actions = new ReplaySubject(1);
+      actions.next(new GameActions.Start());
+
+      compareOutput(effects.start$, [
+        new WebSocketActions.Request(
+          new WebSocket.Requests.RoomStart()
+        ),
+      ]);
     }));
   });
 });
