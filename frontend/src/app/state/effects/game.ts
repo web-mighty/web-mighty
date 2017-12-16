@@ -14,7 +14,7 @@ import * as WebSocketActions from '../actions/websocket';
 @Injectable()
 export class GameEffects {
   @Effect()
-  joinRoom$: Observable<Action> =
+  joinRoom$ =
     this.actions$.ofType(GameActions.JOIN_ROOM)
     .mergeMap((action: GameActions.JoinRoom) => {
       const payload: WebSocket.Data.RoomJoin = {
@@ -31,12 +31,12 @@ export class GameEffects {
     });
 
   @Effect()
-  joinRoomFailed$: Observable<Action> =
+  joinRoomFailed$ =
     this.actions$.ofType(GameActions.JOIN_ROOM_FAILED)
     .map(_ => new RouterActions.GoByUrl('lobby'));
 
   @Effect()
-  leaveRoom$: Observable<Action> =
+  leaveRoom$ =
     this.actions$.ofType(GameActions.LEAVE_ROOM)
     .map((action: GameActions.LeaveRoom) =>
       new WebSocketActions.Request(
@@ -50,6 +50,15 @@ export class GameEffects {
     .map((action: GameActions.Ready) =>
       new WebSocketActions.Request(
         new WebSocket.Requests.RoomReady(action.ready)
+      )
+    );
+
+  @Effect()
+  start$ =
+    this.actions$.ofType(GameActions.START)
+    .map(() =>
+      new WebSocketActions.Request(
+        new WebSocket.Requests.RoomStart()
       )
     );
 

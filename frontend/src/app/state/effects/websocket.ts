@@ -57,6 +57,14 @@ function mapResponse(resp: WebSocketActions.Response): Action | null {
         return null;
       }
     }
+    case 'room-start': {
+      const result = resp.downcast<{}>();
+      if (typeof result === 'string') {
+        return new WebSocketActions.WebSocketError(result);
+      } else {
+        return null;
+      }
+    }
     default:
       return null;
   }
@@ -85,6 +93,12 @@ function mapEvent(ev: WebSocketActions.Event): Action | null {
         left: false,
         ready: payload.data.ready,
       });
+    case 'room-reset':
+      return new GameActions.ResetRoom(payload.data.room_id, payload.data.players);
+    case 'room-start':
+      return new GameActions.Started();
+    case 'gameplay-deal':
+      return new GameActions.Deal(payload.data.cards);
     case 'error':
       // TODO: Emit appropriate error action
       switch (payload.data.type) {

@@ -107,6 +107,7 @@ describe('GameRoomComponent', () => {
     store.dispatch(new GameActions.RoomInfo({
       room_id: roomId,
       title: 'foo',
+      player_number: 5,
       players: [
         { username: 'foo', ready: false }
       ],
@@ -130,6 +131,7 @@ describe('GameRoomComponent', () => {
     store.dispatch(new GameActions.RoomInfo({
       room_id: roomId,
       title: 'foo',
+      player_number: 5,
       players: [
         { username: 'doge', ready: true },
         { username: 'foo', ready: false },
@@ -153,6 +155,7 @@ describe('GameRoomComponent', () => {
     store.dispatch(new GameActions.RoomInfo({
       room_id: roomId,
       title: 'foo',
+      player_number: 5,
       players: [
         { username: 'foo', ready: false }
       ],
@@ -181,6 +184,7 @@ describe('GameRoomComponent', () => {
     store.dispatch(new GameActions.RoomInfo({
       room_id: roomId,
       title: 'foo',
+      player_number: 5,
       players: [
         { username: 'foo', ready: false }
       ],

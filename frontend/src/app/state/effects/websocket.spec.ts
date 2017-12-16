@@ -445,8 +445,21 @@ describe('WebSocketEffects', () => {
     const sampleRoom: WebSocket.Data.Room = {
       room_id: 'foo',
       title: 'foobar',
+      player_number: 5,
       players: [
         { username: 'foo', ready: false },
+      ],
+    };
+    const sampleFullRoom: WebSocket.Data.Room = {
+      room_id: 'doge',
+      title: 'shibe doge',
+      player_number: 5,
+      players: [
+        { username: 'foo1', ready: true },
+        { username: 'foo2', ready: true },
+        { username: 'foo3', ready: true },
+        { username: 'foo4', ready: true },
+        { username: 'foo5', ready: true },
       ],
     };
     const expects: Array<{
@@ -455,7 +468,7 @@ describe('WebSocketEffects', () => {
         request: WebSocket.Request,
         response: WebSocket.Response,
       },
-      expect: Action,
+      expect: Action | null,
     }> = [
       {
         name: 'room-join',
@@ -471,6 +484,19 @@ describe('WebSocketEffects', () => {
         expect: new GameActions.RoomInfo(sampleRoom),
       },
       {
+        name: 'room-join failure',
+        given: {
+          request: new WebSocket.Requests.RoomJoin({
+            room_id: 'doge',
+          }),
+          response: {
+            success: false,
+            error: { type: 'room-join', reason: 'Room is full' },
+          },
+        },
+        expect: new GameActions.JoinRoomFailed('Room is full'),
+      },
+      {
         name: 'room-leave',
         given: {
           request: new WebSocket.Requests.RoomLeave(),
@@ -480,6 +506,28 @@ describe('WebSocketEffects', () => {
           },
         },
         expect: new GameActions.LeaveRoomDone(),
+      },
+      {
+        name: 'room-ready',
+        given: {
+          request: new WebSocket.Requests.RoomReady(true),
+          response: {
+            success: true,
+            result: {},
+          },
+        },
+        expect: null,
+      },
+      {
+        name: 'room-start',
+        given: {
+          request: new WebSocket.Requests.RoomStart(),
+          response: {
+            success: true,
+            result: {},
+          },
+        },
+        expect: null,
       },
     ];
 
@@ -498,13 +546,26 @@ describe('WebSocketEffects', () => {
         effects.response$.subscribe(action => list.push(action));
         tick();
 
-        expect(list.length).toBe(1);
-        expect(list[0]).toEqual(spec.expect);
+        if (spec.expect === null) {
+          expect(list.length).toBe(0);
+        } else {
+          expect(list.length).toBe(1);
+          expect(list[0]).toEqual(spec.expect);
+        }
       }));
     }
   });
 
   describe('event$', () => {
+    const samplePlayerList: WebSocket.Data.Player[] = [
+      { username: 'foo', ready: false },
+      { username: 'doge', ready: false },
+    ];
+    const sampleCards: WebSocket.Data.Card[] = [
+      { rank: '3', suit: 'C' },
+      { rank: 'JK' },
+    ];
+
     const expects: Array<{
       name: string,
       given: WebSocket.Event,
@@ -541,6 +602,32 @@ describe('WebSocketEffects', () => {
           left: false,
           ready: true,
         }),
+      },
+      {
+        name: 'room-reset',
+        given: {
+          event: 'room-reset',
+          data: {
+            room_id: 'foo',
+            players: samplePlayerList,
+          },
+        },
+        expect: new GameActions.ResetRoom('foo', samplePlayerList),
+      },
+      {
+        name: 'room-start',
+        given: { event: 'room-start', data: {} },
+        expect: new GameActions.Started(),
+      },
+      {
+        name: 'gameplay-deal',
+        given: {
+          event: 'gameplay-deal',
+          data: {
+            cards: sampleCards,
+          },
+        },
+        expect: new GameActions.Deal(sampleCards),
       },
       {
         name: 'generic error',
