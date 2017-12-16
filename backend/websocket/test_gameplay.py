@@ -17,6 +17,8 @@ class GameplayTest(ChannelTestCase):
         users = User.objects.all()
         for user in users:
             os.remove(user.profile.avatar.path)
+        from django_redis import get_redis_connection
+        get_redis_connection('default').flushdb()
 
     def receive_until_none(self, client):
         while True:

@@ -27,6 +27,7 @@ class Room(models.Model):
     @classmethod
     @receiver(pre_save, sender='api.Room')
     def room_save_handler(sender, instance, **kwargs):
+        # Must be nested in cache lock
         room_id = instance.room_id
         room = cache.get('room:' + room_id)
 

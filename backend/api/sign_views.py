@@ -65,7 +65,8 @@ def sign_up(request):
             return HttpResponseBadRequest()
 
         code = str(uuid.uuid4())
-        cache.set('verify-account:' + username, code)
+        with cache.lock('lock:verify-account:' + username):
+            cache.set('verify-account:' + username, code)
 
         url_code = quote_plus(b64encode(':'.join((username, code)).encode()).decode())
 
@@ -132,18 +133,19 @@ def verify_account(request):
     except ValueError:
         return HttpResponseBadRequest()
 
-    token = cache.get('verify-account:' + username)
+    with cache.lock('lock:verify-account:' + username):
+        token = cache.get('verify-account:' + username)
 
-    if token == verify_token:
-        try:
-            user = User.objects.get(username=username)
-        except User.DoesNotExist:
-            return HttpResponseBadRequest()
+        if token == verify_token:
+            try:
+                user = User.objects.get(username=username)
+            except User.DoesNotExist:
+                return HttpResponseBadRequest()
 
-        user.is_active = True
-        user.save()
-        cache.delete('verify-account:' + username)
-        return HttpResponse(status=201)
+            user.is_active = True
+            user.save()
+            cache.delete('verify-account:' + username)
+            return HttpResponse(status=201)
 
     return HttpResponseBadRequest()
 
@@ -158,9 +160,10 @@ def verify_session(request):
                 'username': username,
             }
 
-            room_id = cache.get('player-room:' + username)
-            if room_id is not None:
-                response_data['room_id'] = room_id
+            with cache.lock('lock:player-room:' + username):
+                room_id = cache.get('player-room:' + username)
+                if room_id is not None:
+                    response_data['room_id'] = room_id
 
             return JsonResponse(response_data)
         else:

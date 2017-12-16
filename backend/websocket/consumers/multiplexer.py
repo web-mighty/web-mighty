@@ -59,8 +59,6 @@ def websocket_connect(message):
         message.reply_channel.send({'close': WEBSOCKET_REJECT_UNAUTHORIZED})
         return
 
-    cache_key = 'session:' + message.user.username
-    current_session = cache.get(cache_key)
     try:
         if isinstance(message.content['query_string'], bytes):
             query_string = parse_qs(message.content['query_string'].decode('utf-8'))
@@ -73,20 +71,23 @@ def websocket_connect(message):
     except KeyError:
         query_string = {}
 
-    # if user is connecting the websocket first time, set the session
-    if current_session is None:
-        cache.set(cache_key, message.reply_channel.name)
-    else:
-        if current_session != message.reply_channel.name:
-            if 'force' in query_string and 'true' in query_string['force']:
-                Channel(current_session).send({'close': WEBSOCKET_DISCONNECT_DUPLICATE})
-                cache.set(cache_key, message.reply_channel.name)
-            else:
-                message.reply_channel.send({'accept': True})
-                message.reply_channel.send(
-                    event_error('Session duplication detected', type='connection-dup'))
-                message.reply_channel.send({'close': WEBSOCKET_REJECT_DUPLICATE})
-                return
+    cache_key = 'session:' + message.user.username
+    with cache.lock('lock:' + cache_key):
+        current_session = cache.get(cache_key)
+        # if user is connecting the websocket first time, set the session
+        if current_session is None:
+            cache.set(cache_key, message.reply_channel.name)
+        else:
+            if current_session != message.reply_channel.name:
+                if 'force' in query_string and 'true' in query_string['force']:
+                    Channel(current_session).send({'close': WEBSOCKET_DISCONNECT_DUPLICATE})
+                    cache.set(cache_key, message.reply_channel.name)
+                else:
+                    message.reply_channel.send({'accept': True})
+                    message.reply_channel.send(
+                        event_error('Session duplication detected', type='connection-dup'))
+                    message.reply_channel.send({'close': WEBSOCKET_REJECT_DUPLICATE})
+                    return
 
     message.reply_channel.send({'accept': True})
     message.reply_channel.send(event('connected', {}))
@@ -108,38 +109,39 @@ def websocket_receive(message):
         return
 
     cache_key = 'session:' + message.user.username
-    current_session = cache.get(cache_key)
+    with cache.lock('lock:' + cache_key):
+        current_session = cache.get(cache_key)
 
-    if message.reply_channel.name != current_session:
-        message.reply_channel.send(
-            reply_error('Session duplication detected', nonce=data.get('nonce', ''), type='receive'))
-        message.reply_channel.send({'close': WEBSOCKET_DISCONNECT_DUPLICATE})
-        return
+        if message.reply_channel.name != current_session:
+            message.reply_channel.send(
+                reply_error('Session duplication detected', nonce=data.get('nonce', ''), type='receive'))
+            message.reply_channel.send({'close': WEBSOCKET_DISCONNECT_DUPLICATE})
+            return
 
-    if 'nonce' not in data:
-        message.reply_channel.send(
-            reply_error('No nonce', type='receive'))
-        return
-    if 'action' not in data:
-        message.reply_channel.send(
-            reply_error('No action', nonce=data['nonce'], type='receive'))
-        return
-    if 'data' not in data:
-        message.reply_channel.send(
-            reply_error('No data', nonce=data['nonce'], type='receive'))
-        return
+        if 'nonce' not in data:
+            message.reply_channel.send(
+                reply_error('No nonce', type='receive'))
+            return
+        if 'action' not in data:
+            message.reply_channel.send(
+                reply_error('No action', nonce=data['nonce'], type='receive'))
+            return
+        if 'data' not in data:
+            message.reply_channel.send(
+                reply_error('No data', nonce=data['nonce'], type='receive'))
+            return
 
-    channel = data['action']
+        channel = data['action']
 
-    if channel not in available_channels:
-        message.reply_channel.send(
-            reply_error('Invalid action', nonce=data['nonce'], type='receive'))
-        return
+        if channel not in available_channels:
+            message.reply_channel.send(
+                reply_error('Invalid action', nonce=data['nonce'], type='receive'))
+            return
 
-    data['data']['nonce'] = data['nonce']
-    data['data']['username'] = message.user.username
-    data['data']['reply'] = message.reply_channel.name
-    Channel(channel).send(data['data'])
+        data['data']['nonce'] = data['nonce']
+        data['data']['username'] = message.user.username
+        data['data']['reply'] = message.reply_channel.name
+        Channel(channel).send(data['data'])
 
 
 @channel_session_user
@@ -151,19 +153,21 @@ def websocket_disconnect(message):
 
     if message.user.is_authenticated:
         session_cache_key = 'session:' + message.user.username
-        session = cache.get(session_cache_key)
-        if session == message.reply_channel.name:
-            cache.delete(session_cache_key)
+        with cache.lock('lock:' + session_cache_key):
+            session = cache.get(session_cache_key)
+            if session == message.reply_channel.name:
+                cache.delete(session_cache_key)
 
         player_room_cache_key = 'player-room:' + message.user.username
-        room_id = cache.get(player_room_cache_key)
+        with cache.lock('lock:' + player_room_cache_key):
+            room_id = cache.get(player_room_cache_key)
 
-        if room_id is not None:
-            data = {
-                'nonce': '',
-                'username': message.user.username,
-                'disconnected': True,
-                'reply': message.reply_channel.name,
-            }
+            if room_id is not None:
+                data = {
+                    'nonce': '',
+                    'username': message.user.username,
+                    'disconnected': True,
+                    'reply': message.reply_channel.name,
+                }
 
-            Channel('room-leave').send(data)
+                Channel('room-leave').send(data)
