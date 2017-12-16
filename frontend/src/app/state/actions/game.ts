@@ -6,6 +6,7 @@ export const JOIN_ROOM = 'Game: Join room';
 export const JOIN_ROOM_FAILED = 'Game: Join room: Failed';
 export const LEAVE_ROOM = 'Game: Leave room';
 export const LEAVE_ROOM_DONE = 'Game: Leave room: Done';
+export const RESET_ROOM = 'Game: Reset room';
 export const READY = 'Game: Ready';
 export const START = 'Game: Start';
 
@@ -45,6 +46,15 @@ export class LeaveRoomDone implements Action {
   readonly type = LEAVE_ROOM_DONE;
 }
 
+export class ResetRoom implements Action {
+  readonly type = RESET_ROOM;
+
+  constructor(
+    public roomId: string,
+    public players: WebSocket.Data.Player[]
+  ) {}
+}
+
 export class Ready implements Action {
   readonly type = READY;
 
@@ -82,6 +92,7 @@ export type Actions
   | JoinRoomFailed
   | LeaveRoom
   | LeaveRoomDone
+  | ResetRoom
   | Ready
   | Start
   | Started

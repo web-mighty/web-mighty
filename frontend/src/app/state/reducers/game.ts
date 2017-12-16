@@ -35,7 +35,7 @@ export namespace GameRoomState {
   export interface Started {
     type: 'started';
     hand: WebSocket.Data.Card[];
-    playerUsername: string[];
+    room: WebSocket.Data.Room;
     turnOf: string;
     state: MightyState.State;
   }
@@ -53,6 +53,11 @@ export namespace GameRoomState {
 }
 
 export type GameState = GameRoomState.State;
+
+
+function getPlayerUsernames(room: WebSocket.Data.Room) {
+  return room.players.map(player => player.username);
+}
 
 const initialState: GameState = {
   type: 'not-in-room',
@@ -111,6 +116,18 @@ export function gameReducer(
         return state;
       }
       return { ...state, room: applyPlayerState(state.room, action.payload) };
+    case GameActions.RESET_ROOM:
+      if (state.type !== 'started') {
+        console.error('RESET_ROOM received, but game haven\'t started');
+        return state;
+      }
+      return {
+        type: 'not-started',
+        room: {
+          ...state.room,
+          players: action.players,
+        },
+      };
     case GameActions.STARTED:
       if (state.type !== 'not-started') {
         console.error('STARTED received outside room.');
@@ -119,7 +136,7 @@ export function gameReducer(
       return {
         type: 'started',
         hand: [],
-        playerUsername: state.room.players.map(player => player.username),
+        room: state.room,
         turnOf: state.room.players[0].username,
         state: {
           type: 'bidding',

@@ -93,6 +93,8 @@ function mapEvent(ev: WebSocketActions.Event): Action | null {
         left: false,
         ready: payload.data.ready,
       });
+    case 'room-reset':
+      return new GameActions.ResetRoom(payload.data.room_id, payload.data.players);
     case 'room-start':
       return new GameActions.Started();
     case 'gameplay-deal':
