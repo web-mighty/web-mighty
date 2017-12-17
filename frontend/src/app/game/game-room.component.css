@@ -14,13 +14,12 @@
   transform: translate(-50%, -50%);
   text-align: center;
 }
-.joining-message {
-  color: grey;
-}
 .title-message {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  text-align: center;
+  padding: 0 16px;
 }
 .my-hand {
   position: absolute;
@@ -40,10 +39,16 @@
   bottom: 0;
   left: 50%;
   transform: translate(-50%, 0);
-  min-width: 350px;
   padding: 0;
 }
 .my-status > div {
+  padding: 0 16px;
+}
+.others-status {
+  position: absolute;
+  top: 96px;
+  left: 50%;
+  transform: translate(-50%, 0);
   padding: 0;
 }
 .ready {
@@ -53,6 +58,12 @@
 .not-ready {
   color: lightgrey;
   background-color: white;
+}
+.username {
+  width: 130px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 .start-game-button {
   margin: 0 0 0 4px;

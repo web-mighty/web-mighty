@@ -2,15 +2,15 @@
   <div class="table mdl-cell mdl-cell--8-col-desktop mdl-cell--12-col-tablet mdl-cell--12-col-phone mdl-shadow--3dp">
     <div *ngIf="(currentScene | async) === 'joining'" class="mdl-progress mdl-js-progress mdl-progress__indeterminate"></div>
     <div *ngIf="(currentScene | async) === 'not-started'">
-      <div class="message">
-        <h3 class="title-message">{{(roomData | async).title}}</h3>
-      </div>
+      <h3 class="title-message">
+        {{(roomData | async).title}}
+      </h3>
       <div class="my-status mdl-list">
         <div class="mdl-list__item" *ngFor="let player of [(playerList | async)[0]]">
           <div class="mdl-list__item-primary-content">
             <i *ngIf="player.ready" class="ready material-icons mdl-list__item-avatar">check</i>
             <i *ngIf="!(player.ready)" class="not-ready material-icons mdl-list__item-avatar">check</i>
-            <span>{{player.username}}</span>
+            <span class="username">{{player.username}}</span>
           </div>
           <button
             class="mdl-list__item-secondary-action ready-toggle-button mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent"
@@ -31,7 +31,7 @@
           <div class="mdl-list__item-primary-content">
             <i *ngIf="player.ready" class="ready material-icons mdl-list__item-avatar">check</i>
             <i *ngIf="!(player.ready)" class="not-ready material-icons mdl-list__item-avatar">check</i>
-            <span>{{player.username}}</span>
+            <span class="username">{{player.username}}</span>
           </div>
         </div>
       </div>
