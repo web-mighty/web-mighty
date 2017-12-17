@@ -101,7 +101,7 @@ class GameplayTest(ChannelTestCase):
             'nonce': username,
             'reply': client.reply_channel,
             'type': data['type'],
-            'floor-cards': new_cards,
+            'floor_cards': new_cards,
         }
         if card is not None:
             content['card'] = code_to_card(card)
@@ -110,7 +110,7 @@ class GameplayTest(ChannelTestCase):
         if round is not None:
             content['round'] = round
         if change_bid is not None:
-            content['change-bid'] = change_bid
+            content['change_bid'] = change_bid
         client.send_and_consume('gameplay-friend-select', content)
         self.flush_all()
 
@@ -125,9 +125,9 @@ class GameplayTest(ChannelTestCase):
             'card': card,
         }
         if joker_call:
-            content['joker-call'] = joker_call
+            content['joker_call'] = joker_call
         if joker_suit:
-            content['joker-suit'] = joker_suit
+            content['joker_suit'] = joker_suit
         client.send_and_consume('gameplay-play', content)
         self.flush_all()
 
