@@ -3,4 +3,5 @@ export class Room {
   title: string;
   is_private: boolean;
   player_number: number;
+  player_count: number;
 }
