@@ -39,6 +39,7 @@ export class GameRoomComponent implements OnInit, OnDestroy {
   currentScene: Observable<string>;
   roomData: Observable<WebSocket.Data.Room | null>;
   hand: Observable<WebSocket.Data.Card[] | null>;
+  selectedCards: Observable<WebSocket.Data.Card[]>;
   myUsername: Observable<string | null>;
 
   gameProgressState: Observable<string>;
@@ -133,6 +134,18 @@ export class GameRoomComponent implements OnInit, OnDestroy {
           return game.hand;
         }
         return null;
+      });
+
+    this.selectedCards =
+      this.store.select('game')
+      .filter(game => game != null && game.type === 'started')
+      .map((game: GameRoomState.Started) => {
+        if (game.state.type === 'elected') {
+          if (game.state.selectedCards != null) {
+            return game.state.selectedCards;
+          }
+        }
+        return [];
       });
 
     this.myUsername =
@@ -356,5 +369,9 @@ export class GameRoomComponent implements OnInit, OnDestroy {
 
   startGame() {
     this.store.dispatch(new GameActions.Start());
+  }
+
+  selectCard(card: WebSocket.Data.Card) {
+    this.store.dispatch(new GameActions.SelectCard(card));
   }
 }

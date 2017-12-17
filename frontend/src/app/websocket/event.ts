@@ -62,6 +62,12 @@ export interface FloorCards {
     floor_cards: Data.Card[];
   };
 }
+export interface FriendSelecting {
+  event: 'gameplay-friend-selecting';
+  data: {
+    player: string;
+  };
+}
 export type Event
   = Error
   | Connected
@@ -75,4 +81,5 @@ export type Event
   | Bid
   | PresidentElected
   | FloorCards
+  | FriendSelecting
 ;

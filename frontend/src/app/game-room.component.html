@@ -8,8 +8,8 @@
       <h3>{{(roomData | async).title}}</h3>
       <div class="mdl-list">
         <div class="mdl-list__item" *ngFor="let player of (roomData | async).players">
-          <label class="mdl-list__item-primary-content mdl-checkbox mdl-js-checkbox mdl-js-ripple-effect" [for]="player.username + '_check'">
-            <input type="checkbox" [id]="player.username + '_check'" class="mdl-checkbox__input" [checked]="player.ready" disabled>
+          <label class="mdl-list__item-primary-content mdl-checkbox mdl-js-checkbox mdl-js-ripple-effect">
+            <input type="checkbox" class="mdl-checkbox__input" [checked]="player.ready" disabled>
             <i class="material-icons mdl=list__item-avatar">account_circle</i>
             {{player.username}}
           </label>
@@ -34,9 +34,20 @@
           Bid: {{bidCoreToString(bid | async)}}
         </span>
       </div>
+      <!-- Hand -->
       <ul>
         <li *ngFor="let card of (hand | async)">
-          {{cardToString(card)}}
+          <label *ngIf="(gameProgressState | async) === 'elected' && (isMyTurn | async)"
+                 class="mdl-checkbox mdl-js-checkbox">
+            <input type="checkbox"
+                   class="mdl-checkbox__input"
+                   [checked]="(selectedCards | async).includes(card)"
+                   (click)="selectCard(card)">
+            {{cardToString(card)}}
+          </label>
+          <span *ngIf="(gameProgressState | async) !== 'elected' || !(isMyTurn | async)">
+            {{cardToString(card)}}
+          </span>
         </li>
       </ul>
       <div *ngIf="(gameProgressState | async) === 'bidding'">

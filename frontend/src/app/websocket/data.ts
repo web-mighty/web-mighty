@@ -13,6 +13,12 @@ export interface JokerCard {
   rank: 'JK';
 }
 export type Card = NormalCard | JokerCard;
+export function cardToId(card: Card): string {
+  if (card.rank === 'JK') {
+    return 'JK';
+  }
+  return `${card.suit}${card.rank}`;
+}
 
 export type Giruda = 'S' | 'D' | 'C' | 'H' | 'N';
 

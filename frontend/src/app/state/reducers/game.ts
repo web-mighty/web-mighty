@@ -12,6 +12,7 @@ export namespace MightyState {
   export interface Elected {
     type: 'elected';
     result: WebSocket.Data.ElectionResult;
+    selectedCards: WebSocket.Data.Card[] | null;
   }
   export interface Playing {
     type: 'playing';
@@ -200,6 +201,7 @@ export function gameReducer(
         state: {
           type: 'elected',
           result: action.result,
+          selectedCards: null,
         },
       };
     case GameActions.FLOOR_CARDS:
@@ -215,6 +217,44 @@ export function gameReducer(
         ...state,
         hand: [...state.hand, ...action.cards],
       };
+    case GameActions.FRIEND_SELECTING:
+      if (state.type !== 'started') {
+        console.error('FRIEND_SELECTING received, but game haven\'t started');
+        return state;
+      }
+      if (state.state.type !== 'elected') {
+        console.error('FRIEND_SELECTING received, but game state is not in elected');
+        return state;
+      }
+      return {
+        ...state,
+        turnOf: action.player,
+        state: {
+          ...state.state,
+          selectedCards: [],
+        },
+      };
+    case GameActions.SELECT_CARD: {
+      if (state.type !== 'started') {
+        console.error('SELECT_CARD received, but game haven\'t started');
+        return state;
+      }
+      if (state.state.type !== 'elected') {
+        console.error('SELECT_CARD received, but game state is not in elected');
+        return state;
+      }
+      const selectedCards = state.state.selectedCards.filter(x => x !== action.card);
+      if (selectedCards.length === state.state.selectedCards.length) {
+        selectedCards.push(action.card);
+      }
+      return {
+        ...state,
+        state: {
+          ...state.state,
+          selectedCards,
+        },
+      };
+    }
     case WebSocketActions.DISCONNECTED:
     case WebSocketActions.DUPLICATE_SESSION:
       return initialState;

@@ -18,6 +18,10 @@ export const BID_EVENT = 'Game: Bid (Event)';
 export const PRESIDENT_ELECTED = 'Game: President elected';
 export const FLOOR_CARDS = 'Game: Floor cards';
 
+export const FRIEND_SELECTING = 'Game: Friend selecting';
+export const SELECT_CARD = 'Game: Select card';
+export const PLAY_CARD = 'Game: Play card';
+
 export const ROOM_INFO = 'Game: Room info';
 export const PLAYER_STATE_CHANGE = 'Game: Player state change';
 
@@ -110,6 +114,24 @@ export class FloorCards implements Action {
   constructor(public cards: WebSocket.Data.Card[]) {}
 }
 
+export class FriendSelecting implements Action {
+  readonly type = FRIEND_SELECTING;
+
+  constructor(public player: string) {}
+}
+
+export class SelectCard implements Action {
+  readonly type = SELECT_CARD;
+
+  constructor(public card: WebSocket.Data.Card) {}
+}
+
+export class PlayCard implements Action {
+  readonly type = PLAY_CARD;
+
+  constructor(public card: WebSocket.Data.Card) {}
+}
+
 export class RoomInfo implements Action {
   readonly type = ROOM_INFO;
 
@@ -137,6 +159,9 @@ export type Actions
   | BidEvent
   | PresidentElected
   | FloorCards
+  | FriendSelecting
+  | SelectCard
+  | PlayCard
   | RoomInfo
   | PlayerStateChange
 ;
