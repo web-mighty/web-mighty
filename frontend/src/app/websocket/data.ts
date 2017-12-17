@@ -102,4 +102,5 @@ export interface FloorCards {
 export interface ChangeBid {
   change_bid?: BidCore;
 }
-export type FriendSelect = FloorCards & Friend & ChangeBid;
+export type FriendSelectRequest = FloorCards & Friend & ChangeBid;
+export type FriendSelectEvent = Friend & ChangeBid;

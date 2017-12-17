@@ -30,9 +30,15 @@
     </div>
     <div *ngIf="(currentScene | async) === 'started'">
       <div>
-        <span *ngIf="(bid | async)">
+        <div *ngIf="(gameProgressState | async) !== 'bidding'">
           Bid: {{bidCoreToString(bid | async)}}
-        </span>
+        </div>
+        <div *ngIf="(gameProgressState | async) === 'playing'">
+          Friend: {{friendDeclToString(friendDecl | async)}}
+          <span *ngIf="(friendDecl | async).type !== 'player' && (friend | async)">
+            ({{friend | async}})
+          </span>
+        </div>
       </div>
       <!-- Hand -->
       <ul>

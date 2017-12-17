@@ -30,7 +30,7 @@ export class GameplayBid {
 
 export class FriendSelect {
   action = 'gameplay-friend-select';
-  constructor(public data: Data.FriendSelect) {}
+  constructor(public data: Data.FriendSelectRequest) {}
 }
 
 export type Request

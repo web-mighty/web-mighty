@@ -19,6 +19,7 @@ export const PRESIDENT_ELECTED = 'Game: President elected';
 export const FLOOR_CARDS = 'Game: Floor cards';
 
 export const FRIEND_SELECTING = 'Game: Friend selecting';
+export const FRIEND_SELECT_EVENT = 'Game: Friend select event';
 export const SELECT_CARD = 'Game: Select card';
 export const PLAY_CARD = 'Game: Play card';
 
@@ -186,6 +187,12 @@ export class FriendSelecting implements Action {
   constructor(public player: string) {}
 }
 
+export class FriendSelectEvent implements Action {
+  readonly type = FRIEND_SELECT_EVENT;
+
+  constructor(public payload: WebSocket.Data.FriendSelectEvent) {}
+}
+
 export class SelectCard implements Action {
   readonly type = SELECT_CARD;
 
@@ -226,6 +233,7 @@ export type Actions
   | PresidentElected
   | FloorCards
   | FriendSelecting
+  | FriendSelectEvent
   | SelectCard
   | PlayCard
   | RoomInfo

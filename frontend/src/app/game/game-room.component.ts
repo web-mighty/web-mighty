@@ -54,6 +54,8 @@ export class GameRoomComponent implements OnInit, OnDestroy {
   bidHistory: Observable<WebSocket.Data.BidEvent[] | null>;
 
   bid: Observable<WebSocket.Data.BidCore | null>;
+  friendDecl: Observable<WebSocket.Data.Friend>;
+  friend: Observable<string | null>;
 
   cardToString(card: WebSocket.Data.Card): string {
     if (card.rank === 'JK') {
@@ -104,6 +106,29 @@ export class GameRoomComponent implements OnInit, OnDestroy {
         break;
     }
     return `${girudaString} ${bid.score}`;
+  }
+
+  friendDeclToString(friendDecl: WebSocket.Data.Friend): string {
+    switch (friendDecl.type) {
+      case 'no':
+        return 'None';
+      case 'card':
+        return this.cardToString(friendDecl.card);
+      case 'player':
+        return friendDecl.player;
+      case 'round': {
+        const {round} = friendDecl;
+        let order = 'th';
+        if (round === 1) {
+          order = 'st';
+        } else if (round === 2) {
+          order = 'nd';
+        } else if (round === 3) {
+          order = 'rd';
+        }
+        return `${round}${order} round`;
+      }
+    }
   }
 
   constructor(
@@ -251,6 +276,16 @@ export class GameRoomComponent implements OnInit, OnDestroy {
         }
         return null;
       });
+
+    this.friendDecl =
+      this.store.select('game')
+      .filter(game => game != null && game.type === 'started' && game.state.type === 'playing')
+      .map((game: any) => game.state.friendDecl);
+
+    this.friend =
+      this.store.select('game')
+      .filter(game => game != null && game.type === 'started' && game.state.type === 'playing')
+      .map((game: any) => game.state.friend);
   }
 
   ngOnInit() {

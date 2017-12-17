@@ -447,6 +447,33 @@ export function gameReducer(
           error: action.error,
         },
       };
+    case GameActions.FRIEND_SELECT_EVENT: {
+      if (state.type !== 'started') {
+        console.error('FriendSelect actions received, but game haven\'t started');
+        return state;
+      }
+      if (state.state.type !== 'elected') {
+        console.error('FriendSelect actions received, but game state is not in elected');
+        return state;
+      }
+      const discardedCards = state.state.selectedCards;
+      const hand = state.hand.filter(x => !discardedCards.includes(x));
+      return {
+        ...state,
+        hand,
+        state: {
+          type: 'playing',
+          bid: {
+            score: state.state.result.score,
+            giruda: state.state.result.giruda,
+          },
+          president: state.state.result.username,
+          friend: null,
+          friendDecl: state.state.friendDecl,
+          cards: {},
+        },
+      };
+    }
     case WebSocketActions.DISCONNECTED:
     case WebSocketActions.DUPLICATE_SESSION:
       return initialState;

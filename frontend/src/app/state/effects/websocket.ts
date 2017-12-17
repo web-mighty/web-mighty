@@ -117,6 +117,8 @@ function mapEvent(ev: WebSocketActions.Event): Action | null {
       return new GameActions.FloorCards(payload.data.floor_cards);
     case 'gameplay-friend-selecting':
       return new GameActions.FriendSelecting(payload.data.player);
+    case 'gameplay-friend-select':
+      return new GameActions.FriendSelectEvent(payload.data);
     case 'error':
       // TODO: Emit appropriate error action
       switch (payload.data.type) {

@@ -68,6 +68,10 @@ export interface FriendSelecting {
     player: string;
   };
 }
+export interface FriendSelectDone {
+  event: 'gameplay-friend-select';
+  data: Data.FriendSelectEvent;
+}
 export type Event
   = Error
   | Connected
@@ -82,4 +86,5 @@ export type Event
   | PresidentElected
   | FloorCards
   | FriendSelecting
+  | FriendSelectDone
 ;
