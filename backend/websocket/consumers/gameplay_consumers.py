@@ -125,167 +125,141 @@ def gameplay_bid_consumer(message):
         if not try_bid:
             room['players'][turn]['bid'] = 2
 
-            bidder_count = 0
-            giveup_count = 0
-            bidder = ''
-            bidder_turn = 0
-            bidder_reply = ''
-            for i, player in enumerate(room['players']):
-                if player['bid'] == 1:
-                    bidder_count += 1
-                    bidder = player['username']
-                    bidder_turn = i
-                    bidder_reply = player['reply']
-                elif player['bid'] == 2:
-                    giveup_count += 1
-
-            if giveup_count == player_number:
-                Channel('gameplay-deal-miss').send({'all_pass': True, 'room_id': room_id})
-                return
-            if bidder_count == 1 and giveup_count == (player_number - 1):
-                reply_channel.send(response(
-                    {},
+        else:
+            if giruda not in 'SDCHN':
+                reply_channel.send(reply_error(
+                    'Invalid giruda',
                     nonce=nonce,
+                    type='gameplay-bid',
                 ))
-                turn = bidder_turn
-                reply_channel = Channel(bidder_reply)
-                room['game']['president'] = bidder
-                room['game']['current_bid']['bidder'] = bidder
-                room['game']['bid_score'] = room['game']['current_bid']['score']
-                room['game']['giruda'] = room['game']['current_bid']['giruda']
-
-                players = room['players'][turn:] + room['players'][:turn]
-                room['players'] = players
-                room['game']['turn'] = 0
-
-                event_data = {
-                    'player': bidder,
-                    'score': room['game']['bid_score'],
-                    'giruda': room['game']['giruda'],
-                }
-
-                Group(room_id).send(event(
-                    'gameplay-president-elected',
-                    event_data,
-                ))
-
-                if player_number == 5:
-                    room['game']['state'] = RoomState.FRIEND_SELECTING
-
-                    room['players'][0]['cards'] += room['game']['floor_cards']
-
-                    event_data = {
-                        'floor_cards': room['game']['floor_cards'],
-                    }
-                    reply_channel.send(event(
-                        'gameplay-floor-cards',
-                        event_data,
-                    ))
-                    event_data = {
-                        'player': bidder,
-                    }
-                    Group(room_id).send(event(
-                        'gameplay-friend-selecting',
-                        event_data,
-                    ))
-                    room['game']['floor_cards'] = []
-                elif player_number == 6:
-                    room['game']['state'] = RoomState.KILL_SELECTING
-                    event_data = {
-                        'player': bidder,
-                    }
-                    Group(room_id).send(event(
-                        'gameplay-killing',
-                        event_data,
-                    ))
-
-                cache.set('room:' + room_id, room)
                 return
 
-            for i in range(turn + 1, turn + player_number):
-                j = i % player_number
-                player = room['players'][j]
-                if player['bid'] != 2:
-                    room['game']['turn'] = j
-                    turn = j
-                    break
+            if player_number == 5:
+                miminum_bid = 13
+            elif player_number == 6:
+                miminum_bid = 14
+            else:
+                miminum_bid = 13
 
-            room['game']['turn'] = turn
-            cache.set('room:' + room_id, room)
+            tuned_score = score if giruda != 'N' else score + 1
 
+            if tuned_score < miminum_bid or score > 20:
+                reply_channel.send(reply_error(
+                    'Invalid score',
+                    nonce=nonce,
+                    type='gameplay-bid',
+                ))
+                return
+
+            current_bid = room['game']['current_bid']
+            tuned_current_bid = current_bid['score'] if current_bid['giruda'] != 'N' else current_bid['score'] + 1
+
+            if tuned_current_bid >= tuned_score:
+                reply_channel.send(reply_error(
+                    'Not enough score',
+                    nonce=nonce,
+                    type='gameplay-bid',
+                ))
+                return
+
+            room['game']['current_bid']['bidder'] = username
+            room['game']['current_bid']['score'] = score
+            room['game']['current_bid']['giruda'] = giruda
+            room['players'][turn]['bid'] = 1
+
+            if score == 20:
+                for player in room['players']:
+                    if player['username'] != username:
+                        player['bid'] = 2
+
+        bidder_count = 0
+        giveup_count = 0
+        bidder = ''
+        bidder_turn = 0
+        bidder_reply = ''
+        for i, player in enumerate(room['players']):
+            if player['bid'] == 1:
+                bidder_count += 1
+                bidder = player['username']
+                bidder_turn = i
+                bidder_reply = player['reply']
+            elif player['bid'] == 2:
+                giveup_count += 1
+
+        if giveup_count == player_number:
+            Channel('gameplay-deal-miss').send({'all_pass': True, 'room_id': room_id})
+            return
+        if bidder_count == 1 and giveup_count == (player_number - 1):
             reply_channel.send(response(
                 {},
                 nonce=nonce,
             ))
+            turn = bidder_turn
+            reply_channel = Channel(bidder_reply)
+            room['game']['president'] = bidder
+            room['game']['current_bid']['bidder'] = bidder
+            room['game']['bid_score'] = room['game']['current_bid']['score']
+            room['game']['giruda'] = room['game']['current_bid']['giruda']
+
+            players = room['players'][turn:] + room['players'][:turn]
+            room['players'] = players
+            room['game']['turn'] = 0
+
             event_data = {
-                'player': username,
-                'bid': False,
+                'player': bidder,
+                'score': room['game']['bid_score'],
+                'giruda': room['game']['giruda'],
             }
+
             Group(room_id).send(event(
-                'gameplay-bid',
+                'gameplay-president-elected',
                 event_data,
             ))
-            event_data = {
-                'player': room['players'][turn]['username'],
-            }
-            Group(room_id).send(event(
-                'gameplay-bidding',
-                event_data,
-            ))
+
+            if player_number == 5:
+                room['game']['state'] = RoomState.FRIEND_SELECTING
+
+                room['players'][0]['cards'] += room['game']['floor_cards']
+
+                event_data = {
+                    'floor_cards': room['game']['floor_cards'],
+                }
+                reply_channel.send(event(
+                    'gameplay-floor-cards',
+                    event_data,
+                ))
+                event_data = {
+                    'player': bidder,
+                }
+                Group(room_id).send(event(
+                    'gameplay-friend-selecting',
+                    event_data,
+                ))
+                room['game']['floor_cards'] = []
+            elif player_number == 6:
+                room['game']['state'] = RoomState.KILL_SELECTING
+                event_data = {
+                    'player': bidder,
+                }
+                Group(room_id).send(event(
+                    'gameplay-killing',
+                    event_data,
+                ))
+
+            cache.set('room:' + room_id, room)
             return
 
-        if giruda not in 'SDCHN':
-            reply_channel.send(reply_error(
-                'Invalid giruda',
-                nonce=nonce,
-                type='gameplay-bid',
-            ))
-            return
+    for i in range(turn + 1, turn + player_number):
+        j = i % player_number
+        player = room['players'][j]
+        if player['bid'] != 2:
+            room['game']['turn'] = j
+            turn = j
+            break
 
-        if player_number == 5:
-            miminum_bid = 13
-        elif player_number == 6:
-            miminum_bid = 14
-        else:
-            miminum_bid = 13
+    room['game']['turn'] = turn
 
-        tuned_score = score if giruda != 'N' else score + 1
-
-        if tuned_score < miminum_bid or score > 20:
-            reply_channel.send(reply_error(
-                'Invalid score',
-                nonce=nonce,
-                type='gameplay-bid',
-            ))
-            return
-
-        current_bid = room['game']['current_bid']
-        tuned_current_bid = current_bid['score'] if current_bid['giruda'] != 'N' else current_bid['score'] + 1
-
-        if tuned_current_bid >= tuned_score:
-            reply_channel.send(reply_error(
-                'Not enough score',
-                nonce=nonce,
-                type='gameplay-bid',
-            ))
-            return
-
-        room['game']['current_bid']['bidder'] = username
-        room['game']['current_bid']['score'] = score
-        room['game']['current_bid']['giruda'] = giruda
-        room['players'][turn]['bid'] = 1
-
-        for i in range(turn + 1, turn + player_number):
-            j = i % player_number
-            player = room['players'][j]
-            if player['bid'] != 2:
-                room['game']['turn'] = j
-                turn = j
-                break
-
-        room['game']['turn'] = turn
-
-        cache.set('room:' + room_id, room)
+    cache.set('room:' + room_id, room)
 
     reply_channel.send(response(
         {},
@@ -301,6 +275,7 @@ def gameplay_bid_consumer(message):
         'gameplay-bid',
         event_data,
     ))
+
     event_data = {
         'player': room['players'][turn]['username'],
     }
