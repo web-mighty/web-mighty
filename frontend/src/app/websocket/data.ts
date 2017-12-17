@@ -61,3 +61,28 @@ export interface DealMiss {
 }
 
 export type ElectionResult = PlayerCore & BidCore;
+
+export namespace FriendDecl {
+  export interface No {
+    type: 'no';
+  }
+  export interface Card {
+    type: 'card';
+    card: Card;
+  }
+  export interface Player {
+    type: 'player';
+    player: string;
+  }
+  export interface Round {
+    type: 'round';
+    round: number;
+  }
+  export type Friend
+    = No
+    | Card
+    | Player
+    | Round
+  ;
+}
+export type Friend = FriendDecl.Friend;

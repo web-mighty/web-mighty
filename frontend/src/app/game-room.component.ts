@@ -16,6 +16,7 @@ import { ActivatedRoute } from '@angular/router';
 import { Store } from '@ngrx/store';
 
 import { State } from './state/reducer';
+import { GameRoomState } from './state/reducers/game';
 import * as RouterActions from './state/actions/router';
 import * as GameActions from './state/actions/game';
 
@@ -49,6 +50,10 @@ export class GameRoomComponent implements OnInit, OnDestroy {
   turnOf: Observable<string | null>;
   isMyTurn: Observable<boolean>;
 
+  bidHistory: Observable<WebSocket.Data.BidEvent[] | null>;
+
+  bid: Observable<WebSocket.Data.BidCore | null>;
+
   cardToString(card: WebSocket.Data.Card): string {
     if (card.rank === 'JK') {
       return 'Joker';
@@ -70,6 +75,34 @@ export class GameRoomComponent implements OnInit, OnDestroy {
     }
 
     return `${suitIcon} ${card.rank}`;
+  }
+
+  bidToString(bid: WebSocket.Data.Bid): string {
+    if (bid.bid === false) {
+      return 'Withdraw';
+    }
+    return this.bidCoreToString(bid);
+  }
+  bidCoreToString(bid: WebSocket.Data.BidCore): string {
+    let girudaString;
+    switch (bid.giruda) {
+      case 'S':
+        girudaString = 'Spades';
+        break;
+      case 'D':
+        girudaString = 'Diamonds';
+        break;
+      case 'C':
+        girudaString = 'Clubs';
+        break;
+      case 'H':
+        girudaString = 'Hearts';
+        break;
+      case 'N':
+        girudaString = 'No Giruda';
+        break;
+    }
+    return `${girudaString} ${bid.score}`;
   }
 
   constructor(
@@ -179,6 +212,32 @@ export class GameRoomComponent implements OnInit, OnDestroy {
         this.myUsername,
         (turnOf, username) => turnOf === username
       );
+
+    this.bidHistory =
+      this.store.select('game')
+      .filter(game => game != null && game.type === 'started')
+      .map((game: GameRoomState.Started) => {
+        if (game.state.type !== 'bidding') {
+          return null;
+        }
+        return game.state.bidHistory;
+      });
+
+    this.bid =
+      this.store.select('game')
+      .filter(game => game != null)
+      .map(game => {
+        if (game.type !== 'started') {
+          return null;
+        }
+        if (game.state.type === 'elected') {
+          return game.state.result;
+        }
+        if (game.state.type === 'playing') {
+          return game.state.bid;
+        }
+        return null;
+      });
   }
 
   ngOnInit() {

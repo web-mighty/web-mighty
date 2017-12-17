@@ -4,7 +4,8 @@ import * as WebSocketActions from '../actions/websocket';
 
 import * as WebSocket from '../../websocket';
 
-export namespace MightyState { export interface Bidding {
+export namespace MightyState {
+  export interface Bidding {
     type: 'bidding';
     bidHistory: WebSocket.Data.BidEvent[];
   }
@@ -12,10 +13,19 @@ export namespace MightyState { export interface Bidding {
     type: 'elected';
     result: WebSocket.Data.ElectionResult;
   }
+  export interface Playing {
+    type: 'playing';
+    bid: WebSocket.Data.BidCore;
+    president: string;
+    friend: string | null;
+    friendDecl: WebSocket.Data.Friend;
+    cards: { [username: string]: WebSocket.Data.Card };
+  }
 
   export type State
     = Bidding
     | Elected
+    | Playing
   ;
 }
 
@@ -175,6 +185,35 @@ export function gameReducer(
           ...state.state,
           bidHistory: [...state.state.bidHistory, action.bid],
         },
+      };
+    case GameActions.PRESIDENT_ELECTED:
+      if (state.type !== 'started') {
+        console.error('PRESIDENT_ELECTED received, but game haven\'t started');
+        return state;
+      }
+      if (state.state.type !== 'bidding') {
+        console.error('PRESIDENT_ELECTED received, but game state is not in bidding');
+        return state;
+      }
+      return {
+        ...state,
+        state: {
+          type: 'elected',
+          result: action.result,
+        },
+      };
+    case GameActions.FLOOR_CARDS:
+      if (state.type !== 'started') {
+        console.error('FLOOR_CARDS received, but game haven\'t started');
+        return state;
+      }
+      if (state.state.type !== 'elected') {
+        console.error('FLOOR_CARDS received, but game state is not in elected');
+        return state;
+      }
+      return {
+        ...state,
+        hand: [...state.hand, ...action.cards],
       };
     case WebSocketActions.DISCONNECTED:
     case WebSocketActions.DUPLICATE_SESSION:

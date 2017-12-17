@@ -29,12 +29,28 @@
       </button>
     </div>
     <div *ngIf="(currentScene | async) === 'started'">
+      <div>
+        <span *ngIf="(bid | async)">
+          Bid: {{bidCoreToString(bid | async)}}
+        </span>
+      </div>
       <ul>
         <li *ngFor="let card of (hand | async)">
           {{cardToString(card)}}
         </li>
       </ul>
-      <app-game-bid *ngIf="(isMyTurn | async) && (gameProgressState | async) === 'bidding'"></app-game-bid>
+      <div *ngIf="(gameProgressState | async) === 'bidding'">
+        <h4>Bids</h4>
+        <ul>
+          <li *ngFor="let bidItem of (bidHistory | async)">
+            {{bidItem.player}}: {{bidToString(bidItem)}}
+          </li>
+        </ul>
+        <app-game-bid *ngIf="isMyTurn | async"></app-game-bid>
+      </div>
+      <div *ngIf="(gameProgressState | async) === 'elected'">
+        {{(bid | async).player}} has been elected!
+      </div>
     </div>
   </div>
   <div class="mdl-layout-spacer"></div>

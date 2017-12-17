@@ -98,6 +98,18 @@ export class BidEvent implements Action {
   constructor(public bid: WebSocket.Data.BidEvent) {}
 }
 
+export class PresidentElected implements Action {
+  readonly type = PRESIDENT_ELECTED;
+
+  constructor(public result: WebSocket.Data.ElectionResult) {}
+}
+
+export class FloorCards implements Action {
+  readonly type = FLOOR_CARDS;
+
+  constructor(public cards: WebSocket.Data.Card[]) {}
+}
+
 export class RoomInfo implements Action {
   readonly type = ROOM_INFO;
 
@@ -123,6 +135,8 @@ export type Actions
   | Bidding
   | Bid
   | BidEvent
+  | PresidentElected
+  | FloorCards
   | RoomInfo
   | PlayerStateChange
 ;
