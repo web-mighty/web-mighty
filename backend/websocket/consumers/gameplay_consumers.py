@@ -592,7 +592,7 @@ def gameplay_friend_select_consumer(message):
             ))
             return
 
-        floor_cards = data.get('floor-cards', None)
+        floor_cards = data.get('floor_cards', None)
 
         if floor_cards is None or not isinstance(floor_cards, list) or len(floor_cards) != 3:
             reply_channel.send(reply_error(
@@ -703,7 +703,7 @@ def gameplay_friend_select_consumer(message):
             room['game']['friend_selection']['round'] = t
             event_data['round'] = t
 
-        change_bid = data.get('change-bid', None)
+        change_bid = data.get('change_bid', None)
         event_data['change_bid'] = False
 
         if change_bid is not None and isinstance(change_bid, dict):
@@ -851,7 +851,7 @@ def gameplay_play_consumer(message):
         if turn == 0:
             # joker
             if card['rank'] == 'JK':
-                joker_suit = data.get('joker-suit', None)
+                joker_suit = data.get('joker_suit', None)
                 if joker_suit is None:
                     reply_channel.send(reply_error(
                         'No joker suit',
@@ -863,7 +863,7 @@ def gameplay_play_consumer(message):
                 card['suit'] = joker_suit
             # joker-call
             elif is_joker_call(card, giruda):
-                joker_call = data.get('joker-call', False)
+                joker_call = data.get('joker_call', False)
                 if joker_call and round != 1 and round != 10:
                     room['game']['joker_call'] = True
                 elif joker_call and (round == 1 or round == 10):
@@ -873,7 +873,7 @@ def gameplay_play_consumer(message):
                         type='gameplay-play',
                     ))
                     return
-                event_data['joker-call'] = joker_call
+                event_data['joker_call'] = joker_call
         else:
             joker_call = room['game']['joker_call']
             if joker_call and card_in({'rank': 'JK', 'suit': None}, player_card):
