@@ -18,9 +18,80 @@ export const BID_EVENT = 'Game: Bid (Event)';
 export const PRESIDENT_ELECTED = 'Game: President elected';
 export const FLOOR_CARDS = 'Game: Floor cards';
 
+export const FRIEND_SELECTING = 'Game: Friend selecting';
+export const FRIEND_SELECT_EVENT = 'Game: Friend select event';
+export const SELECT_CARD = 'Game: Select card';
+export const PLAY_CARD = 'Game: Play card';
+
 export const ROOM_INFO = 'Game: Room info';
 export const PLAYER_STATE_CHANGE = 'Game: Player state change';
 
+
+export namespace FriendSelect {
+  export const CHANGE_TYPE = 'Game: Friend Select: Change type';
+  export const TOGGLE_JOKER = 'Game: Friend Select: Toggle joker';
+  export const CHANGE_CARD = 'Game: Friend Select: Change card';
+  export const CHANGE_PLAYER = 'Game: Friend Select: Change player';
+  export const CHANGE_ROUND = 'Game: Friend Select: Change round';
+  export const CONFIRM = 'Game: Friend Select: Confirm';
+  export const FAILED = 'Game: Friend Select: Failed';
+
+  export class ChangeType implements Action {
+    readonly type = CHANGE_TYPE;
+
+    constructor(public friendType: WebSocket.Data.FriendType) {}
+  }
+
+  export class ToggleJoker implements Action {
+    readonly type = TOGGLE_JOKER;
+  }
+
+  export class ChangeCard implements Action {
+    readonly type = CHANGE_CARD;
+
+    constructor(public cardSpec: {
+      suit?: WebSocket.Data.CardSuit,
+      rank?: WebSocket.Data.CardRank,
+    }) {}
+  }
+
+  export class ChangePlayer implements Action {
+    readonly type = CHANGE_PLAYER;
+
+    constructor(public player: string) {}
+  }
+
+  export class ChangeRound implements Action {
+    readonly type = CHANGE_ROUND;
+
+    constructor(public round: number) {}
+  }
+
+  export class Confirm implements Action {
+    readonly type = CONFIRM;
+
+    constructor(public payload: {
+      friendDecl: WebSocket.Data.Friend,
+      discardCards: WebSocket.Data.Card[],
+    }) {}
+  }
+
+  export class Failed implements Action {
+    readonly type = FAILED;
+
+    constructor(public error: string) {}
+  }
+
+  export type Actions
+    = ChangeType
+    | ToggleJoker
+    | ChangeCard
+    | ChangePlayer
+    | ChangeRound
+    | Confirm
+    | Failed
+  ;
+}
 
 export interface PlayerState {
   username: string;
@@ -98,6 +169,42 @@ export class BidEvent implements Action {
   constructor(public bid: WebSocket.Data.BidEvent) {}
 }
 
+export class PresidentElected implements Action {
+  readonly type = PRESIDENT_ELECTED;
+
+  constructor(public result: WebSocket.Data.ElectionResult) {}
+}
+
+export class FloorCards implements Action {
+  readonly type = FLOOR_CARDS;
+
+  constructor(public cards: WebSocket.Data.Card[]) {}
+}
+
+export class FriendSelecting implements Action {
+  readonly type = FRIEND_SELECTING;
+
+  constructor(public player: string) {}
+}
+
+export class FriendSelectEvent implements Action {
+  readonly type = FRIEND_SELECT_EVENT;
+
+  constructor(public payload: WebSocket.Data.FriendSelectEvent) {}
+}
+
+export class SelectCard implements Action {
+  readonly type = SELECT_CARD;
+
+  constructor(public card: WebSocket.Data.Card) {}
+}
+
+export class PlayCard implements Action {
+  readonly type = PLAY_CARD;
+
+  constructor(public card: WebSocket.Data.Card) {}
+}
+
 export class RoomInfo implements Action {
   readonly type = ROOM_INFO;
 
@@ -123,6 +230,13 @@ export type Actions
   | Bidding
   | Bid
   | BidEvent
+  | PresidentElected
+  | FloorCards
+  | FriendSelecting
+  | FriendSelectEvent
+  | SelectCard
+  | PlayCard
   | RoomInfo
   | PlayerStateChange
+  | FriendSelect.Actions
 ;

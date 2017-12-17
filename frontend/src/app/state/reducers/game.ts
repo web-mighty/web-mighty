@@ -4,18 +4,31 @@ import * as WebSocketActions from '../actions/websocket';
 
 import * as WebSocket from '../../websocket';
 
-export namespace MightyState { export interface Bidding {
+export namespace MightyState {
+  export interface Bidding {
     type: 'bidding';
     bidHistory: WebSocket.Data.BidEvent[];
   }
   export interface Elected {
     type: 'elected';
     result: WebSocket.Data.ElectionResult;
+    friendDecl: WebSocket.Data.Friend | null;
+    selectedCards: WebSocket.Data.Card[] | null;
+    error: string | null;
+  }
+  export interface Playing {
+    type: 'playing';
+    bid: WebSocket.Data.BidCore;
+    president: string;
+    friend: string | null;
+    friendDecl: WebSocket.Data.Friend;
+    cards: { [username: string]: WebSocket.Data.Card };
   }
 
   export type State
     = Bidding
     | Elected
+    | Playing
   ;
 }
 
@@ -53,6 +66,136 @@ export namespace GameRoomState {
 
 export type GameState = GameRoomState.State;
 
+
+function recommendFriend(
+  hand: WebSocket.Data.Card[],
+  giruda: WebSocket.Data.Giruda,
+): WebSocket.Data.Friend {
+  const mightySuit = giruda === 'S' ? 'D' : 'S';
+
+  const hasMighty =
+    hand.find(
+      card => card.rank === 'A' && card.suit === mightySuit
+    ) != null;
+  const hasJoker =
+    hand.find(
+      card => card.rank === 'JK'
+    ) != null;
+  const suitPref = ['S', 'D', 'C', 'H'].filter(x => x !== giruda);
+  if (giruda !== 'N') {
+    suitPref.unshift(giruda);
+  }
+
+  if (!hasMighty) {
+    const card: WebSocket.Data.NormalCard = { suit: mightySuit, rank: 'A' };
+    return {
+      type: 'card',
+      card,
+    };
+  }
+  if (!hasJoker) {
+    return {
+      type: 'card',
+      card: { rank: 'JK' },
+    };
+  }
+  for (const suit of suitPref) {
+    for (const rank of ['A', 'K', 'Q']) {
+      if (hand.find((card: WebSocket.Data.NormalCard) => card.rank === rank && card.suit === suit) == null) {
+        const card: any = { suit, rank };
+        return {
+          type: 'card',
+          card,
+        };
+      }
+    }
+  }
+  console.error('Failed to recommend Friend.');
+  return {
+    type: 'card',
+    card: { suit: mightySuit, rank: 'A' },
+  };
+}
+
+function updateFriendDecl(
+  original: WebSocket.Data.Friend,
+  action: GameActions.FriendSelect.Actions,
+  hand: WebSocket.Data.Card[],
+  giruda: WebSocket.Data.Giruda,
+): WebSocket.Data.Friend {
+  switch (action.type) {
+    case GameActions.FriendSelect.CHANGE_TYPE: {
+      switch (action.friendType) {
+        case 'card':
+          return recommendFriend(hand, giruda);
+        case 'player':
+          return {
+            type: 'player',
+            player: '',
+          };
+        case 'round':
+          return {
+            type: 'round',
+            round: 1,
+          };
+        case 'no':
+          return {
+            type: 'no',
+          };
+        default:
+          console.error('Invalid friend type.');
+          return original;
+      }
+    }
+    case GameActions.FriendSelect.TOGGLE_JOKER:
+      if (original.type === 'card') {
+        if (original.card.rank === 'JK') {
+          return recommendFriend(hand, giruda);
+        } else {
+          return {
+            type: 'card',
+            card: { rank: 'JK' },
+          };
+        }
+      } else {
+        return original;
+      }
+    case GameActions.FriendSelect.CHANGE_CARD:
+      if (original.type === 'card') {
+        if (original.card.rank === 'JK') {
+          return original;
+        } else {
+          return {
+            type: 'card',
+            card: {
+              ...original.card,
+              ...action.cardSpec,
+            },
+          };
+        }
+      } else {
+        return original;
+      }
+    case GameActions.FriendSelect.CHANGE_PLAYER:
+      if (original.type === 'player') {
+        return {
+          type: 'player',
+          player: action.player,
+        };
+      } else {
+        return original;
+      }
+    case GameActions.FriendSelect.CHANGE_ROUND:
+      if (original.type === 'round') {
+        return {
+          type: 'round',
+          round: action.round,
+        };
+      } else {
+        return original;
+      }
+  }
+}
 
 function getPlayerUsernames(room: WebSocket.Data.Room) {
   return room.players.map(player => player.username);
@@ -176,6 +319,161 @@ export function gameReducer(
           bidHistory: [...state.state.bidHistory, action.bid],
         },
       };
+    case GameActions.PRESIDENT_ELECTED:
+      if (state.type !== 'started') {
+        console.error('PRESIDENT_ELECTED received, but game haven\'t started');
+        return state;
+      }
+      if (state.state.type !== 'bidding') {
+        console.error('PRESIDENT_ELECTED received, but game state is not in bidding');
+        return state;
+      }
+      return {
+        ...state,
+        state: {
+          type: 'elected',
+          result: action.result,
+          friendDecl: null,
+          selectedCards: null,
+          error: null,
+        },
+      };
+    case GameActions.FLOOR_CARDS:
+      if (state.type !== 'started') {
+        console.error('FLOOR_CARDS received, but game haven\'t started');
+        return state;
+      }
+      if (state.state.type !== 'elected') {
+        console.error('FLOOR_CARDS received, but game state is not in elected');
+        return state;
+      }
+      return {
+        ...state,
+        hand: [...state.hand, ...action.cards],
+      };
+    case GameActions.FRIEND_SELECTING:
+      if (state.type !== 'started') {
+        console.error('FRIEND_SELECTING received, but game haven\'t started');
+        return state;
+      }
+      if (state.state.type !== 'elected') {
+        console.error('FRIEND_SELECTING received, but game state is not in elected');
+        return state;
+      }
+      return {
+        ...state,
+        turnOf: action.player,
+        state: {
+          ...state.state,
+          friendDecl: recommendFriend(state.hand, state.state.result.giruda),
+          selectedCards: [],
+        },
+      };
+    case GameActions.SELECT_CARD: {
+      if (state.type !== 'started') {
+        console.error('SELECT_CARD received, but game haven\'t started');
+        return state;
+      }
+      if (state.state.type !== 'elected') {
+        console.error('SELECT_CARD received, but game state is not in elected');
+        return state;
+      }
+      const selectedCards = state.state.selectedCards.filter(x => x !== action.card);
+      if (selectedCards.length === state.state.selectedCards.length) {
+        selectedCards.push(action.card);
+      }
+      return {
+        ...state,
+        state: {
+          ...state.state,
+          selectedCards,
+        },
+      };
+    }
+    case GameActions.FriendSelect.CHANGE_TYPE:
+    case GameActions.FriendSelect.TOGGLE_JOKER:
+    case GameActions.FriendSelect.CHANGE_CARD:
+    case GameActions.FriendSelect.CHANGE_PLAYER:
+    case GameActions.FriendSelect.CHANGE_ROUND:
+      if (state.type !== 'started') {
+        console.error('FriendSelect actions received, but game haven\'t started');
+        return state;
+      }
+      if (state.state.type !== 'elected') {
+        console.error('FriendSelect actions received, but game state is not in elected');
+        return state;
+      }
+      return {
+        ...state,
+        state: {
+          ...state.state,
+          friendDecl: updateFriendDecl(
+            state.state.friendDecl,
+            action,
+            state.hand,
+            state.state.result.giruda
+          ),
+        },
+      };
+    case GameActions.FriendSelect.CONFIRM:
+      if (state.type !== 'started') {
+        console.error('FriendSelect actions received, but game haven\'t started');
+        return state;
+      }
+      if (state.state.type !== 'elected') {
+        console.error('FriendSelect actions received, but game state is not in elected');
+        return state;
+      }
+      return {
+        ...state,
+        state: {
+          ...state.state,
+          error: null,
+        },
+      };
+    case GameActions.FriendSelect.FAILED:
+      if (state.type !== 'started') {
+        console.error('FriendSelect actions received, but game haven\'t started');
+        return state;
+      }
+      if (state.state.type !== 'elected') {
+        console.error('FriendSelect actions received, but game state is not in elected');
+        return state;
+      }
+      return {
+        ...state,
+        state: {
+          ...state.state,
+          error: action.error,
+        },
+      };
+    case GameActions.FRIEND_SELECT_EVENT: {
+      if (state.type !== 'started') {
+        console.error('FriendSelect actions received, but game haven\'t started');
+        return state;
+      }
+      if (state.state.type !== 'elected') {
+        console.error('FriendSelect actions received, but game state is not in elected');
+        return state;
+      }
+      const discardedCards = state.state.selectedCards;
+      const hand = state.hand.filter(x => !discardedCards.includes(x));
+      return {
+        ...state,
+        hand,
+        state: {
+          type: 'playing',
+          bid: {
+            score: state.state.result.score,
+            giruda: state.state.result.giruda,
+          },
+          president: state.state.result.username,
+          friend: null,
+          friendDecl: state.state.friendDecl,
+          cards: {},
+        },
+      };
+    }
     case WebSocketActions.DISCONNECTED:
     case WebSocketActions.DUPLICATE_SESSION:
       return initialState;

@@ -2,10 +2,10 @@ import { Component } from '@angular/core';
 
 import { Store } from '@ngrx/store';
 
-import { State } from './state/reducer';
-import * as GameActions from './state/actions/game';
+import { State } from '../state/reducer';
+import * as GameActions from '../state/actions/game';
 
-import * as WebSocket from './websocket';
+import * as WebSocket from '../websocket';
 
 function parseBid(bid: string): WebSocket.Data.BidCore {
   const giruda: any = bid[0];

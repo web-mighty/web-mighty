@@ -704,10 +704,9 @@ def gameplay_friend_select_consumer(message):
             event_data['round'] = t
 
         change_bid = data.get('change_bid', None)
-        event_data['change_bid'] = False
 
         if change_bid is not None and isinstance(change_bid, dict):
-            bid = change_bid.get('bid', None)
+            bid = change_bid.get('score', None)
             giruda = change_bid.get('giruda', None)
             if bid is None or giruda is None:
                 reply_channel.send(reply_error(
@@ -731,9 +730,7 @@ def gameplay_friend_select_consumer(message):
 
             room['game']['bid_score'] = bid
             room['game']['giruda'] = giruda
-            event_data['change_bid'] = True
-            event_data['score'] = bid
-            event_data['giruda'] = giruda
+            event_data['change_bid'] = change_bid
 
         room['game']['state'] = RoomState.PLAYING
         room['game']['turn'] = 0

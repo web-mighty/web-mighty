@@ -111,6 +111,14 @@ function mapEvent(ev: WebSocketActions.Event): Action | null {
       return new GameActions.Bidding(payload.data.player);
     case 'gameplay-bid':
       return new GameActions.BidEvent(payload.data);
+    case 'gameplay-president-elected':
+      return new GameActions.PresidentElected(payload.data);
+    case 'gameplay-floor-cards':
+      return new GameActions.FloorCards(payload.data.floor_cards);
+    case 'gameplay-friend-selecting':
+      return new GameActions.FriendSelecting(payload.data.player);
+    case 'gameplay-friend-select':
+      return new GameActions.FriendSelectEvent(payload.data);
     case 'error':
       // TODO: Emit appropriate error action
       switch (payload.data.type) {
