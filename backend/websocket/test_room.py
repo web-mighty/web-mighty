@@ -628,6 +628,8 @@ class RoomResetTest(ChannelTestCase):
         self.assertEqual(response['event'], 'room-reset')
         players = response['data']['players']
         self.assertEqual(players[0]['username'], 'skystar1')
+        self.assertIn('ready', players[0])
+        self.assertEqual(len(players[0].items()), 2)
 
         room_cache = cache.get('room:room')
 

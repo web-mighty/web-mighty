@@ -23,9 +23,15 @@ export class RoomStart {
   data = {};
 }
 
+export class GameplayBid {
+  action = 'gameplay-bid';
+  constructor(public data: Data.Bid) {}
+}
+
 export type Request
   = RoomJoin
   | RoomLeave
   | RoomReady
   | RoomStart
+  | GameplayBid
 ;

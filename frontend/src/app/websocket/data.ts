@@ -1,5 +1,7 @@
-export interface Player {
+export interface PlayerCore {
   username: string;
+}
+export interface RoomPlayer extends PlayerCore {
   ready: boolean;
 }
 
@@ -11,6 +13,8 @@ export interface JokerCard {
   rank: 'JK';
 }
 export type Card = NormalCard | JokerCard;
+
+export type Giruda = 'S' | 'D' | 'C' | 'H' | 'N';
 
 export interface GenericError {
   type: string;
@@ -26,7 +30,7 @@ export interface Room {
   room_id: string;
   title: string;
   player_number: number;
-  players: Player[];
+  players: RoomPlayer[];
 }
 
 export interface ReadyResult {
@@ -38,23 +42,22 @@ export interface Deal {
   cards: Card[];
 }
 
+export interface BidCore {
+  score: number;
+  giruda: Giruda;
+}
 export interface BidWithdraw {
   bid: false;
 }
-export interface BidMake {
+export interface BidMake extends BidCore {
   bid: true;
-  score: number;
-  giruda: string;
 }
 export type Bid = BidWithdraw | BidMake;
+export type BidEvent = PlayerCore & Bid;
 
 export interface DealMiss {
   player: string;
   cards: Card[];
 }
 
-export interface ElectionResult {
-  player: string;
-  score: number;
-  giruda: string;
-}
+export type ElectionResult = PlayerCore & BidCore;

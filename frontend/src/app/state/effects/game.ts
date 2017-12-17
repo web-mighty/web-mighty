@@ -22,8 +22,7 @@ export class GameEffects {
       };
       if (action.payload.password) {
         payload.password = action.payload.password;
-      }
-      const req = new WebSocket.Requests.RoomJoin(payload);
+      } const req = new WebSocket.Requests.RoomJoin(payload);
       return Observable.of(
         new WebSocketActions.Request(req) as Action,
         new RouterActions.Go({ path: ['room', action.payload.roomId] }) as Action
@@ -59,6 +58,15 @@ export class GameEffects {
     .map(() =>
       new WebSocketActions.Request(
         new WebSocket.Requests.RoomStart()
+      )
+    );
+
+  @Effect()
+  bid$ =
+    this.actions$.ofType(GameActions.BID)
+    .map((action: GameActions.Bid) =>
+      new WebSocketActions.Request(
+        new WebSocket.Requests.GameplayBid(action.bid)
       )
     );
 

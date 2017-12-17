@@ -10,6 +10,7 @@ import { VerifyAccountComponent } from './verify-account.component';
 import { ProfileViewComponent } from './profile-view.component';
 import { ProfileEditComponent } from './profile-edit.component';
 import { GameRoomComponent } from './game-room.component';
+import { GameBidComponent } from './game-bid.component';
 import { GameCreateComponent } from './game-create.component';
 import { HallOfFameComponent } from './hall-of-fame.component';
 
@@ -37,6 +38,7 @@ const routes: Routes = [
     ProfileViewComponent,
     ProfileEditComponent,
     GameRoomComponent,
+    GameBidComponent,
     GameCreateComponent,
     HallOfFameComponent,
   ],

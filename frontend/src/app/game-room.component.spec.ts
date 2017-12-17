@@ -1,3 +1,4 @@
+import { Component } from '@angular/core';
 import { ComponentFixture, TestBed, async } from '@angular/core/testing';
 import { RouterTestingModule } from '@angular/router/testing';
 import { StoreModule } from '@ngrx/store';
@@ -24,6 +25,12 @@ import { websocketReducer } from './state/reducers/websocket';
 import { gameReducer } from './state/reducers/game';
 
 import { GameRoomComponent } from './game-room.component';
+
+@Component({
+  selector: 'app-game-bid',
+  template: ''
+})
+class MockGameBidComponent {}
 
 class ActivatedRouteStub {
   callbacks: Array<(roomId: string) => void> = [];
@@ -57,6 +64,7 @@ describe('GameRoomComponent', () => {
     TestBed.configureTestingModule({
       declarations: [
         GameRoomComponent,
+        MockGameBidComponent,
       ],
       imports: [
         RouterTestingModule.withRoutes([]),

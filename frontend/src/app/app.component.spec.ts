@@ -1,4 +1,6 @@
+import { Component } from '@angular/core';
 import { ComponentFixture, TestBed, async } from '@angular/core/testing';
+import { RouterTestingModule } from '@angular/router/testing';
 import { StoreModule } from '@ngrx/store';
 
 import { Router } from '@angular/router';
@@ -11,34 +13,47 @@ import * as WebSocketActions from './state/actions/websocket';
 import { State } from './state/reducer';
 import { websocketReducer } from './state/reducers/websocket';
 
-import { DuplicateAlertComponent } from './duplicate-alert.component';
+import { AppComponent } from './app.component';
 
-import { filterCallByAction } from './testing';
+let comp: AppComponent;
+let fixture: ComponentFixture<AppComponent>;
 
+@Component({
+  selector: 'app-menu-bar',
+  template: ''
+})
+class MockMenuBarComponent {}
 
-describe('DuplicateAlertComponent', () => {
-  let comp: DuplicateAlertComponent;
-  let fixture: ComponentFixture<DuplicateAlertComponent>;
+@Component({
+  selector: 'app-duplicate-alert',
+  template: ''
+})
+class MockDuplicateAlertComponent {}
+
+describe('AppComponent', () => {
   let store: Store<State>;
-  let dispatchSpy;
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
       declarations: [
-        DuplicateAlertComponent,
+        AppComponent,
+        MockMenuBarComponent,
+        MockDuplicateAlertComponent,
       ],
       imports: [
+        RouterTestingModule.withRoutes([]),
         StoreModule.forRoot({
           websocket: websocketReducer,
         }),
       ],
+      providers: [
+      ],
     }).compileComponents()
     .then(() => {
-      fixture = TestBed.createComponent(DuplicateAlertComponent);
+      fixture = TestBed.createComponent(AppComponent);
       comp = fixture.componentInstance;
 
       store = fixture.debugElement.injector.get(Store);
-      dispatchSpy = spyOn(store, 'dispatch').and.callThrough();
     });
   }));
 
@@ -47,17 +62,14 @@ describe('DuplicateAlertComponent', () => {
   });
 
   it(
-    'should force connect when Force Connect button is clicked',
+    'should display DuplicateAlertComponent when connectionStatus is duplicate',
     async(() => {
-      const button = fixture.nativeElement.querySelector('.force-connect-button');
-      button.click();
+      store.dispatch(new WebSocketActions.DuplicateSession());
       fixture.detectChanges();
       fixture.whenStable().then(() => {
         fixture.detectChanges();
-        const connect = filterCallByAction(dispatchSpy, WebSocketActions.Connect);
-        expect(connect).toEqual([
-          new WebSocketActions.Connect(true),
-        ]);
+        const dupAlert = fixture.nativeElement.querySelector('app-duplicate-alert');
+        expect(dupAlert).not.toBeNull();
       });
     })
   );

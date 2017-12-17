@@ -40,9 +40,14 @@ export class GameRoomComponent implements OnInit, OnDestroy {
   hand: Observable<WebSocket.Data.Card[] | null>;
   myUsername: Observable<string | null>;
 
+  gameProgressState: Observable<string>;
+
   readyStatus: Observable<boolean>;
   isHost: Observable<boolean>;
   isStartable: Observable<boolean>;
+
+  turnOf: Observable<string | null>;
+  isMyTurn: Observable<boolean>;
 
   cardToString(card: WebSocket.Data.Card): string {
     if (card.rank === 'JK') {
@@ -81,7 +86,7 @@ export class GameRoomComponent implements OnInit, OnDestroy {
       this.store.select('game')
       .filter(game => game != null)
       .map(game => {
-        if (game.type === 'not-started') {
+        if (game.type === 'not-started' || game.type === 'started') {
           return game.room;
         }
         return null;
@@ -101,6 +106,12 @@ export class GameRoomComponent implements OnInit, OnDestroy {
       this.store.select('user', 'authUser')
       .filter(user => user != null)
       .map(user => user.username);
+
+    this.gameProgressState =
+      this.store.select('game')
+      .filter(game => game != null)
+      .filter(game => game.type === 'started')
+      .map((game: any) => game.state.type);
 
     this.readyStatus =
       this.roomData
@@ -151,6 +162,23 @@ export class GameRoomComponent implements OnInit, OnDestroy {
         const readyUsers = room.players.filter(player => player.ready);
         return readyUsers.length === room.player_number;
       });
+
+    this.turnOf =
+      this.store.select('game')
+      .filter(game => game != null)
+      .map(game => {
+        if (game.type !== 'started') {
+          return null;
+        }
+        return game.turnOf;
+      });
+
+    this.isMyTurn =
+      this.turnOf
+      .withLatestFrom(
+        this.myUsername,
+        (turnOf, username) => turnOf === username
+      );
   }
 
   ngOnInit() {

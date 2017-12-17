@@ -1,8 +1,8 @@
-import { GenericError, Player, Card } from './data';
+import * as Data from './data';
 
 export interface Error {
   event: 'error';
-  data: GenericError;
+  data: Data.GenericError;
 }
 export interface Connected {
   event: 'connected';
@@ -31,7 +31,7 @@ export interface RoomReset {
   event: 'room-reset';
   data: {
     room_id: string;
-    players: Player[];
+    players: Data.RoomPlayer[];
   };
 }
 export interface RoomStart {
@@ -40,8 +40,26 @@ export interface RoomStart {
 }
 export interface Deal {
   event: 'gameplay-deal';
+  data: Data.Deal;
+}
+export interface Bidding {
+  event: 'gameplay-bidding';
   data: {
-    cards: Card[];
+    player: string;
+  };
+}
+export interface Bid {
+  event: 'gameplay-bid';
+  data: Data.BidEvent;
+}
+export interface PresidentElected {
+  event: 'gameplay-president-elected';
+  data: Data.ElectionResult;
+}
+export interface FloorCards {
+  event: 'gameplay-floor-cards';
+  data: {
+    floor_cards: Data.Card[];
   };
 }
 export type Event
@@ -53,4 +71,8 @@ export type Event
   | RoomReset
   | RoomStart
   | Deal
+  | Bidding
+  | Bid
+  | PresidentElected
+  | FloorCards
 ;

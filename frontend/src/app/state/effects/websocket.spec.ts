@@ -557,7 +557,7 @@ describe('WebSocketEffects', () => {
   });
 
   describe('event$', () => {
-    const samplePlayerList: WebSocket.Data.Player[] = [
+    const samplePlayerList: WebSocket.Data.RoomPlayer[] = [
       { username: 'foo', ready: false },
       { username: 'doge', ready: false },
     ];

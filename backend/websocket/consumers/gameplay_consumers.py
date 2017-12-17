@@ -59,9 +59,7 @@ def gameplay_start_consumer(message):
 
     # send bidding event
     event_data = {
-        'player': {
-            'username': room['players'][0]['username'],
-        }
+        'player': room['players'][0]['username']
     }
     Group(room_id).send(event('gameplay-bidding', event_data))
 
@@ -86,7 +84,15 @@ def gameplay_bid_consumer(message):
     giruda = data.get('giruda', None)
     try_bid = data.get('bid', None)
 
-    if score is None or giruda is None or try_bid is None:
+    if try_bid is None:
+        invalid_request = True
+    else:
+        if try_bid:
+            invalid_request = score is None or giruda is None
+        else:
+            invalid_request = False
+
+    if invalid_request:
         reply_channel.send(reply_error(
             'Invalid request',
             nonce=nonce,
