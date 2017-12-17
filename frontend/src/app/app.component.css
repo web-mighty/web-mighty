@@ -2,3 +2,8 @@
   height: 52px;
   padding: 16px;
 }
+@media screen and (max-width: 840px) {
+  .mdl-mini-footer {
+    display: none;
+  }
+}

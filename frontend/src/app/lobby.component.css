@@ -21,10 +21,10 @@
 .spinner {
 }
 .room-list__item {
-  border: 1px solid #e0e0e0;
+  border: 1px solid rgba(0, 0, 0, 0.12);
 }
 .room-list__item:hover {
-  background-color: #e0e0e0;
+  background-color: rgba(0, 0, 0, 0.12);
 }
 .room-title {
   width: 180px;
@@ -39,4 +39,11 @@
   position: fixed;
   bottom: 56px;
   right: 18px;
+}
+@media screen and (max-width: 840px) {
+  .new-game-button {
+    position: fixed;
+    bottom: 18px;
+    right: 18px;
+  }
 }

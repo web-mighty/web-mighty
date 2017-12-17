@@ -1,6 +1,13 @@
 .clickable {
   cursor: pointer;
 }
+.mdl-layout--large-screen-only {
+  background-color: #424242;
+}
+.header-large {
+  max-width: 840px;
+  margin: 0 auto;
+}
 .logo-header-large {
   padding: 0 0 0 0;
   justify-content: center;
