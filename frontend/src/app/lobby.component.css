@@ -1,9 +1,11 @@
 .lobby {
   position: absolute;
   min-height: 100%;
+  max-width: 840px;
   left: 50%;
   transform: translate(-50%, 0);
   margin: 0;
+  padding: 0 0 30px;
 }
 .message {
   width: 350px;
@@ -15,6 +17,8 @@
 }
 .no-games-message {
   color: grey;
+}
+.spinner {
 }
 .room-list__item {
   border: 1px solid #e0e0e0;
@@ -32,7 +36,7 @@
   width: 24px;
 }
 .new-game-button {
-  position: absolute;
-  bottom: 18px;
+  position: fixed;
+  bottom: 56px;
   right: 18px;
 }
