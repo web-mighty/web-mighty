@@ -17,6 +17,9 @@ export class MenuBarComponent implements OnInit {
 
   signedIn: Observable<boolean>;
   username: Observable<string>;
+  showDoge: boolean;
+  longLogoPath = 'assets/img/long_logo.svg';
+  dogeLogoPath = 'assets/img/long_logo_2.svg';
   logoPath = 'assets/img/logo.svg';
 
   constructor(private store: Store<State>) {
@@ -27,6 +30,7 @@ export class MenuBarComponent implements OnInit {
 
   ngOnInit() {
     this.store.dispatch(new UserActions.VerifySession());
+    this.showDoge = (Math.random() < 0.1);
   }
 
   gotoLobby() {
@@ -53,5 +57,4 @@ export class MenuBarComponent implements OnInit {
       goTo: 'hall_of_fame',
     }));
   }
-
 }

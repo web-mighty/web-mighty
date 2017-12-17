@@ -3,12 +3,12 @@
     <div class="mdl-layout-spacer"></div>
     <!-- Logo -->
     <span class="mdl-layout-title clickable" (click)="gotoLobby()">
-      <img src={{logoPath}} height="100em">
+      <img [src]="showDoge ? dogeLogoPath : longLogoPath" height="56px">
     </span>
     <div class="mdl-layout-spacer"></div>
   </div>
 
-  <div class="mdl-layout__header-row mdl-color--grey-800">
+  <div class="header-large mdl-layout__header-row mdl-color--grey-800">
     <!-- Hall of Fame -->
     <nav class="mdl-navigation">
       <span class="mdl-navigation__link clickable" (click)="gotoHallOfFame()">Hall of Fame</span>
