@@ -310,7 +310,10 @@ def room_reset_consumer(message):
 
         event_data = {
             'room_id': room_id,
-            'players': new_room_data['players'],
+            'players': [
+                {'username': p['username'], 'ready': p['ready']}
+                for p in new_room_data['players']
+            ],
         }
 
         Group(room_id).send(event('room-reset', event_data))
