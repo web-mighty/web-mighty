@@ -1,5 +1,5 @@
 from django.test import TestCase, Client
-from .models import User, create_user, Room
+from .models import User, create_user, Room, GameHistory
 from django.contrib.auth import authenticate
 from django.contrib.auth.hashers import check_password
 from django.core.cache import cache
@@ -11,6 +11,71 @@ from io import BytesIO
 from urllib.parse import unquote_plus
 import json
 import os
+
+
+class HallOfFameTest(TestCase):
+    def setUp(self):
+        for i in range(3):
+            create_user(
+                username='skystar{}'.format(i),
+                password='doge',
+                nickname='usezmap',
+                email='asdf@asdf.com'
+            )
+
+        cache.clear()
+
+    def tearDown(self):
+        users = User.objects.all()
+        for user in users:
+            os.remove(user.profile.avatar.path)
+        from django_redis import get_redis_connection
+        get_redis_connection('default').flushdb()
+
+    def test_ranking(self):
+        user1 = User.objects.get(username='skystar0')
+        user2 = User.objects.get(username='skystar1')
+        user3 = User.objects.get(username='skystar2')
+        history1 = GameHistory(
+            president=user1,
+            friend=user2,
+            bid=13,
+            giruda='S',
+            score=15,
+        )
+        history1.save()
+        history1.win_players.add(user1, user2)
+
+        history2 = GameHistory(
+            president=user2,
+            friend=user3,
+            bid=13,
+            giruda='S',
+            score=15,
+        )
+        history2.save()
+        history2.win_players.add(user2, user3)
+
+        history3 = GameHistory(
+            president=user2,
+            friend=user1,
+            bid=13,
+            giruda='S',
+            score=15,
+        )
+        history3.save()
+        history3.win_players.add(user2, user1)
+
+        client = Client()
+        response = client.get(
+            reverse('hall_of_fame')
+        )
+
+        data = response.json()
+
+        self.assertEqual(data[0]['username'], 'skystar1')
+        self.assertEqual(data[1]['username'], 'skystar0')
+        self.assertEqual(data[2]['username'], 'skystar2')
 
 
 class ApiRoomListTest(TestCase):

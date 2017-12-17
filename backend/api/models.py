@@ -73,6 +73,8 @@ class GameHistory(models.Model):
     players = models.ManyToManyField(User, related_name='game_histories')
     president = models.ForeignKey(User, related_name='president_histories')
     friend = models.ForeignKey(User, null=True, related_name='friend_histories')
+    win_players = models.ManyToManyField(User, related_name='win_histories')
+    lose_players = models.ManyToManyField(User, related_name='lose_histories')
     bid = models.SmallIntegerField()
     giruda = models.CharField(max_length=1, choices=GIRUDA_CHOICE)
     score = models.SmallIntegerField()

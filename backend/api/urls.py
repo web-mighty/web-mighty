@@ -1,5 +1,5 @@
 from django.conf.urls import url
-from api import sign_views, profile_views, room_views
+from api import sign_views, profile_views, room_views, hall_of_fame_views
 
 urlpatterns = [
     url(r'^signup/$', sign_views.sign_up, name='sign_up'),
@@ -10,4 +10,5 @@ urlpatterns = [
     url(r'^profile/(?P<username>.+)/$', profile_views.profile, name='profile'),
     url(r'^avatar/$', profile_views.avatar, name='avatar'),
     url(r'^room/$', room_views.room, name='room'),
+    url(r'^hall_of_fame/$', hall_of_fame_views.hall_of_fame, name='hall_of_fame'),
 ]

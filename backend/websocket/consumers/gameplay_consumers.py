@@ -1007,14 +1007,31 @@ def gameplay_play_consumer(message):
                 )
                 history.save()
 
-                for player in room['players']:
-                    if player['username'] == room['game']['president']:
-                        history.players.add(president_user)
-                    elif player['username'] == room['game']['friend']:
-                        history.players.add(friend_user)
+                president_win = total_score >= room['game']['bid_score']
+                players, win_players, lose_players = [], [], []
+                for p in room['players']:
+                    if p['username'] == room['game']['president']:
+                        players.append(president_user)
+                        if president_win:
+                            win_players.append(president_user)
+                        else:
+                            lose_players.append(president_user)
+                    elif p['username'] == room['game']['friend']:
+                        players.append(friend_user)
+                        if president_win:
+                            win_players.append(friend_user)
+                        else:
+                            lose_players.append(friend_user)
                     else:
-                        user = User.objects.get(username=player['username'])
-                        history.players.add(user)
+                        player = User.objects.get(username=p['username'])
+                        players.append(player)
+                        if president_win:
+                            lose_players.append(player)
+                        else:
+                            win_players.append(player)
+                history.players.add(*players)
+                history.win_players.add(*win_players)
+                history.lose_players.add(*lose_players)
 
                 room = reset_room_data(room)
                 room['game']['state'] = RoomState.RESULT
