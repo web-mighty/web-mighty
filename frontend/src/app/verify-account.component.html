@@ -1,15 +1,21 @@
-<div>
-  <p *ngIf="signedIn | async">
-  Please sign out and retry.
-  </p>
-  <p *ngIf="verificationPending | async">
-  Verifying your account...
-  </p>
-  <div *ngIf="verificationDone | async">
-    <h3>Verification done!</h3>
-    <button (click)="gotoSignIn()">Sign In</button>
+<div class="content-top-margin">
+  <div class="mdl-grid mdl-grid--no-spacing">
+    <div class="mdl-layout-spacer"></div>
+    <div class="mdl-card mdl-shadow--3dp">
+      <div class="mdl-card__title mdl-card--expand">
+        <span class="mdl-card__title-text">
+          <span *ngIf="signedIn | async">Please sign out and retry.</span>
+          <span *ngIf="verificationPending | async">Verifying your account...</span>
+          <span *ngIf="verificationDone | async">Verification done!</span>
+          <span *ngIf="failureReason | async" class="error-message">{{failureReason | async}}</span>
+        </span>
+      </div>
+      <div class="mdl-card__supporting-text">
+        <button *ngIf="verificationDone | async" class="goto-signin-button mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent" (click)="gotoSignIn()">
+          Sign In
+        </button>
+      </div>
+    </div>
+    <div class="mdl-layout-spacer"></div>
   </div>
-  <p *ngIf="failureReason | async">
-  {{failureReason | async}}
-  </p>
 </div>
