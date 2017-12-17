@@ -117,9 +117,12 @@ export class FriendSelectComponent implements OnInit, OnDestroy {
     );
   }
 
-  changeRound(round: number) {
+  changeRound(round: string) {
+    if (!/^([1-9]|10)$/.test(round)) {
+      return;
+    }
     this.store.dispatch(
-      new GameActions.FriendSelect.ChangeRound(round)
+      new GameActions.FriendSelect.ChangeRound(parseInt(round))
     );
   }
 

@@ -40,11 +40,11 @@
       </select>
     </div>
   </div>
-  <div *ngIf="friendType === 'player'">
+  <div *ngIf="(friendDecl | async).type === 'player'">
     <input type="text" placeholder="Username" [value]="(friendDecl | async).player" (input)="changePlayer($event.target.value)">
   </div>
-  <div *ngIf="friendType === 'round'">
-    <input type="number" placeholder"Round number" min="1" max="10" [value]="(friendDecl | async).round" (input)="changeRound($event.target.value)">
+  <div *ngIf="(friendDecl | async).type === 'round'">
+    <input type="number" placeholder="Round number" min="1" max="10" [value]="(friendDecl | async).round" (input)="changeRound($event.target.value)">
   </div>
   <button [disabled]="!(cardSelected | async)" (click)="confirm()">
     Start
