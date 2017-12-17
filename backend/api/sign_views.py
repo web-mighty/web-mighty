@@ -78,7 +78,7 @@ def sign_up(request):
 
             {url}
             '''.format(url=url),
-            'web-mighty@vbchunguk.me',
+            'no-reply@mail.web-mighty.net',
             [email],
             fail_silently=True,
         )
