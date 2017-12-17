@@ -70,6 +70,18 @@ export class GameEffects {
       )
     );
 
+  @Effect()
+  friendSelect$ =
+    this.actions$.ofType(GameActions.FriendSelect.CONFIRM)
+    .map((action: GameActions.FriendSelect.Confirm) =>
+      new WebSocketActions.Request(
+        new WebSocket.Requests.FriendSelect({
+          floor_cards: action.payload.discardCards,
+          ...action.payload.friendDecl,
+        })
+      )
+    );
+
   constructor(
     private actions$: Actions,
   ) {}

@@ -15,12 +15,12 @@ import 'rxjs/add/observable/concat';
 import { ActivatedRoute } from '@angular/router';
 import { Store } from '@ngrx/store';
 
-import { State } from './state/reducer';
-import { GameRoomState } from './state/reducers/game';
-import * as RouterActions from './state/actions/router';
-import * as GameActions from './state/actions/game';
+import { State } from '../state/reducer';
+import { GameRoomState } from '../state/reducers/game';
+import * as RouterActions from '../state/actions/router';
+import * as GameActions from '../state/actions/game';
 
-import * as WebSocket from './websocket';
+import * as WebSocket from '../websocket';
 
 @Component({
   selector: 'app-game-room',

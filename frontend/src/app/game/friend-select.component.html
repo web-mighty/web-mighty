@@ -1,0 +1,52 @@
+<div>
+  <p>
+  Please choose your Friend.
+  </p>
+  <div>
+    <label *ngFor="let option of options"
+           class="mdl-radio mdl-js-radio mdl-js-ripple-effect">
+      <input type="radio"
+             class="mdl-radio__button"
+             name="friend-type"
+             [value]="option.type"
+             [checked]="(friendDecl | async).type === option.type"
+             (click)="changeType(option.type)">
+      {{option.caption}}
+    </label>
+  </div>
+  <div *ngIf="(friendDecl | async).type === 'card'">
+    <label class="mdl-checkbox mdl-js-checkbox">
+      <input type="checkbox"
+             class="mdl-checkbox__input"
+             [checked]="(friendDecl | async).card.rank === 'JK'"
+             (click)="toggleJoker()">
+      Joker
+    </label>
+    <div *ngIf="(friendDecl | async).card.rank !== 'JK'">
+      <select (change)="changeRank($event.target.value)">
+        <option *ngFor="let rank of rankList"
+                [value]="rank.name"
+                [selected]="(friendDecl | async).card.rank === rank.name">
+          {{rank.caption}}
+        </option>
+      </select>
+      of
+      <select (change)="changeSuit($event.target.value)">
+        <option *ngFor="let suit of suitList"
+                [value]="suit.name"
+                [selected]="(friendDecl | async).card.suit === suit.name">
+          {{suit.caption}}
+        </option>
+      </select>
+    </div>
+  </div>
+  <div *ngIf="friendType === 'player'">
+    <input type="text" placeholder="Username" [value]="(friendDecl | async).player" (input)="changePlayer($event.target.value)">
+  </div>
+  <div *ngIf="friendType === 'round'">
+    <input type="number" placeholder"Round number" min="1" max="10" [value]="(friendDecl | async).round" (input)="changeRound($event.target.value)">
+  </div>
+  <button [disabled]="!(cardSelected | async)" (click)="confirm()">
+    Start
+  </button>
+</div>

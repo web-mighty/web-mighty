@@ -5,9 +5,11 @@ export interface RoomPlayer extends PlayerCore {
   ready: boolean;
 }
 
+export type CardRank = '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9' | '10' | 'J' | 'Q' | 'K' | 'A';
+export type CardSuit = 'S' | 'D' | 'C' | 'H';
 export interface NormalCard {
-  rank: '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9' | '10' | 'J' | 'Q' | 'K' | 'A';
-  suit: 'S' | 'D' | 'C' | 'H';
+  rank: CardRank;
+  suit: CardSuit;
 }
 export interface JokerCard {
   rank: 'JK';
@@ -69,26 +71,35 @@ export interface DealMiss {
 export type ElectionResult = PlayerCore & BidCore;
 
 export namespace FriendDecl {
-  export interface No {
+  export interface NoFriend {
     type: 'no';
   }
-  export interface Card {
+  export interface CardFriend {
     type: 'card';
     card: Card;
   }
-  export interface Player {
+  export interface PlayerFriend {
     type: 'player';
     player: string;
   }
-  export interface Round {
+  export interface RoundFriend {
     type: 'round';
     round: number;
   }
   export type Friend
-    = No
-    | Card
-    | Player
-    | Round
+    = NoFriend
+    | CardFriend
+    | PlayerFriend
+    | RoundFriend
   ;
 }
+export type FriendType = 'no' | 'card' | 'player' | 'round';
 export type Friend = FriendDecl.Friend;
+
+export interface FloorCards {
+  floor_cards: Card[];
+}
+export interface ChangeBid {
+  change_bid?: BidCore;
+}
+export type FriendSelect = FloorCards & Friend & ChangeBid;

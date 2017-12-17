@@ -26,6 +26,72 @@ export const ROOM_INFO = 'Game: Room info';
 export const PLAYER_STATE_CHANGE = 'Game: Player state change';
 
 
+export namespace FriendSelect {
+  export const CHANGE_TYPE = 'Game: Friend Select: Change type';
+  export const TOGGLE_JOKER = 'Game: Friend Select: Toggle joker';
+  export const CHANGE_CARD = 'Game: Friend Select: Change card';
+  export const CHANGE_PLAYER = 'Game: Friend Select: Change player';
+  export const CHANGE_ROUND = 'Game: Friend Select: Change round';
+  export const CONFIRM = 'Game: Friend Select: Confirm';
+  export const FAILED = 'Game: Friend Select: Failed';
+
+  export class ChangeType implements Action {
+    readonly type = CHANGE_TYPE;
+
+    constructor(public friendType: WebSocket.Data.FriendType) {}
+  }
+
+  export class ToggleJoker implements Action {
+    readonly type = TOGGLE_JOKER;
+  }
+
+  export class ChangeCard implements Action {
+    readonly type = CHANGE_CARD;
+
+    constructor(public cardSpec: {
+      suit?: WebSocket.Data.CardSuit,
+      rank?: WebSocket.Data.CardRank,
+    }) {}
+  }
+
+  export class ChangePlayer implements Action {
+    readonly type = CHANGE_PLAYER;
+
+    constructor(public player: string) {}
+  }
+
+  export class ChangeRound implements Action {
+    readonly type = CHANGE_ROUND;
+
+    constructor(public round: number) {}
+  }
+
+  export class Confirm implements Action {
+    readonly type = CONFIRM;
+
+    constructor(public payload: {
+      friendDecl: WebSocket.Data.Friend,
+      discardCards: WebSocket.Data.Card[],
+    }) {}
+  }
+
+  export class Failed implements Action {
+    readonly type = FAILED;
+
+    constructor(public error: string) {}
+  }
+
+  export type Actions
+    = ChangeType
+    | ToggleJoker
+    | ChangeCard
+    | ChangePlayer
+    | ChangeRound
+    | Confirm
+    | Failed
+  ;
+}
+
 export interface PlayerState {
   username: string;
   left: boolean;
@@ -164,4 +230,5 @@ export type Actions
   | PlayCard
   | RoomInfo
   | PlayerStateChange
+  | FriendSelect.Actions
 ;
