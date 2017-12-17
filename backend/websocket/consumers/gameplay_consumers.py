@@ -625,13 +625,13 @@ def gameplay_friend_select_consumer(message):
                 ))
                 return
 
-            if card_in(card, player_card):
-                reply_channel.send(reply_error(
-                    'You cannot select your card',
-                    nonce=nonce,
-                    type='gameplay-friend-select',
-                ))
-                return
+            # if card_in(card, player_card):
+            #     reply_channel.send(reply_error(
+            #         'You cannot select your card',
+            #         nonce=nonce,
+            #         type='gameplay-friend-select',
+            #     ))
+            #     return
 
             room['game']['friend_selection']['type'] = 'card'
             room['game']['friend_selection']['card'] = card
@@ -952,6 +952,8 @@ def gameplay_play_consumer(message):
                 scores = {}
                 fi, pi = -1, -1
                 total_score = 0
+                if room['game']['president'] == room['game']['friend']:
+                    room['game']['friend'] = ''
                 president_user, friend_user = None, None
                 for i, player in enumerate(room['players']):
                     scores[player['username']] = player['score']
@@ -1011,6 +1013,7 @@ def gameplay_play_consumer(message):
                 room = reset_room_data(room)
                 room['game']['state'] = RoomState.RESULT
                 room['players'] = room['players'][fi:] + room['players'][:fi]
+                # TODO: restore killed player
                 cache.set('room:' + room_id, room)
                 Group(room_id).send(event(
                     'gameplay-game-end',
