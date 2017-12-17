@@ -122,7 +122,7 @@ export class FriendSelectComponent implements OnInit, OnDestroy {
       return;
     }
     this.store.dispatch(
-      new GameActions.FriendSelect.ChangeRound(parseInt(round))
+      new GameActions.FriendSelect.ChangeRound(Number(round))
     );
   }
 
