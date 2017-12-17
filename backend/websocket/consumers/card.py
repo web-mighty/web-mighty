@@ -135,6 +135,8 @@ def win_card(cards, giruda, joker_call, round=-1):
     if giruda != 'N':
         mi, mr = -1, -1
         for i, card in enumerate(cards):
+            if card['rank'] == 'JK':
+                continue
             if card['suit'] != giruda:
                 continue
             r = ranks.index(card['rank'])
@@ -146,6 +148,8 @@ def win_card(cards, giruda, joker_call, round=-1):
     table_suit = cards[0]['suit']
     mi, mr = -1, -1
     for i, card in enumerate(cards):
+        if card['rank'] == 'JK':
+            continue
         if card['suit'] != table_suit:
             continue
         r = ranks.index(card['rank'])
@@ -153,6 +157,52 @@ def win_card(cards, giruda, joker_call, round=-1):
             mr = r
             mi = i
     return mi
+
+
+def can_play(card, table, cards, giruda='N', joker_call=False, round=0):
+    if not card_in(card, cards):
+        return False
+    is_joker_in = card_in({'rank': 'JK', 'suit': None}, cards)
+    turn = len(table)
+
+    if round == 1:
+        if turn == 0 and card['suit'] == giruda:
+            giruda_count = suit_count(cards, giruda)
+            if giruda_count != 10:
+                return False
+
+    if is_joker_in and round == 9:
+        if card['rank'] != 'JK':
+            return False
+
+    if turn != 0:
+        if joker_call and is_joker_in:
+            if card['rank'] != 'JK' and not is_mighty(card, giruda):
+                return False
+
+        if card['rank'] != 'JK' and not is_mighty(card, giruda):
+            table_suit = table[0]['suit']
+            if table_suit != card['suit']:
+                if suit_in(cards, table_suit) != 0:
+                    return False
+    return True
+
+
+def boss_card(suit, giruda, card_history):
+    ranks = ['A', 'K', 'Q', 'J', '10', '9', '8', '7', '6', '5', '4', '3', '2']
+    all_cards = [{'rank': r, 'suit': suit} for r in ranks]
+    if giruda == 'S':
+        mighty = {'rank': 'A', 'suit': 'D'}
+    else:
+        mighty = {'rank': 'A', 'suit': 'S'}
+    if card_in(mighty, all_cards):
+        all_cards.remove(mighty)
+    for c in card_history:
+        if card_in(c, all_cards):
+            all_cards.remove(c)
+    if len(all_cards) == 0:
+        return None
+    return all_cards[0]
 
 
 def code_to_card(code):

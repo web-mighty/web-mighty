@@ -1,4 +1,20 @@
 from .card import hand_score, suit_count, card_in, is_mighty, c_
+from .card import win_card, can_play, boss_card
+import random
+
+
+def _k(giruda):
+    def __k(card):
+        ranks = ['A', 'K', 'Q', 'J', '10', '9', '8', '7', '6', '5', '4', '3', '2']
+        if is_mighty(card, giruda):
+            return 0
+        elif card['rank'] == 'JK':
+            return 1
+        elif card['suit'] == giruda:
+            return ranks.index(card['rank']) + 2
+        else:
+            return ranks.index(card['rank']) + 15
+    return __k
 
 
 class AI():
@@ -91,33 +107,84 @@ class AI():
         cards = self.data['cards']
         current_bid = room_data['game']['current_bid']
         giruda = current_bid['giruda']
-
-        def _k(giruda):
-            def __k(card):
-                ranks = ['A', 'K', 'Q', 'J', '10', '9', '8', '7', '6', '5', '4', '3', '2']
-                if is_mighty(card, giruda):
-                    return 0
-                elif card['rank'] == 'JK':
-                    return 1
-                elif card['suit'] == giruda:
-                    return ranks.index(card['rank']) + 2
-                else:
-                    return ranks.index(card['rank']) + 15
-            return __k
         ret = {
             'type': 'card',
             'card': self.wanted_card(self.data['cards'], giruda, 'friend'),
-            'floor_cards': sorted(cards, key=_k(giruda))[-3:]
+            'floor-cards': sorted(cards, key=_k(giruda))[-3:]
         }
         return ret
 
     def play(self, room_data):
-        cards = self.data['cards']
-        is_president = room_data['game']['president'] == self.data['username']
+        giruda = room_data['game']['giruda']
+        players = room_data['players']
+        table_cards = room_data['game']['table_cards']
+        joker_call = room_data['game']['joker_call']
+        president = room_data['game']['president']
+        friend = room_data['game']['friend']
+        round = room_data['game']['round']
+        card_history = room_data['game']['card_history']
+        cards = sorted(self.data['cards'], key=_k(giruda))
+        filtered_cards = []
+        for c in cards:
+            if round == 1 and c['rank'] == 'JK':
+                continue
+            is_playable = can_play(
+                c,
+                table_cards,
+                cards,
+                giruda=giruda,
+                joker_call=joker_call,
+                round=round,
+            )
+            if is_playable:
+                filtered_cards.append(c)
+        is_president = president == self.data['username']
         is_friend = False
         if room_data['game']['friend']:
-            is_friend = room_data['game']['friend'] == self.data['username']
+            is_friend = friend == self.data['username']
         elif room_data['game']['friend_selection']['type'] == 'card':
             friend_card = room_data['game']['friend_selection']['card']
             if card_in(friend_card, cards):
                 is_friend = True
+
+        turn = room_data['game']['turn']
+
+        if turn == 0:
+            play_card = filtered_cards[0]
+        else:
+            play_card = None
+            for c in filtered_cards:
+                new_cards = table_cards + [c]
+                win = win_card(new_cards, giruda, joker_call, round)
+                if win == len(new_cards) - 1:
+                    play_card = c
+                    break
+            if play_card is None:
+                play_card = filtered_cards[-1]
+            else:
+                win = win_card(table_cards, giruda, joker_call, round)
+                win_player = players[win]['username']
+                if is_friend:
+                    if win_player == president:
+                        s = table_cards[win]['suit']
+                        boss = boss_card(s, giruda, card_history)
+                        if table_cards[win] == boss:
+                            play_card = filtered_cards[-1]
+                elif is_president:
+                    if win_player == friend:
+                        play_card = filtered_cards[-1]
+                else:
+                    if win_player not in (president, friend):
+                        play_card = filtered_cards[-1]
+
+        ret = {
+            'card': play_card,
+        }
+        if play_card['rank'] == 'JK':
+            if is_president or is_friend:
+                ret['joker-suit'] = giruda
+            else:
+                suits = ['S', 'D', 'H', 'C']
+                suits.remove(giruda)
+                ret['joker-suit'] = random.choice(suits)
+        return ret

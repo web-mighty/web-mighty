@@ -796,6 +796,12 @@ def gameplay_friend_select_consumer(message):
         'gameplay-turn',
         event_data,
     ))
+    if room['players'][0]['ai'] is True:
+        ai = room['players'][0]
+        ret = ai.play(room)
+        build_ai_message(ai, ret)
+        ret['room_id'] = room_id
+        Channel('gameplay-play').send(ret)
 
 
 def gameplay_play_consumer(message):
@@ -911,7 +917,7 @@ def gameplay_play_consumer(message):
                 event_data['joker_call'] = joker_call
         else:
             joker_call = room['game']['joker_call']
-            if joker_call and card_in({'rank': 'JK', 'suit': None}, player_card):
+            if joker_call and is_joker_in:
                 if card['rank'] != 'JK' and not is_mighty(card, giruda):
                     reply_channel.send(reply_error(
                         'You should play joker or mighty when called',
@@ -1096,6 +1102,12 @@ def gameplay_play_consumer(message):
         'gameplay-turn',
         {'player': room['players'][turn]['username']},
     ))
+    if room['players'][turn]['ai'] is True:
+        ai = room['players'][turn]
+        ret = ai.play(room)
+        build_ai_message(ai, ret)
+        ret['room_id'] = room_id
+        Channel('gameplay-play').send(ret)
 
 
 def gameplay_continue_consumer(message):
