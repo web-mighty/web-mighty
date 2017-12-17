@@ -25,7 +25,7 @@ class AI():
         if when == 'kill':
             for r in ['A', 'K', 'Q']:
                 if not card_in(c_(r, giruda), cards):
-                    return c_(r, giruda),
+                    return c_(r, giruda)
         elif when == 'friend':
             mighty = c_('A', None)
             if giruda == 'S':
@@ -44,7 +44,7 @@ class AI():
                 if is_mighty(c_(r, s), giruda):
                     continue
                 if not card_in(c_(r, s), cards):
-                    return c_(r, s),
+                    return c_(r, s)
 
     def bid(self, room_data):
         cards = self.data['cards']

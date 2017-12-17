@@ -4,8 +4,97 @@ from django.core.cache import cache
 from websocket.consumers.card import win_card, code_to_card
 from websocket.consumers.consumer_utils import new_room_data, new_player_data
 from websocket.consumers.state import RoomState
+from websocket.consumers.ai import AI
 from api.models import User, GameHistory, create_user
 import os
+
+
+class AITest(TestCase):
+    def setUp(self):
+        self.mock_room = new_room_data(
+            room_id='test',
+            player_number=5,
+        )
+
+    def code_to_card_bulk(self, cards):
+        new_cards = []
+        for card in cards:
+            new_cards.append(code_to_card(card))
+        return new_cards
+
+    def test_initialize(self):
+        ai = AI(100)
+        self.assertTrue(ai['ai'])
+        self.assertEqual(ai['username'], 'AI100')
+        self.assertEqual(ai['reply'], 'gameplay-ai')
+        self.assertTrue(ai['ready'])
+        self.assertTrue(ai['continue'])
+
+    def test_bid(self):
+        ai = AI(0)
+        card_codes = ['SA', 'SK', 'SQ', 'SJ', 'S10', 'S9', 'S8', 'C2', 'C3', 'C4']
+        ai['cards'] = self.code_to_card_bulk(card_codes)
+        ret = ai.bid(self.mock_room)
+        self.assertTrue(ret['bid'])
+        self.assertEqual(ret['score'], 13)
+        self.assertEqual(ret['giruda'], 'S')
+
+        self.mock_room['game']['current_bid']['score'] = 16
+        ret = ai.bid(self.mock_room)
+        self.assertTrue(ret['bid'])
+        self.assertEqual(ret['score'], 17)
+        self.assertEqual(ret['giruda'], 'S')
+
+        self.mock_room['game']['current_bid']['score'] = 17
+        ret = ai.bid(self.mock_room)
+        self.assertFalse(ret['bid'])
+
+    def test_kill(self):
+        ai = AI(0)
+        card_codes = ['SA', 'SK', 'SQ', 'SJ', 'S10', 'S9', 'S8', 'C2', 'C3', 'C4']
+        ai['cards'] = self.code_to_card_bulk(card_codes)
+        self.mock_room['game']['current_bid']['giruda'] = 'S'
+        ret = ai.kill(self.mock_room)
+        self.assertEqual(ret['card']['rank'], 'JK')
+
+        card_codes = ['SA', 'SQ', 'SJ', 'S10', 'S9', 'S8', 'C2', 'C3', 'C4', 'C5']
+        ai['cards'] = self.code_to_card_bulk(card_codes)
+        self.mock_room['game']['current_bid']['giruda'] = 'S'
+        ret = ai.kill(self.mock_room)
+        self.assertEqual(ret['card']['rank'], 'K')
+        self.assertEqual(ret['card']['suit'], 'S')
+
+    def test_friend_select(self):
+        ai = AI(0)
+        card_codes = ['SA', 'SK', 'SQ', 'SJ', 'S10', 'S9', 'S8', 'C2', 'C3', 'C4']
+        ai['cards'] = self.code_to_card_bulk(card_codes)
+        self.mock_room['game']['current_bid']['giruda'] = 'S'
+        ret = ai.friend_select(self.mock_room)
+        self.assertEqual(ret['card']['rank'], 'A')
+        self.assertEqual(ret['card']['suit'], 'D')
+        self.assertIn({'rank': '2', 'suit': 'C'}, ret['floor_cards'])
+        self.assertIn({'rank': '3', 'suit': 'C'}, ret['floor_cards'])
+        self.assertIn({'rank': '4', 'suit': 'C'}, ret['floor_cards'])
+
+        card_codes = ['SA', 'SQ', 'SJ', 'S10', 'S9', 'S8', 'C2', 'C3', 'C4', 'C5']
+        ai['cards'] = self.code_to_card_bulk(card_codes)
+        self.mock_room['game']['current_bid']['giruda'] = 'S'
+        ret = ai.friend_select(self.mock_room)
+        self.assertEqual(ret['card']['rank'], 'A')
+        self.assertEqual(ret['card']['suit'], 'D')
+
+        card_codes = ['SA', 'SK', 'SQ', 'SJ', 'S10', 'S9', 'S8', 'DA', 'C3', 'C4']
+        ai['cards'] = self.code_to_card_bulk(card_codes)
+        self.mock_room['game']['current_bid']['giruda'] = 'S'
+        ret = ai.friend_select(self.mock_room)
+        self.assertEqual(ret['card']['rank'], 'JK')
+
+        card_codes = ['SA', 'SK', 'SQ', 'SJ', 'S10', 'S9', 'S8', 'DA', 'JK', 'C4']
+        ai['cards'] = self.code_to_card_bulk(card_codes)
+        self.mock_room['game']['current_bid']['giruda'] = 'S'
+        ret = ai.friend_select(self.mock_room)
+        self.assertEqual(ret['card']['rank'], 'K')
+        self.assertEqual(ret['card']['suit'], 'D')
 
 
 class GameplayTest(ChannelTestCase):
@@ -151,14 +240,13 @@ class GameplayTest(ChannelTestCase):
             except Exception as e:
                 break
 
-    def test_ai(self):
+    def test_ai_play(self):
         room = new_room_data(
             room_id='test',
             player_number=5,
         )
 
         for i in range(5):
-            from websocket.consumers.ai import AI
             room['players'].append(AI(i))
         room['game']['state'] = RoomState.BIDDING
         cache.set('room:test', room)
