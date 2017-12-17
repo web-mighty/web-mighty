@@ -62,12 +62,16 @@
           <li *ngFor="let bidItem of (bidHistory | async)">
             {{bidItem.player}}: {{bidToString(bidItem)}}
           </li>
+          <li>
+            {{turnOf | async}}: ...
+          </li>
         </ul>
         <app-game-bid *ngIf="isMyTurn | async"></app-game-bid>
       </div>
       <div *ngIf="(gameProgressState | async) === 'elected'">
         {{(bid | async).player}} has been elected!
         <app-friend-select *ngIf="isMyTurn | async"></app-friend-select>
+        <div *ngIf="!(isMyTurn | async)">Waiting for the president...</div>
       </div>
     </div>
   </div>

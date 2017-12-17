@@ -330,6 +330,7 @@ export function gameReducer(
       }
       return {
         ...state,
+        turnOf: '',
         state: {
           type: 'elected',
           result: action.result,
@@ -458,18 +459,35 @@ export function gameReducer(
       }
       const discardedCards = state.state.selectedCards;
       const hand = state.hand.filter(x => !discardedCards.includes(x));
+      const bid =
+        'change_bid' in action.payload ?
+        action.payload.change_bid :
+        { score: state.state.result.score, giruda: state.state.result.giruda };
+      let friendDecl: WebSocket.Data.Friend = { type: 'no' };
+      switch (action.payload.type) {
+        case 'no':
+          friendDecl = { type: 'no' };
+          break;
+        case 'card':
+          friendDecl = { type: 'card', card: action.payload.card };
+          break;
+        case 'player':
+          friendDecl = { type: 'player', player: action.payload.player };
+          break;
+        case 'round':
+          friendDecl = { type: 'round', round: action.payload.round };
+          break;
+      }
       return {
         ...state,
         hand,
+        turnOf: '',
         state: {
           type: 'playing',
-          bid: {
-            score: state.state.result.score,
-            giruda: state.state.result.giruda,
-          },
+          bid,
           president: state.state.result.username,
           friend: null,
-          friendDecl: state.state.friendDecl,
+          friendDecl,
           cards: {},
         },
       };

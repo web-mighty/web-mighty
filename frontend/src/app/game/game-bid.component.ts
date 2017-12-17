@@ -18,7 +18,7 @@ function parseBid(bid: string): WebSocket.Data.BidCore {
     return null;
   }
   return {
-    score: parseInt(score, 10),
+    score: Number(score),
     giruda,
   };
 }
