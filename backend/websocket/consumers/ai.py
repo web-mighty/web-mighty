@@ -19,8 +19,9 @@ def _k(giruda):
 
 class AI():
     def __init__(self, index):
+        nicknames = ['doge', 'gon', 'eom', 'egger', 'ha']
         self.data = {
-            'username': 'AI{}'.format(index),
+            'username': '*AI-{}'.format(nicknames[index]),
             'reply': 'gameplay-ai',
             'ready': True,
             'cards': [],
@@ -110,7 +111,7 @@ class AI():
         ret = {
             'type': 'card',
             'card': self.wanted_card(self.data['cards'], giruda, 'friend'),
-            'floor-cards': sorted(cards, key=_k(giruda))[-3:]
+            'floor_cards': sorted(cards, key=_k(giruda))[-3:]
         }
         return ret
 

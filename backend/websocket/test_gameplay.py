@@ -2,6 +2,7 @@ from django.test import TestCase
 from channels.test import ChannelTestCase, Client
 from django.core.cache import cache
 from websocket.consumers.card import win_card, code_to_card
+from websocket.consumers.card import boss_card
 from websocket.consumers.consumer_utils import new_room_data, new_player_data
 from websocket.consumers.state import RoomState
 from websocket.consumers.ai import AI
@@ -23,9 +24,9 @@ class AITest(TestCase):
         return new_cards
 
     def test_initialize(self):
-        ai = AI(100)
+        ai = AI(0)
         self.assertTrue(ai['ai'])
-        self.assertEqual(ai['username'], 'AI100')
+        self.assertEqual(ai['username'], '*AI-doge')
         self.assertEqual(ai['reply'], 'gameplay-ai')
         self.assertTrue(ai['ready'])
         self.assertTrue(ai['continue'])
@@ -95,6 +96,46 @@ class AITest(TestCase):
         ret = ai.friend_select(self.mock_room)
         self.assertEqual(ret['card']['rank'], 'K')
         self.assertEqual(ret['card']['suit'], 'D')
+
+    def test_play(self):
+        ais = []
+        for i in range(5):
+            ai = AI(i)
+            self.mock_room['players'].append(ai)
+            ais.append(ai)
+        self.mock_room['game']['president'] = '*AI-doge'
+        self.mock_room['game']['friend'] = '*AI-gon'
+        self.mock_room['game']['giruda'] = 'C'
+
+        self.mock_room['game']['turn'] = 2
+        self.mock_room['players'][1]['cards'] = [
+            {'rank': 'K', 'suit': 'C'},
+            {'rank': 'A', 'suit': 'S'},
+            {'rank': '2', 'suit': 'H'},
+            {'rank': '5', 'suit': 'C'},
+        ]
+        self.mock_room['game']['table_cards'] = [
+            {'rank': 'A', 'suit': 'C'},
+        ]
+
+        ret = ais[1].play(self.mock_room)
+        card = ret['card']
+        self.assertEqual(card['rank'], '5')
+        self.assertEqual(card['suit'], 'C')
+
+        self.mock_room['players'][1]['cards'] = [
+            {'rank': 'K', 'suit': 'C'},
+            {'rank': 'A', 'suit': 'H'},
+            {'rank': '2', 'suit': 'H'},
+            {'rank': '5', 'suit': 'C'},
+        ]
+        self.mock_room['game']['table_cards'] = [
+            {'rank': '2', 'suit': 'D'},
+        ]
+        ret = ais[1].play(self.mock_room)
+        card = ret['card']
+        self.assertEqual(card['rank'], 'K')
+        self.assertEqual(card['suit'], 'C')
 
 
 class GameplayTest(ChannelTestCase):
@@ -245,6 +286,14 @@ class GameplayTest(ChannelTestCase):
             room_id='test',
             player_number=5,
         )
+        for i in range(5):
+            nickname = ['doge', 'gon', 'eom', 'egger', 'ha']
+            create_user(
+                username='*AI-{}'.format(nickname[i]),
+                password='doge',
+                nickname='*AI-{}'.format(nickname[i]),
+                email='asdf@asdf.com'
+            )
 
         for i in range(5):
             room['players'].append(AI(i))
@@ -253,9 +302,22 @@ class GameplayTest(ChannelTestCase):
 
         client = Client()
         client.send_and_consume('gameplay-start', {'room_id': 'test'})
-        client.consume('gameplay-bid', fail_on_none=False)
         room = cache.get('room:test')
-        self.assertEqual(room['game']['current_bid']['bidder'], 'AI0')
+        while room['game']['state'] is RoomState.BIDDING:
+            client.consume('gameplay-bid', fail_on_none=False)
+            self.flush_ai()
+            room = cache.get('room:test')
+        president = room['game']['president']
+        client.consume('gameplay-friend-select')
+        room = cache.get('room:test')
+        for _ in range(50):
+            client.consume('gameplay-play', fail_on_none=False)
+            self.flush_ai()
+            room = cache.get('room:test')
+        self.assertIs(room['game']['state'], RoomState.RESULT)
+
+        history = GameHistory.objects.all()[0]
+        self.assertEqual(president, history.president.username)
 
     def test_record_one(self):
         for i in range(5):
@@ -966,3 +1028,32 @@ class CardTest(TestCase):
 
         win = win_card(cards, 'H', False, round=1)
         self.assertEqual(win, 2)
+
+    def test_win_not_five_cards(self):
+        cards = [{'rank': '2', 'suit': 'S'}]
+
+        win = win_card(cards, 'H', False)
+        self.assertEqual(win, 0)
+
+        cards = [
+            {'rank': '2', 'suit': 'S'},
+            {'rank': '4', 'suit': 'S'},
+            {'rank': '3', 'suit': 'S'},
+        ]
+
+        win = win_card(cards, 'H', False)
+        self.assertEqual(win, 1)
+
+    def test_boss_card(self):
+        card_history = [
+            {'rank': 'Q', 'suit': 'S'},
+            {'rank': 'K', 'suit': 'S'},
+        ]
+
+        boss = boss_card('S', 'H', card_history)
+        self.assertEqual(boss['rank'], 'J')
+        self.assertEqual(boss['suit'], 'S')
+
+        boss = boss_card('S', 'S', card_history)
+        self.assertEqual(boss['rank'], 'A')
+        self.assertEqual(boss['suit'], 'S')
