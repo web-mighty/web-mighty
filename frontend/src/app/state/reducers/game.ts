@@ -330,6 +330,7 @@ export function gameReducer(
       }
       return {
         ...state,
+        turnOf: '',
         state: {
           type: 'elected',
           result: action.result,
@@ -480,6 +481,7 @@ export function gameReducer(
       return {
         ...state,
         hand,
+        turnOf: '',
         state: {
           type: 'playing',
           bid,
