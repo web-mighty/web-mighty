@@ -30,7 +30,7 @@ export class MenuBarComponent implements OnInit {
 
   ngOnInit() {
     this.store.dispatch(new UserActions.VerifySession());
-    this.showDoge = (Math.random() < 0.1);
+    this.showDoge = (Math.random() < 0.2);
   }
 
   gotoLobby() {
