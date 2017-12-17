@@ -404,6 +404,62 @@ class GameplayTest(ChannelTestCase):
         room = cache.get('room:test')
         self.assertIs(room['game']['state'], RoomState.FRIEND_SELECTING)
 
+    def test_full_bid(self):
+        # set up initial room state
+        room = new_room_data(
+            room_id='test',
+            player_number=5,
+        )
+
+        for i in range(5):
+            client = Client()
+            username = 'doge{}'.format(i)
+            player_data = new_player_data(
+                username=username,
+                reply=client.reply_channel,
+                ready=True,
+            )
+            room['players'].append(player_data)
+            cache.set('player-room:' + username, 'test')
+            self.clients.append(client)
+        room['game']['state'] = RoomState.BIDDING
+        cache.set('room:test', room)
+
+        self.bid('doge0', 20, 'S', True)
+        room = cache.get('room:test')
+        self.assertIs(room['game']['state'], RoomState.FRIEND_SELECTING)
+        self.assertEqual(room['game']['president'], 'doge0')
+
+    def test_final_bid(self):
+        # set up initial room state
+        room = new_room_data(
+            room_id='test',
+            player_number=5,
+        )
+
+        for i in range(5):
+            client = Client()
+            username = 'doge{}'.format(i)
+            player_data = new_player_data(
+                username=username,
+                reply=client.reply_channel,
+                ready=True,
+            )
+            room['players'].append(player_data)
+            cache.set('player-room:' + username, 'test')
+            self.clients.append(client)
+        room['game']['state'] = RoomState.BIDDING
+        cache.set('room:test', room)
+
+        self.bid('doge0', 0, 'N', False)
+        self.bid('doge1', 0, 'N', False)
+        self.bid('doge2', 0, 'N', False)
+        self.bid('doge3', 0, 'N', False)
+        self.bid('doge4', 13, 'S', True)
+        room = cache.get('room:test')
+        self.assertIs(room['game']['state'], RoomState.FRIEND_SELECTING)
+        self.assertEqual(room['game']['president'], 'doge4')
+
     def test_bid_change(self):
         # set up initial room state
         room = new_room_data(
