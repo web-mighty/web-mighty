@@ -707,7 +707,7 @@ def gameplay_friend_select_consumer(message):
         event_data['change_bid'] = False
 
         if change_bid is not None and isinstance(change_bid, dict):
-            bid = change_bid.get('bid', None)
+            bid = change_bid.get('score', None)
             giruda = change_bid.get('giruda', None)
             if bid is None or giruda is None:
                 reply_channel.send(reply_error(

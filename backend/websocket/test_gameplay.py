@@ -440,7 +440,7 @@ class GameplayTest(ChannelTestCase):
                 'round': 1,
                 'floor_cards': ['SA', 'SQ', 'S2'],
                 'change_bid': {
-                    'bid': 15,
+                    'score': 15,
                     'giruda': 'H',
                 },
             }
