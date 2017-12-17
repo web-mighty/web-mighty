@@ -21,11 +21,7 @@ SECRET_KEY = ''.join([random.SystemRandom().choice('abcdefghijklmnopqrstuvwxyz01
 secret = open(SECRET_FILE, 'w')
 content = """
 SECRET_KEY = '{}'
-EMAIL_HOST = ''
-EMAIL_PORT = 587
-EMAIL_HOST_USER = ''
-EMAIL_HOST_PASSWORD = ''
-EMAIL_USE_TLS = True
+MAILGUN_API_KEY = ''
 """.format(SECRET_KEY)
 secret.write(content)
 secret.close()
