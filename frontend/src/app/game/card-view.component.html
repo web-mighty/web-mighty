@@ -1,8 +1,8 @@
-<ul>
-  <li *ngFor="let player of (playedPlayers | async)">
-    {{player}}: {{cardPlayToString((cards | async)[player])}}
-  </li>
-  <li>
-    <span [class.my-turn]="isMyTurn | async">{{turnOf | async}}</span>: ...
-  </li>
-</ul>
+<div class="card-status position-{{i}}" *ngFor="let player of playerList; let i = index">
+  <h6 class="username" [class.current-turn]="(turnOf | async) === player.username">
+    {{player.username}}
+  </h6>
+  <div class="played-card" *ngIf="(playedPlayers | async).includes(player.username)">
+    <img class="card-image" [src]="cardToFilePath((cards | async)[player.username].card)">
+  </div>
+</div>

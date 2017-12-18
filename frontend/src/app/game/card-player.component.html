@@ -1,6 +1,8 @@
-<div *ngIf="card">
-  <button *ngIf="isJokerCall(card, giruda | async) && (isFirstTurn | async)"
-          (click)="jokerCallPlay()">
+<div class="card-player" *ngIf="card">
+  <button
+    *ngIf="isJokerCall(card, giruda | async) && (isFirstTurn | async)"
+    class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent"
+    (click)="jokerCallPlay()">
     Joker Call
   </button>
   <div *ngIf="isJoker(card) && (isFirstTurn | async)">
@@ -13,7 +15,9 @@
       <option value="H">Hearts</option>
     </select>
   </div>
-  <button (click)="normalPlay()">
+  <button
+    class="play-button mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent"
+    (click)="normalPlay()">
     Play
   </button>
 </div>

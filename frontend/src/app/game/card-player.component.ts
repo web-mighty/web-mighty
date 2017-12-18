@@ -15,7 +15,8 @@ import * as WebSocket from '../websocket';
 
 @Component({
   selector: 'app-card-player',
-  templateUrl: './card-player.component.html'
+  templateUrl: './card-player.component.html',
+  styleUrls: ['./card-player.component.css']
 })
 export class CardPlayerComponent {
   @Input()

@@ -1,9 +1,43 @@
-<div>
-  <p>
-  공약을 불러 주세요
-  </p>
-  <input [(ngModel)]="bidString">
-  <button (click)="confirmBid()">
-    확인
-  </button>
+<div class="bid-menu">
+  <div class="bid-giruda">
+    <label class="mdl-icon-toggle mdl-js-icon-toggle mdl-js-ripple-effect" [class.is-checked]="bidGiruda === 'S'">
+      <input type="checkbox" class="mdl-icon-toggle__input" (click)="bidGiruda = 'S'">
+      <span  class="mdl-icon-toggle__label black-suit">♠</span>
+    </label>
+    <label class="mdl-icon-toggle mdl-js-icon-toggle mdl-js-ripple-effect" [class.is-checked]="bidGiruda === 'D'">
+      <input type="checkbox" class="mdl-icon-toggle__input" (click)="bidGiruda = 'D'">
+      <span class="mdl-icon-toggle__label red-suit">♦</span>
+    </label>
+    <label class="mdl-icon-toggle mdl-js-icon-toggle mdl-js-ripple-effect" [class.is-checked]="bidGiruda === 'C'">
+      <input type="checkbox" class="mdl-icon-toggle__input" (click)="bidGiruda = 'C'">
+      <span class="mdl-icon-toggle__label black-suit">♣</span>
+    </label>
+    <label class="mdl-icon-toggle mdl-js-icon-toggle mdl-js-ripple-effect" [class.is-checked]="bidGiruda === 'H'">
+      <input type="checkbox" class="mdl-icon-toggle__input" (click)="bidGiruda = 'H'">
+      <span class="mdl-icon-toggle__label red-suit">♥</span>
+    </label>
+    <label class="mdl-icon-toggle mdl-js-icon-toggle mdl-js-ripple-effect" [class.is-checked]="bidGiruda === 'N'">
+      <input type="checkbox" class="mdl-icon-toggle__input" (click)="bidGiruda = 'N'">
+      <span class="mdl-icon-toggle__label no-giruda">NO</span>
+    </label>
+  </div>
+  <div class="bid-score">
+    <h6 class="bid-score-text">{{bidScore}}</h6>
+    <p class="bid-score-slider">
+      <input class="mdl-slider mdl-js-slider" type="range"
+        min="12" max="20" [(ngModel)]="bidScore">
+    </p>
+  </div>
+  <div class="bid-buttons">
+    <button
+      class="pass-button mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent"
+      (click)="pass()">
+      Pass
+    </button>
+    <button
+      class="bid-button mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent"
+      (click)="bid()">
+      Bid
+    </button>
+  </div>
 </div>

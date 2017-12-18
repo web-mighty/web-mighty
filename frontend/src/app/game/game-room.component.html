@@ -119,22 +119,23 @@
         <app-game-bid *ngIf="isMyTurn | async"></app-game-bid>
       </div>
       <div *ngIf="(gameProgressState | async) === 'elected'">
-        {{(bid | async).player}} has been elected!
         <app-friend-select *ngIf="isMyTurn | async"></app-friend-select>
-        <div *ngIf="!(isMyTurn | async)">Waiting for the president...</div>
+        <h5 *ngIf="!(isMyTurn | async)" class="message">
+          Bid: {{bidCoreToString(bid | async)}}<br>
+          {{(bid | async).player}} has been elected!<br>
+          Waiting for the president...
+        </h5>
       </div>
-      <div>
-        <div *ngIf="(gameProgressState | async) !== 'bidding'">
-          Bid: {{bidCoreToString(bid | async)}}
-        </div>
-        <div *ngIf="(gameProgressState | async) === 'playing'">
-          Friend: {{friendDeclToString(friendDecl | async)}}
-          <span *ngIf="(friendDecl | async).type !== 'player' && (friend | async)">
-            ({{friend | async}})
-          </span>
-        </div>
-      </div>
-      <app-card-view *ngIf="(gameProgressState | async) === 'playing'">
+      <h5 class="message" *ngIf="(gameProgressState | async) === 'playing'">
+        Bid: {{bidCoreToString(bid | async)}}<br>
+        Friend: {{friendDeclToString(friendDecl | async)}}
+        <span *ngIf="(friendDecl | async).type !== 'player' && (friend | async)">
+          ({{friend | async}})
+        </span>
+      </h5>
+      <app-card-view
+        *ngIf="(gameProgressState | async) === 'playing'"
+          [playerList]="playerList | async">
       </app-card-view>
       <app-card-player
         *ngIf="(gameProgressState | async) === 'playing'"
@@ -142,7 +143,7 @@
       </app-card-player>
       <div class="my-hand">
         <div
-          *ngFor="let card of (hand | async)"
+          *ngFor="let card of (hand | async); let i = index"
           class="playing-card"
           [class.shrink]="(gameProgressState | async) === 'bidding' && (isMyTurn | async)"
           [class.row-one]="i < 5"

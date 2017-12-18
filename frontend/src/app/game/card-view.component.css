@@ -1,3 +1,63 @@
-.my-turn {
+.card-status {
+  display: flex;
+  flex-direction: column;
+}
+.position-0 {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translate(-50%, -260px);
+  flex-direction: column-reverse;
+  text-align: center;
+  align-items: center;
+}
+.position-1 {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  transform: translate(16px, -130px);
+  align-items: flex-start;
+}
+.position-2 {
+  position: absolute;
+  top: 0;
+  left: 0;
+  transform: translate(16px, 0);
+  align-items: flex-start;
+}
+.position-3 {
+  position: absolute;
+  top: 0;
+  right: 0;
+  transform: translate(-16px, 0);
+  text-align: right;
+  align-items: flex-end;
+}
+.position-4 {
+  position: absolute;
+  top: 50%;
+  right: 0;
+  transform: translate(-16px, -130px);
+  text-align: right;
+  align-items: flex-end;
+}
+.username {
+  width: 130px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin: 4px;
+}
+.current-turn {
   font-weight: bold;
+}
+.played-card {
+  width: 70px;
+  height: 105px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.card-image {
+  width: 100%;
 }
