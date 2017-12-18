@@ -319,6 +319,12 @@ def room_reset_consumer(message):
         for i in remove_indexes[::-1]:
             del new_room_data['players'][i]
 
+        try:
+            room_model = Room.objects.get(room_id=room_id)
+            room_model.player_count = len(new_room_data['players'])
+            room_model.save()
+        except Room.DoesNotExist:
+            pass
         cache.set(room_cache_key, new_room_data)
 
         event_data = {
