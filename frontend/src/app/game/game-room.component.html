@@ -143,16 +143,18 @@
     </div>
     <div *ngIf="(currentScene | async) === 'result'">
       <p>
-      The game has ended.
+      {{(resultCalc | async).win === 'ruling' ? 'Ruling' : 'Opposing'}} party win!
       </p>
       <div>
-        <span>Bid: {{bidToString((gameResult | async).bid)}}</span>
-        <span>President: {{(gameResult | async).president}}</span>
-        <span>Friend: {{(gameResult | async).friend || '(None)'}}</span>
+        <span>Bid: {{(resultCalc | async).bid}}</span>
+        <span>President: {{(resultCalc | async).president}}</span>
+        <span>Friend: {{(resultCalc | async).friend}}</span>
       </div>
       <ul>
-        <li *ngFor="let player of (playerList | async)">
-          {{player.username}}: {{(gameResult | async).scores[player.username]}}
+        <li *ngFor="let player of (resultCalc | async).playerData"
+            [class.ruling]="player.team === 'ruling'"
+            [class.opposing]="player.team === 'opposing'">
+          {{player.username}}: {{player.score}} point(s)
         </li>
       </ul>
     </div>
