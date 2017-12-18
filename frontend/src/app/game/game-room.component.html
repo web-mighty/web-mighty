@@ -1,61 +1,40 @@
-<div class="mdl-grid">
-  <div class="mdl-layout-spacer"></div>
-  <div class="mdl-cell mdl-cell--6-col-desktop mdl-cell--8-col-tablet mdl-cell--4-col-phone">
-    <div *ngIf="(currentScene | async) === 'joining'">
-      <h4>Joining to {{(roomId | async)}}...</h4>
-    </div>
+<div class="mdl-grid--no-spacing">
+  <div class="table mdl-cell mdl-cell--8-col-desktop mdl-cell--12-col-tablet mdl-cell--12-col-phone mdl-shadow--3dp">
+    <div *ngIf="(currentScene | async) === 'joining'" class="mdl-progress mdl-js-progress mdl-progress__indeterminate"></div>
     <div *ngIf="(currentScene | async) === 'not-started'">
-      <h3>{{(roomData | async).title}}</h3>
-      <div class="mdl-list">
-        <div class="mdl-list__item" *ngFor="let player of (roomData | async).players">
-          <label class="mdl-list__item-primary-content mdl-checkbox mdl-js-checkbox mdl-js-ripple-effect">
-            <input type="checkbox" class="mdl-checkbox__input" [checked]="player.ready" disabled>
-            <i class="material-icons mdl=list__item-avatar">account_circle</i>
-            {{player.username}}
-          </label>
+      <h3 class="title-message">
+        {{(roomData | async).title}}
+      </h3>
+      <div class="my-status mdl-list">
+        <div class="mdl-list__item" *ngFor="let player of [(playerList | async)[0]]">
+          <div class="mdl-list__item-primary-content">
+            <i [class.ready]="player.ready" [class.not-ready]="!(player.ready)" class="ready-status material-icons mdl-list__item-avatar">check</i>
+            <span class="username">{{player.username}}</span>
+          </div>
+          <button
+            class="mdl-list__item-secondary-action ready-toggle-button mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent"
+            (click)="toggleReady()">
+            Ready
+          </button>
+          <button
+            *ngIf="isHost | async"
+            [disabled]="!(isStartable | async)"
+            class="mdl-list__item-secondary-action start-game-button mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent"
+            (click)="startGame()">
+            Start
+          </button>
         </div>
       </div>
-      <button
-        class="ready-toggle-button mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect"
-        (click)="toggleReady()">
-        {{(readyStatus | async) ? 'Not Ready' : 'Ready'}}
-      </button>
-      <button
-        *ngIf="isHost | async"
-        [disabled]="!(isStartable | async)"
-        class="ready-toggle-button mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent"
-        (click)="startGame()">
-        Start
-      </button>
+      <div class="others-status mdl-list">
+        <div class="mdl-list__item" *ngFor="let player of (playerList | async).slice(1)">
+          <div class="mdl-list__item-primary-content">
+            <i [class.ready]="player.ready" [class.not-ready]="!(player.ready)" class="ready-status material-icons mdl-list__item-avatar">check</i>
+            <span class="username">{{player.username}}</span>
+          </div>
+        </div>
+      </div>
     </div>
     <div *ngIf="(currentScene | async) === 'started'">
-      <div>
-        <div *ngIf="(gameProgressState | async) !== 'bidding'">
-          Bid: {{bidCoreToString(bid | async)}}
-        </div>
-        <div *ngIf="(gameProgressState | async) === 'playing'">
-          Friend: {{friendDeclToString(friendDecl | async)}}
-          <span *ngIf="(friendDecl | async).type !== 'player' && (friend | async)">
-            ({{friend | async}})
-          </span>
-        </div>
-      </div>
-      <!-- Hand -->
-      <ul>
-        <li *ngFor="let card of (hand | async)">
-          <label *ngIf="(gameProgressState | async) === 'elected' && (isMyTurn | async)"
-                 class="mdl-checkbox mdl-js-checkbox">
-            <input type="checkbox"
-                   class="mdl-checkbox__input"
-                   [checked]="(selectedCards | async).includes(card)"
-                   (click)="selectCard(card)">
-            {{cardToString(card)}}
-          </label>
-          <span *ngIf="(gameProgressState | async) !== 'elected' || !(isMyTurn | async)">
-            {{cardToString(card)}}
-          </span>
-        </li>
-      </ul>
       <div *ngIf="(gameProgressState | async) === 'bidding'">
         <h4>Bids</h4>
         <ul>
@@ -73,7 +52,31 @@
         <app-friend-select *ngIf="isMyTurn | async"></app-friend-select>
         <div *ngIf="!(isMyTurn | async)">Waiting for the president...</div>
       </div>
+      <div>
+        <div *ngIf="(gameProgressState | async) !== 'bidding'">
+          Bid: {{bidCoreToString(bid | async)}}
+        </div>
+        <div *ngIf="(gameProgressState | async) === 'playing'">
+          Friend: {{friendDeclToString(friendDecl | async)}}
+          <span *ngIf="(friendDecl | async).type !== 'player' && (friend | async)">
+            ({{friend | async}})
+          </span>
+        </div>
+      </div>
+      <div *ngIf="(gameProgressState | async) === 'elected' && (isMyTurn | async)" class="my-hand">
+        <img
+          *ngFor="let card of (hand | async)"
+          class="playing-card"
+          [src]="cardToFilePath(card)"
+          [class.selected]="(selectedCards | async).includes(card)"
+          (click)="selectCard(card)">
+      </div>
+      <div *ngIf="(gameProgressState | async) !== 'elected' || !(isMyTurn | async)" class="my-hand">
+        <img
+          *ngFor="let card of (hand | async)"
+          class="playing-card"
+          [src]="cardToFilePath(card)">
+      </div>
     </div>
   </div>
-  <div class="mdl-layout-spacer"></div>
 </div>

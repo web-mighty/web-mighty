@@ -1,1 +1,11 @@
 /* You can add global styles to this file, and also import other style files */
+.content-top-margin {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin: 24px auto;
+}
+.error-message {
+    margin: 0 0 10px 0;
+    color: #d50000;
+}

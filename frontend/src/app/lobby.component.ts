@@ -82,4 +82,7 @@ export class LobbyComponent implements OnInit {
     }));
   }
 
+  range(n: number) {
+    return Array.from(Array(n).keys());
+  }
 }

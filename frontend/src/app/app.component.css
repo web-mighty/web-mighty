@@ -1,7 +1,9 @@
-/*.mdl-layout {
-  align-items: center;
-}*/
-.mdl-layout__content {
-  padding: 24px;
-  flex: auto;
+.mdl-mini-footer {
+  height: 52px;
+  padding: 16px;
+}
+@media screen and (max-width: 840px) {
+  .mdl-mini-footer {
+    display: none;
+  }
 }

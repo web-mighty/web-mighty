@@ -22,7 +22,7 @@ const routes: Routes = [
   { path: 'sign_in', component: SignInComponent },
   { path: 'verify_account/:token', component: VerifyAccountComponent },
   { path: 'profile/:username', component: ProfileViewComponent },
-  { path: 'profile/:username/edit', component: ProfileEditComponent },
+  // { path: 'profile/:username/edit', component: ProfileEditComponent },
   { path: 'room/:roomId', component: GameRoomComponent },
   { path: 'create_game', component: GameCreateComponent },
   { path: 'hall_of_fame', component: HallOfFameComponent },

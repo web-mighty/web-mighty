@@ -8,11 +8,6 @@ describe('frontend App', () => {
     page = new AppPage();
   });
 
-  it('should display logo', () => {
-    page.navigateTo('/');
-    expect(page.getLogoUrl()).toMatch(/\/assets\/img\/logo.svg$/);
-  });
-
   it('should be able to sign up', () => {
     page.navigateTo('/sign_up');
     page.fillInSignUp({

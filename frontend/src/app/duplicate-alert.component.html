@@ -1,14 +1,16 @@
-<div class="mdl-grid mdl-grid--no-spacing">
-  <div class="mdl-layout-spacer"></div>
-  <div class="mdl-card mdl-shadow--3dp">
-    <div class="mdl-card__title mdl-card--expand">
-      <span class="mdl-card__title-text">You are already connected.</span>
+<div class="content-top-margin">
+  <div class="mdl-grid mdl-grid--no-spacing">
+    <div class="mdl-layout-spacer"></div>
+    <div class="mdl-card mdl-shadow--3dp">
+      <div class="mdl-card__title mdl-card--expand">
+        <span class="mdl-card__title-text">You are already connected.</span>
+      </div>
+      <div class="mdl-card__supporting-text">
+        <button class="force-connect-button mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent" (click)="forceConnect()">
+          Force connect
+        </button>
+      </div>
     </div>
-    <div class="mdl-card__supporting-text">
-      <button class="force-connect-button create-game-button mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent" (click)="forceConnect()">
-        Force connect
-      </button>
-    </div>
+    <div class="mdl-layout-spacer"></div>
   </div>
-  <div class="mdl-layout-spacer"></div>
 </div>

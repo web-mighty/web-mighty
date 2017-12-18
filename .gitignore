@@ -93,3 +93,5 @@ tags
 
 backend.stdout
 backend.stderr
+
+*.rdb

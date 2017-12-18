@@ -24,7 +24,8 @@ import * as WebSocket from '../websocket';
 
 @Component({
   selector: 'app-game-room',
-  templateUrl: './game-room.component.html'
+  templateUrl: './game-room.component.html',
+  styleUrls: ['./game-room.component.css']
 })
 export class GameRoomComponent implements OnInit, OnDestroy {
   private roomIdSubscription;
@@ -38,6 +39,7 @@ export class GameRoomComponent implements OnInit, OnDestroy {
   roomId: Observable<string>;
   currentScene: Observable<string>;
   roomData: Observable<WebSocket.Data.Room | null>;
+  playerList: Observable<WebSocket.Data.RoomPlayer[] | null>;
   hand: Observable<WebSocket.Data.Card[] | null>;
   selectedCards: Observable<WebSocket.Data.Card[]>;
   myUsername: Observable<string | null>;
@@ -57,27 +59,44 @@ export class GameRoomComponent implements OnInit, OnDestroy {
   friendDecl: Observable<WebSocket.Data.Friend>;
   friend: Observable<string | null>;
 
-  cardToString(card: WebSocket.Data.Card): string {
+  cardToFilePath(card: WebSocket.Data.Card): string {
     if (card.rank === 'JK') {
-      return 'Joker';
+      return 'assets/img/cards/joker.svg';
     }
-    let suitIcon;
+    let rankString;
+    let suitString;
+    switch (card.rank) {
+      case 'A':
+        rankString = 'ace';
+        break;
+      case 'K':
+        rankString = 'king';
+        break;
+      case 'Q':
+        rankString = 'queen';
+        break;
+      case 'J':
+        rankString = 'jack';
+        break;
+      default:
+        rankString = card.rank;
+    }
     switch (card.suit) {
       case 'S':
-        suitIcon = '♠';
+        suitString = 'spades';
         break;
       case 'D':
-        suitIcon = '◆';
+        suitString = 'diamonds';
         break;
       case 'C':
-        suitIcon = '♣';
+        suitString = 'clubs';
         break;
       case 'H':
-        suitIcon = '♥';
+        suitString = 'hearts';
         break;
     }
 
-    return `${suitIcon} ${card.rank}`;
+    return `assets/img/cards/${rankString}_of_${suitString}.svg`;
   }
 
   bidToString(bid: WebSocket.Data.Bid): string {
@@ -113,7 +132,7 @@ export class GameRoomComponent implements OnInit, OnDestroy {
       case 'no':
         return 'None';
       case 'card':
-        return this.cardToString(friendDecl.card);
+        return this.cardToFilePath(friendDecl.card);
       case 'player':
         return friendDecl.player;
       case 'round': {
@@ -143,13 +162,24 @@ export class GameRoomComponent implements OnInit, OnDestroy {
 
     this.roomData =
       this.store.select('game')
-      .filter(game => game != null)
-      .map(game => {
-        if (game.type === 'not-started' || game.type === 'started') {
-          return game.room;
+      .filter(game => game != null && (game.type === 'not-started' || game.type === 'started'))
+      .map((game: any) => game.room);
+
+    this.myUsername =
+      this.store.select('user', 'authUser')
+      .filter(user => user != null)
+      .map(user => user.username);
+
+    this.playerList =
+      this.roomData
+      .withLatestFrom(
+        this.myUsername,
+        (room, username) => {
+          const players = room.players;
+          const index = players.findIndex(player => player.username === username);
+          return players.slice(index).concat(players.slice(0, index));
         }
-        return null;
-      });
+      );
 
     this.hand =
       this.store.select('game')

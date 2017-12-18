@@ -1,0 +1,71 @@
+.table {
+  position: absolute;
+  height: 100%;
+  min-height: 600px;
+  max-width: 840px;
+  left: 50%;
+  transform: translate(-50%, 0);
+  margin: 0;
+}
+.message {
+  width: 350px;
+  position: absolute;
+  top: 30%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+}
+.title-message {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-align: center;
+  padding: 0 16px;
+}
+.my-hand {
+  position: absolute;
+  bottom: 48px;
+  left: 50%;
+  transform: translate(-50%, 0);
+  min-width: 350px;
+  display: flex;
+  flex-wrap: wrap;
+}
+.playing-card {
+  width: 20%;
+  height: 50%;
+}
+.my-status {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translate(-50%, 0);
+  padding: 0;
+}
+.my-status > div {
+  padding: 0 16px;
+}
+.others-status {
+  position: absolute;
+  top: 96px;
+  left: 50%;
+  transform: translate(-50%, 0);
+  padding: 0;
+}
+.ready {
+  color: white;
+  background-color: rgb(68, 138, 255);
+}
+.not-ready {
+  color: lightgrey;
+  background-color: white;
+}
+.username {
+  width: 130px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.start-game-button {
+  margin: 0 0 0 4px;
+}
