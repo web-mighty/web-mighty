@@ -1290,5 +1290,12 @@ def gameplay_continue_consumer(message):
             return
     Group(room_id).send(event('gameplay-continue', {}))
     restart_room(room_id)
-    Group(room_id).send(event('gameplay-restart', {}))
-    Channel('gameplay-start').send({'room_id': room_id})
+    if USE_DELAY:
+        delay = {
+            'channel': 'gameplay-start',
+            'delay': DEAL_MISS_DELAY,
+            'content': {'room_id': room_id},
+        }
+        Channel('asgi.delay').send(delay, immediately=True)
+    else:
+        Channel('gameplay-start').send({'room_id': room_id})
