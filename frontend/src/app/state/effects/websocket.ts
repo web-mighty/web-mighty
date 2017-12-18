@@ -130,6 +130,8 @@ function mapEvent(ev: WebSocketActions.Event): Action | null {
       return new GameActions.FriendSelectEvent(payload.data);
     case 'gameplay-turn':
       return new GameActions.TurnEvent(payload.data.player);
+    case 'gameplay-friend-revealed':
+      return new GameActions.FriendRevealed(payload.data.player);
     case 'gameplay-play':
       return new GameActions.PlayCardEvent(
         payload.data.player,

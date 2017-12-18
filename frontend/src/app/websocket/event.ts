@@ -10,15 +10,11 @@ export interface Connected {
 }
 export interface RoomJoin {
   event: 'room-join';
-  data: {
-    player: string;
-  };
+  data: Data.PlayerData;
 }
 export interface RoomLeave {
   event: 'room-leave';
-  data: {
-    player: string;
-  };
+  data: Data.PlayerData;
 }
 export interface RoomReady {
   event: 'room-ready';
@@ -45,9 +41,7 @@ export interface Deal {
 }
 export interface Bidding {
   event: 'gameplay-bidding';
-  data: {
-    player: string;
-  };
+  data: Data.PlayerData;
 }
 export interface Bid {
   event: 'gameplay-bid';
@@ -65,9 +59,7 @@ export interface FloorCards {
 }
 export interface FriendSelecting {
   event: 'gameplay-friend-selecting';
-  data: {
-    player: string;
-  };
+  data: Data.PlayerData;
 }
 export interface FriendSelectDone {
   event: 'gameplay-friend-select';
@@ -75,9 +67,11 @@ export interface FriendSelectDone {
 }
 export interface Turn {
   event: 'gameplay-turn';
-  data: {
-    player: string;
-  };
+  data: Data.PlayerData;
+}
+export interface FriendRevealed {
+  event: 'gameplay-friend-revealed';
+  data: Data.PlayerData;
 }
 export interface Play {
   event: 'gameplay-play';
@@ -110,6 +104,7 @@ export type Event
   | FriendSelecting
   | FriendSelectDone
   | Turn
+  | FriendRevealed
   | Play
   | RoundEnd
   | GameEnd
