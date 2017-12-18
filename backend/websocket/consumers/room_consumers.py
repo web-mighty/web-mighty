@@ -289,7 +289,6 @@ def room_start_consumer(message):
         cache.set(room_cache_key, room_cache)
 
         reply_channel.send(response({}, nonce=nonce))
-        Group(room_id).send(event('room-start', {}))
 
         # yeah, start it!
         Channel('gameplay-start').send({'room_id': room_id})

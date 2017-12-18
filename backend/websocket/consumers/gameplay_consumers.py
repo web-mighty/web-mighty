@@ -39,6 +39,19 @@ def gameplay_start_consumer(message):
     with cache.lock('lock:room:' + room_id):
         room = cache.get('room:' + room_id)
         player_number = room['options']['player_number']
+        start_players = []
+        for player in room['players']:
+            start_players.append({
+                'username': player['username'],
+                'ready': player['ready'],
+            })
+
+        start_data = {
+            'player_number': player_number,
+            'players': start_players,
+        }
+
+        Group(room_id).send(event('room-start', start_data))
 
         cards = shuffled_card()
 
@@ -401,8 +414,15 @@ def gameplay_deal_miss_consumer(message):
             event_data,
         ))
         restart_room(room_id)
-        Group(room_id).send(event('gameplay-restart', {}))
-        Channel('gameplay-start').send({'room_id': room_id})
+        if USE_DELAY:
+            delay = {
+                'channel': 'gameplay-start',
+                'delay': DEAL_MISS_DELAY,
+                'content': {'room_id': room_id},
+            }
+            Channel('asgi.delay').send(delay, immediately=True)
+        else:
+            Channel('gameplay-start').send({'room_id': room_id})
         return
 
     username = data['username']
@@ -465,8 +485,15 @@ def gameplay_deal_miss_consumer(message):
     ))
 
     restart_room(room_id)
-    Group(room_id).send(event('room-start', {}))
-    Channel('gameplay-start').send({'room_id': room_id})
+    if USE_DELAY:
+        delay = {
+            'channel': 'gameplay-start',
+            'delay': DEAL_MISS_DELAY,
+            'content': {'room_id': room_id},
+        }
+        Channel('asgi.delay').send(delay, immediately=True)
+    else:
+        Channel('gameplay-start').send({'room_id': room_id})
 
 
 def gameplay_kill_consumer(message):

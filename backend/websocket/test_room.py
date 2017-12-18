@@ -1,3 +1,4 @@
+from django.test import override_settings
 from channels.test import ChannelTestCase, WSClient
 from websocket.consumers.consumer_utils import request
 from websocket.consumers.room_consumers import room_join_consumer
@@ -16,6 +17,7 @@ from websocket.consumers.state import RoomState
 import os
 
 
+@override_settings(USE_DELAY=False)
 class RoomJoinTest(ChannelTestCase):
     def setUp(self):
         cache.clear()
@@ -219,6 +221,7 @@ class RoomJoinTest(ChannelTestCase):
         self.assertEqual(response['error']['reason'], 'Room is full')
 
 
+@override_settings(USE_DELAY=False)
 class RoomLeaveTest(ChannelTestCase):
     def setUp(self):
         cache.clear()
@@ -342,6 +345,7 @@ class RoomLeaveTest(ChannelTestCase):
         self.assertFalse(Room.objects.filter(room_id='room').exists())
 
 
+@override_settings(USE_DELAY=False)
 class RoomReadyTest(ChannelTestCase):
     def setUp(self):
         cache.clear()
@@ -431,6 +435,7 @@ class RoomReadyTest(ChannelTestCase):
         self.assertFalse(room_cache['players'][0]['ready'])
 
 
+@override_settings(USE_DELAY=False)
 class RoomStartTest(ChannelTestCase):
     def setUp(self):
         cache.clear()
@@ -540,6 +545,7 @@ class RoomStartTest(ChannelTestCase):
         response = client1.receive()
         self.assertTrue(response['success'])
 
+        client1.consume('gameplay-start')
         response = client1.receive()
         self.assertEqual(response['event'], 'room-start')
 
@@ -547,6 +553,7 @@ class RoomStartTest(ChannelTestCase):
         self.assertEqual(response['event'], 'room-start')
 
 
+@override_settings(USE_DELAY=False)
 class RoomResetTest(ChannelTestCase):
     def setUp(self):
         cache.clear()
