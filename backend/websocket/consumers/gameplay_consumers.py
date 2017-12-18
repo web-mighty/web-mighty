@@ -6,6 +6,9 @@ from .consumer_utils import event, reply_error, response, reset_room_data
 from django.core.cache import cache
 from .state import RoomState
 from api.models import User, GameHistory
+from backend.settings import USE_DELAY
+from backend.settings import DEAL_DELAY, DEAL_MISS_DELAY
+from backend.settings import AI_TURN_DELAY, AI_BID_DELAY, AI_SELECT_DELAY
 from random import shuffle
 
 
@@ -54,11 +57,19 @@ def gameplay_start_consumer(message):
             dealed_card = cards[:cards_per_person]
             room['players'][i]['cards'] = dealed_card
 
-            reply_channel = Channel(room['players'][i]['reply'])
             data = {
                 'cards': dealed_card,
             }
-            reply_channel.send(event('gameplay-deal', data))
+            if USE_DELAY:
+                delay = {
+                    'channel': room['players'][i]['reply'],
+                    'delay': DEAL_DELAY,
+                    'content': event('gameplay-deal', data),
+                }
+                Channel('asgi.delay').send(delay, immediately=True)
+            else:
+                reply_channel = Channel(room['players'][i]['reply'])
+                reply_channel.send(event('gameplay-deal', data))
 
             del cards[:cards_per_person]
 
@@ -81,7 +92,15 @@ def gameplay_start_consumer(message):
             build_ai_message(ai, ret)
             ret['room_id'] = room_id
             if 'bid' in ret:
-                Channel('gameplay-bid').send(ret)
+                if USE_DELAY:
+                    delay = {
+                        'channel': 'gameplay-bid',
+                        'delay': AI_BID_DELAY,
+                        'content': ret,
+                    }
+                    Channel('asgi.delay').send(delay, immediately=True)
+                else:
+                    Channel('gameplay-bid').send(ret)
             else:
                 # TODO: deal miss
                 pass
@@ -268,7 +287,15 @@ def gameplay_bid_consumer(message):
                     ret = ai.friend_select(room)
                     build_ai_message(ai, ret)
                     ret['room_id'] = room_id
-                    Channel('gameplay-friend-select').send(ret)
+                    if USE_DELAY:
+                        delay = {
+                            'channel': 'gameplay-friend-select',
+                            'delay': AI_SELECT_DELAY,
+                            'content': ret,
+                        }
+                        Channel('asgi.delay').send(delay, immediately=True)
+                    else:
+                        Channel('gameplay-friend-select').send(ret)
 
                 room['game']['floor_cards'] = []
             elif player_number == 6:
@@ -286,7 +313,15 @@ def gameplay_bid_consumer(message):
                     ret = ai.kill(room)
                     build_ai_message(ai, ret)
                     ret['room_id'] = room_id
-                    Channel('gameplay-kill').send(ret)
+                    if USE_DELAY:
+                        delay = {
+                            'channel': 'gameplay-friend-select',
+                            'delay': AI_SELECT_DELAY,
+                            'content': ret,
+                        }
+                        Channel('asgi.delay').send(delay, immediately=True)
+                    else:
+                        Channel('gameplay-friend-select').send(ret)
 
             cache.set('room:' + room_id, room)
             return
@@ -338,7 +373,15 @@ def gameplay_bid_consumer(message):
         build_ai_message(ai, ret)
         ret['room_id'] = room_id
         if 'bid' in ret:
-            Channel('gameplay-bid').send(ret)
+            if USE_DELAY:
+                delay = {
+                    'channel': 'gameplay-bid',
+                    'delay': AI_BID_DELAY,
+                    'content': ret,
+                }
+                Channel('asgi.delay').send(delay, immediately=True)
+            else:
+                Channel('gameplay-bid').send(ret)
         else:
             # TODO: deal miss
             pass
@@ -555,7 +598,15 @@ def gameplay_kill_consumer(message):
                         build_ai_message(ai, ret)
                         ret['room_id'] = room_id
                         if 'bid' in ret:
-                            Channel('gameplay-bid').send(ret)
+                            if USE_DELAY:
+                                delay = {
+                                    'channel': 'gameplay-bid',
+                                    'delay': AI_BID_DELAY,
+                                    'content': ret,
+                                }
+                                Channel('asgi.delay').send(delay, immediately=True)
+                            else:
+                                Channel('gameplay-bid').send(ret)
                         else:
                             pass
                     return
@@ -823,7 +874,15 @@ def gameplay_friend_select_consumer(message):
         ret = ai.play(room)
         build_ai_message(ai, ret)
         ret['room_id'] = room_id
-        Channel('gameplay-play').send(ret)
+        if USE_DELAY:
+            delay = {
+                'channel': 'gameplay-play',
+                'delay': AI_TURN_DELAY,
+                'content': ret,
+            }
+            Channel('asgi.delay').send(delay, immediately=True)
+        else:
+            Channel('gameplay-play').send(ret)
 
 
 def gameplay_play_consumer(message):
@@ -1129,7 +1188,15 @@ def gameplay_play_consumer(message):
         ret = ai.play(room)
         build_ai_message(ai, ret)
         ret['room_id'] = room_id
-        Channel('gameplay-play').send(ret)
+        if USE_DELAY:
+            delay = {
+                'channel': 'gameplay-play',
+                'delay': AI_TURN_DELAY,
+                'content': ret,
+            }
+            Channel('asgi.delay').send(delay, immediately=True)
+        else:
+            Channel('gameplay-play').send(ret)
 
 
 def gameplay_continue_consumer(message):
