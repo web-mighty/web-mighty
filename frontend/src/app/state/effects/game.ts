@@ -114,7 +114,7 @@ export class GameEffects {
       return new WebSocketActions.Request(
         new WebSocket.Requests.Play(payload)
       );
-    })
+    });
 
   constructor(
     private actions$: Actions,

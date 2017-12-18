@@ -23,6 +23,7 @@ export const FRIEND_SELECT_EVENT = 'Game: Friend select event';
 export const SELECT_CARD = 'Game: Select card';
 export const TURN_EVENT = 'Game: Turn event';
 export const PLAY_CARD = 'Game: Play card';
+export const PLAY_CARD_DONE = 'Game: Play card: Done';
 export const PLAY_CARD_EVENT = 'Game: Play card event';
 export const ROUND_END = 'Game: Round end';
 
@@ -212,6 +213,12 @@ export class PlayCard implements Action {
   }) {}
 }
 
+export class PlayCardDone implements Action {
+  readonly type = PLAY_CARD_DONE;
+
+  constructor(public card: WebSocket.Data.Card) {}
+}
+
 export class PlayCardEvent implements Action {
   readonly type = PLAY_CARD_EVENT;
 
@@ -264,6 +271,7 @@ export type Actions
   | SelectCard
   | TurnEvent
   | PlayCard
+  | PlayCardDone
   | PlayCardEvent
   | RoundEnd
   | RoomInfo

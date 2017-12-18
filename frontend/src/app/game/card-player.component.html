@@ -1,0 +1,19 @@
+<div *ngIf="card">
+  <button *ngIf="isJokerCall(card, giruda | async) && (isFirstTurn | async)"
+          (click)="jokerCallPlay()">
+    Joker Call
+  </button>
+  <div *ngIf="isJoker(card) && (isFirstTurn | async)">
+    Suit:
+    <select [(ngModel)]="jokerSuit">
+      <option value="G" selected>Giruda</option>
+      <option value="S">Spades</option>
+      <option value="D">Diamonds</option>
+      <option value="C">Clubs</option>
+      <option value="H">Hearts</option>
+    </select>
+  </div>
+  <button (click)="normalPlay()">
+    Play
+  </button>
+</div>

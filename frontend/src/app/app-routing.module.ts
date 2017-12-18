@@ -12,6 +12,7 @@ import { ProfileEditComponent } from './profile-edit.component';
 import { GameRoomComponent } from './game/game-room.component';
 import { GameBidComponent } from './game/game-bid.component';
 import { FriendSelectComponent } from './game/friend-select.component';
+import { CardPlayerComponent } from './game/card-player.component';
 import { GameCreateComponent } from './game-create.component';
 import { HallOfFameComponent } from './hall-of-fame.component';
 
@@ -41,6 +42,7 @@ const routes: Routes = [
     GameRoomComponent,
     GameBidComponent,
     FriendSelectComponent,
+    CardPlayerComponent,
     GameCreateComponent,
     HallOfFameComponent,
   ],

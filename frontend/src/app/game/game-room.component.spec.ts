@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, Input } from '@angular/core';
 import { ComponentFixture, TestBed, async } from '@angular/core/testing';
 import { RouterTestingModule } from '@angular/router/testing';
 import { StoreModule } from '@ngrx/store';
@@ -11,6 +11,8 @@ import { Router, ActivatedRoute } from '@angular/router';
 import { APP_BASE_HREF } from '@angular/common';
 import { Store } from '@ngrx/store';
 import { State } from '../state/reducer';
+
+import * as WebSocket from '../websocket';
 
 // Actions
 import { AppActions } from '../state/app-actions';
@@ -36,6 +38,14 @@ class MockGameBidComponent {}
   template: ''
 })
 class MockFriendSelectComponent {}
+@Component({
+  selector: 'app-card-player',
+  template: ''
+})
+class MockCardPlayerComponent {
+  @Input()
+  card: WebSocket.Data.Card;
+}
 
 class ActivatedRouteStub {
   callbacks: Array<(roomId: string) => void> = [];
@@ -71,6 +81,7 @@ describe('GameRoomComponent', () => {
         GameRoomComponent,
         MockGameBidComponent,
         MockFriendSelectComponent,
+        MockCardPlayerComponent,
       ],
       imports: [
         RouterTestingModule.withRoutes([]),

@@ -521,18 +521,18 @@ export function gameReducer(
         ...state,
         turnOf: action.player,
       };
-    case GameActions.PLAY_CARD:
+    case GameActions.PLAY_CARD_DONE:
       if (state.type !== 'started') {
-        console.error('PLAY_CARD actions received, but game haven\'t started');
+        console.error('PLAY_CARD_DONE action received, but game haven\'t started');
         return state;
       }
       if (state.state.type !== 'playing') {
-        console.error('PLAY_CARD actions received, but game state is not in playing');
+        console.error('PLAY_CARD_DONE action received, but game state is not in playing');
         return state;
       }
       return {
         ...state,
-        hand: state.hand.filter(x => x !== action.payload.card),
+        hand: state.hand.filter(x => x !== action.card),
       };
     case GameActions.PLAY_CARD_EVENT:
       if (state.type !== 'started') {

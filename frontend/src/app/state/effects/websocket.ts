@@ -73,6 +73,15 @@ function mapResponse(resp: WebSocketActions.Response): Action | null {
         return null;
       }
     }
+    case 'gameplay-play': {
+      const result = resp.downcast<{}>();
+      if (typeof result === 'string') {
+        console.error(result);
+        return new WebSocketActions.WebSocketError(result);
+      } else {
+        return new GameActions.PlayCardDone((resp.request.data as any).card);
+      }
+    }
     default:
       return null;
   }
