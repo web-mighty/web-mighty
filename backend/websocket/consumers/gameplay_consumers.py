@@ -1088,6 +1088,7 @@ def gameplay_play_consumer(message):
 
         turn += 1
 
+        round_ended = False
         if turn == room['game']['player_number']:
             # round end
             turn = 0
@@ -1112,15 +1113,24 @@ def gameplay_play_consumer(message):
                     'gameplay-friend-revealed',
                     event_data,
                 ))
-
+            round_ended = True
             event_data = {
                 'player': win_player,
                 'score_cards': score_cards,
             }
-            Group(room_id).send(event(
-                'gameplay-round-end',
-                event_data,
-            ))
+            if USE_DELAY:
+                for p in room['players']:
+                    delay = {
+                        'channel': p['reply'],
+                        'delay': DEAL_DELAY,
+                        'content': event('gameplay-round-end', event_data),
+                    }
+                    Channel('asgi.delay').send(delay, immediately=True)
+            else:
+                Group(room_id).send(event(
+                    'gameplay-round-end',
+                    event_data,
+                ))
             room['players'] = room['players'][win:] + room['players'][:win]
             room['game']['round'] += 1
 
@@ -1196,10 +1206,19 @@ def gameplay_play_consumer(message):
                 room = reset_room_data(room)
                 room['game']['state'] = RoomState.RESULT
                 cache.set('room:' + room_id, room)
-                Group(room_id).send(event(
-                    'gameplay-game-end',
-                    event_data,
-                ))
+                if USE_DELAY:
+                    for p in room['players']:
+                        delay = {
+                            'channel': p['reply'],
+                            'delay': DEAL_DELAY,
+                            'content': event('gameplay-game-end', event_data),
+                        }
+                        Channel('asgi.delay').send(delay, immediately=True)
+                else:
+                    Group(room_id).send(event(
+                        'gameplay-game-end',
+                        event_data,
+                    ))
                 return
 
             room['game']['table_cards'] = []
@@ -1209,10 +1228,19 @@ def gameplay_play_consumer(message):
         room['game']['turn'] = turn
         cache.set('room:' + room_id, room)
 
-    Group(room_id).send(event(
-        'gameplay-turn',
-        {'player': room['players'][turn]['username']},
-    ))
+    if not round_ended or not USE_DELAY:
+        Group(room_id).send(event(
+            'gameplay-turn',
+            {'player': room['players'][turn]['username']},
+        ))
+    else:
+        for p in room['players']:
+            delay = {
+                'channel': p['reply'],
+                'delay': DEAL_DELAY,
+                'content': event('gameplay-turn', {'player': room['players'][turn]['username']}),
+            }
+            Channel('asgi.delay').send(delay, immediately=True)
     if room['players'][turn]['ai'] is True:
         ai = room['players'][turn]
         ret = ai.play(room)
