@@ -27,7 +27,7 @@ export namespace MightyState {
     president: string;
     friend: string | null;
     friendDecl: WebSocket.Data.Friend;
-    cards: { [username: string]: WebSocket.Data.Card };
+    cards: { [username: string]: WebSocket.Data.CardPlay };
     scoreCards: { [username: string]: WebSocket.Data.Card[] };
   }
 
@@ -532,7 +532,12 @@ export function gameReducer(
       }
       return {
         ...state,
-        hand: state.hand.filter(x => x !== action.card),
+        hand: state.hand.filter(x => {
+          if (x.rank === 'JK' && action.card.rank === 'JK') {
+            return false;
+          }
+          return !(x.rank === action.card.rank && x.suit === action.card.suit);
+        }),
       };
     case GameActions.PLAY_CARD_EVENT:
       if (state.type !== 'started') {

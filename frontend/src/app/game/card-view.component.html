@@ -1,0 +1,8 @@
+<ul>
+  <li *ngFor="let player of (playedPlayers | async)">
+    {{player}}: {{cardPlayToString((cards | async)[player])}}
+  </li>
+  <li>
+    <span [class.my-turn]="isMyTurn | async">{{turnOf | async}}</span>: ...
+  </li>
+</ul>

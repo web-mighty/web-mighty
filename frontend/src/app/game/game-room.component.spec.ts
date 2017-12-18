@@ -39,6 +39,11 @@ class MockGameBidComponent {}
 })
 class MockFriendSelectComponent {}
 @Component({
+  selector: 'app-card-view',
+  template: ''
+})
+class MockCardViewComponent {}
+@Component({
   selector: 'app-card-player',
   template: ''
 })
@@ -81,6 +86,7 @@ describe('GameRoomComponent', () => {
         GameRoomComponent,
         MockGameBidComponent,
         MockFriendSelectComponent,
+        MockCardViewComponent,
         MockCardPlayerComponent,
       ],
       imports: [

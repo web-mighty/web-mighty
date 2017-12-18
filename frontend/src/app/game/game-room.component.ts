@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { OnInit, OnDestroy } from '@angular/core';
 
 import { Observable } from 'rxjs/Observable';
-import { ReplaySubject } from 'rxjs/ReplaySubject';
+import { Subject } from 'rxjs/Subject';
 import 'rxjs/add/operator/first';
 import 'rxjs/add/operator/filter';
 import 'rxjs/add/operator/map';
@@ -37,8 +37,8 @@ export class GameRoomComponent implements OnInit, OnDestroy {
   private subscription;
   private readyTogglerSubscription;
 
-  private readyToggler = new ReplaySubject(1);
-  private selectedCardObs = new ReplaySubject(1);
+  private readyToggler = new Subject();
+  private selectedCardObs = new Subject();
 
   roomId: Observable<string>;
   currentScene: Observable<string>;

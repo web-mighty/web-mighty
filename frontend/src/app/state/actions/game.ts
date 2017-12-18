@@ -224,9 +224,7 @@ export class PlayCardEvent implements Action {
 
   constructor(
     public player: string,
-    public card: WebSocket.Data.Card,
-    public jokerCall: boolean,
-    public gan: boolean,
+    public card: WebSocket.Data.CardPlay,
   ) {}
 }
 

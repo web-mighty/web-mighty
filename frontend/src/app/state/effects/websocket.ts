@@ -133,9 +133,7 @@ function mapEvent(ev: WebSocketActions.Event): Action | null {
     case 'gameplay-play':
       return new GameActions.PlayCardEvent(
         payload.data.player,
-        payload.data.card,
-        payload.data.joker_call,
-        payload.data.gan,
+        payload.data,
       );
     case 'gameplay-round-end':
       return new GameActions.RoundEnd(

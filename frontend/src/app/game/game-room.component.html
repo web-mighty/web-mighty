@@ -63,6 +63,8 @@
           </span>
         </div>
       </div>
+      <app-card-view *ngIf="(gameProgressState | async) === 'playing'">
+      </app-card-view>
       <app-card-player
         *ngIf="(gameProgressState | async) === 'playing'"
         [card]="(selectedCards | async)[0]">

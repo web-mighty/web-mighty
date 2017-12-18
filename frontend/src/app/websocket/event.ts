@@ -80,12 +80,7 @@ export interface Turn {
 }
 export interface Play {
   event: 'gameplay-play';
-  data: {
-    player: string;
-    card: Data.Card;
-    joker_call: boolean;
-    gan: boolean;
-  };
+  data: Data.PlayerData & Data.CardPlay;
 }
 export interface RoundEnd {
   event: 'gameplay-round-end';
