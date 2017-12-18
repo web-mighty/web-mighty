@@ -1145,12 +1145,15 @@ def gameplay_play_consumer(message):
                         friend_user = User.objects.get(username=player['username'])
                 if fi == -1:
                     fi = pi
+
+                president_win = total_score >= room['game']['bid_score']
                 event_data = {
                     'scores': scores,
                     'president': room['game']['president'],
                     'friend': room['game']['friend'],
                     'bid': room['game']['bid_score'],
                     'giruda': room['game']['giruda'],
+                    'win': 'ruling' if president_win else 'opposing',
                 }
 
                 history = GameHistory(
@@ -1162,7 +1165,6 @@ def gameplay_play_consumer(message):
                 )
                 history.save()
 
-                president_win = total_score >= room['game']['bid_score']
                 players, win_players, lose_players = [], [], []
                 for p in room['players']:
                     if p['username'] == room['game']['president']:
