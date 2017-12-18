@@ -253,6 +253,11 @@ def room_start_consumer(message):
     with cache.lock('lock:' + room_cache_key):
         room_cache = cache.get(room_cache_key)
 
+        if room_cache['game']['state'] is not RoomState.NOT_PLAYING:
+            reply_channel.send(
+                reply_error('You cannot start at playing', nonce=nonce, type='room-start'))
+            return
+
         if len(room_cache['players']) < room_cache['options']['player_number']:
             reply_channel.send(
                 reply_error('Not enough players', nonce=nonce, type='room-start'))

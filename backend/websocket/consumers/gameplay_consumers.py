@@ -265,12 +265,19 @@ def gameplay_bid_consumer(message):
         {},
         nonce=nonce,
     ))
-    event_data = {
-        'player': username,
-        'bid': True,
-        'score': score,
-        'giruda': giruda,
-    }
+    if try_bid:
+        event_data = {
+            'player': username,
+            'bid': True,
+            'score': score,
+            'giruda': giruda,
+        }
+    else:
+        event_data = {
+            'player': username,
+            'bid': False,
+        }
+
     Group(room_id).send(event(
         'gameplay-bid',
         event_data,
