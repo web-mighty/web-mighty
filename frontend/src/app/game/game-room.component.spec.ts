@@ -42,7 +42,10 @@ class MockFriendSelectComponent {}
   selector: 'app-card-view',
   template: ''
 })
-class MockCardViewComponent {}
+class MockCardViewComponent {
+  @Input()
+  playerList: WebSocket.Data.RoomPlayer[];
+}
 @Component({
   selector: 'app-card-player',
   template: ''
