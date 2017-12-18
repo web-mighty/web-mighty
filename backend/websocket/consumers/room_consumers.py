@@ -142,6 +142,10 @@ def room_leave_consumer(message):
                     del room_cache['players'][i]
                     found = True
                     break
+            ai_player_count = 0
+            for player in room_cache['players']:
+                if player['ai'] is True:
+                    ai_player_count += 1
 
             if not found:
                 reply_channel.send(
@@ -156,7 +160,7 @@ def room_leave_consumer(message):
                     response({}, nonce=nonce))
             player_count = len(room_cache['players'])
 
-            if player_count == 0:
+            if player_count == 0 or ai_player_count == player_count:
                 try:
                     room = Room.objects.get(room_id=room_id)
                     room.delete()
