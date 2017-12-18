@@ -112,7 +112,8 @@ def new_room_data(**kwargs):
             'joker_suit': '',
             'table_cards': [],
             'floor_cards': [],
-            'killed_player': {}
+            'killed_player': {},
+            'card_history': [],
         },
     }
 
@@ -128,6 +129,7 @@ def new_player_data(**kwargs):
         'bid': 0,  # 0 - not bid, 1 - bid, 2 - give up
         'score': 0,
         'continue': False,
+        'ai': False,
     }
 
     return player_data
