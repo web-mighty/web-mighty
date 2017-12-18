@@ -41,6 +41,11 @@ export class Play {
   }) {}
 }
 
+export class Continue {
+  action = 'gameplay-continue';
+  data = { 'continue': true };
+}
+
 export class AiAdd {
   action = 'room-ai-add';
   data = {};

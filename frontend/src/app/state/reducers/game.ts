@@ -65,6 +65,7 @@ export namespace GameRoomState {
     type: 'result';
     room: WebSocket.Data.Room;
     result: WebSocket.Data.GameResult;
+    continueConfirmed: boolean;
   }
   export interface Leaving {
     type: 'leaving';
@@ -86,6 +87,7 @@ export type GameState = GameRoomState.State;
 function recommendFriend(
   hand: WebSocket.Data.Card[],
   giruda: WebSocket.Data.Giruda,
+  permitJoker: boolean = true,
 ): WebSocket.Data.Friend {
   const mightySuit = giruda === 'S' ? 'D' : 'S';
 
@@ -109,7 +111,7 @@ function recommendFriend(
       card,
     };
   }
-  if (!hasJoker) {
+  if (!hasJoker && permitJoker) {
     return {
       type: 'card',
       card: { rank: 'JK' },
@@ -166,7 +168,7 @@ function updateFriendDecl(
     case GameActions.FriendSelect.TOGGLE_JOKER:
       if (original.type === 'card') {
         if (original.card.rank === 'JK') {
-          return recommendFriend(hand, giruda);
+          return recommendFriend(hand, giruda, false);
         } else {
           return {
             type: 'card',
@@ -615,6 +617,16 @@ export function gameReducer(
         type: 'result',
         room: state.room,
         result: action.payload,
+        continueConfirmed: false,
+      };
+    case GameActions.CONTINUE_DONE:
+      if (state.type !== 'result') {
+        console.error('CONTINUE_DONE actions received, but game hasn\'t ended');
+        return state;
+      }
+      return {
+        ...state,
+        continueConfirmed: true,
       };
     case WebSocketActions.DISCONNECTED:
     case WebSocketActions.DUPLICATE_SESSION:

@@ -158,6 +158,17 @@
           {{player.username}}: {{player.score}} point(s)
         </li>
       </ul>
+      <div *ngIf="continueConfirmed | async">
+        Please wait until the other players decide...
+      </div>
+      <div *ngIf="!(continueConfirmed | async)">
+        <button (click)="continueGame()">
+          Continue
+        </button>
+        <button (click)="leaveRoom()">
+          Leave
+        </button>
+      </div>
     </div>
   </div>
 </div>

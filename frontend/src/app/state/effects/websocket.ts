@@ -76,10 +76,17 @@ function mapResponse(resp: WebSocketActions.Response): Action | null {
     case 'gameplay-play': {
       const result = resp.downcast<{}>();
       if (typeof result === 'string') {
-        console.error(result);
         return new WebSocketActions.WebSocketError(result);
       } else {
         return new GameActions.PlayCardDone((resp.request.data as any).card);
+      }
+    }
+    case 'gameplay-continue': {
+      const result = resp.downcast<{}>();
+      if (typeof result === 'string') {
+        return new WebSocketActions.WebSocketError(result);
+      } else {
+        return new GameActions.ContinueDone();
       }
     }
     default:

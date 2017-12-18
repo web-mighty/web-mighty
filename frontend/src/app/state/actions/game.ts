@@ -29,6 +29,9 @@ export const PLAY_CARD_EVENT = 'Game: Play card event';
 export const ROUND_END = 'Game: Round end';
 export const GAME_END = 'Game: Game end';
 
+export const CONTINUE = 'Game: Continue';
+export const CONTINUE_DONE = 'Game: Continue: Done';
+
 export const ROOM_INFO = 'Game: Room info';
 export const PLAYER_STATE_CHANGE = 'Game: Player state change';
 
@@ -250,6 +253,14 @@ export class GameEnd implements Action {
   constructor(public payload: WebSocket.Data.GameResult) {}
 }
 
+export class Continue implements Action {
+  readonly type = CONTINUE;
+}
+
+export class ContinueDone implements Action {
+  readonly type = CONTINUE_DONE;
+}
+
 export class RoomInfo implements Action {
   readonly type = ROOM_INFO;
 
@@ -307,6 +318,8 @@ export type Actions
   | PlayCardEvent
   | RoundEnd
   | GameEnd
+  | Continue
+  | ContinueDone
   | RoomInfo
   | PlayerStateChange
   | FriendSelect.Actions
