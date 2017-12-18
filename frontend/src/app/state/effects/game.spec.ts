@@ -1,5 +1,6 @@
 import { TestBed, fakeAsync, tick, inject } from '@angular/core/testing';
 import { CommonModule } from '@angular/common';
+import { StoreModule } from '@ngrx/store';
 import { provideMockActions } from '@ngrx/effects/testing';
 import { MockComponent, filterCallByAction } from '../../testing';
 import * as v4 from 'uuid/v4';
@@ -10,9 +11,13 @@ import 'rxjs/add/observable/from';
 import 'rxjs/add/observable/concat';
 import 'rxjs/add/observable/zip';
 
-import { Action } from '@ngrx/store';
+import { Store, Action } from '@ngrx/store';
 import { Actions } from '@ngrx/effects';
+import { State } from '../reducer';
 import * as WebSocket from '../../websocket';
+
+// Reducers
+import { reducers } from '../reducer';
 
 // Actions
 import * as RouterActions from '../actions/router';
@@ -61,6 +66,7 @@ describe('GameEffects', () => {
       ],
       imports: [
         CommonModule,
+        StoreModule.forRoot(reducers),
       ],
       providers: [
         provideMockActions(() => actions),
@@ -69,9 +75,9 @@ describe('GameEffects', () => {
   });
 
   beforeEach(inject(
-    [Actions],
-    (actions$: Actions) => {
-      effects = new GameEffects(actions$);
+    [Actions, Store],
+    (actions$: Actions, _store: Store<State>) => {
+      effects = new GameEffects(actions$, _store);
     }
   ));
 

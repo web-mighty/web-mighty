@@ -127,16 +127,8 @@ export class FriendSelectComponent implements OnInit, OnDestroy {
   }
 
   confirm() {
-    this.store.select('game')
-      .first()
-      .subscribe((game: any) => {
-        const {friendDecl, selectedCards} = game.state;
-        this.store.dispatch(
-          new GameActions.FriendSelect.Confirm({
-            friendDecl,
-            discardCards: selectedCards,
-          })
-        );
-      });
+    this.store.dispatch(
+      new GameActions.FriendSelect.Confirm()
+    );
   }
 }

@@ -72,11 +72,6 @@ export namespace FriendSelect {
 
   export class Confirm implements Action {
     readonly type = CONFIRM;
-
-    constructor(public payload: {
-      friendDecl: WebSocket.Data.Friend,
-      discardCards: WebSocket.Data.Card[],
-    }) {}
   }
 
   export class Failed implements Action {
