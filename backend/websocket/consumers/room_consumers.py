@@ -378,7 +378,7 @@ def room_ai_add_consumer(message):
 
         for p in room['players']:
             if p['username'].startswith('*AI-'):
-                altered_nicknames.remove(p[4:])
+                altered_nicknames.remove(p['username'][4:])
 
         ind = nicknames.index(altered_nicknames[0])
 
@@ -388,6 +388,7 @@ def room_ai_add_consumer(message):
         room_model.save()
         cache.set('room:' + room_id, room)
 
+        reply_channel.send(response({}, nonce=nonce))
         event_data = {
             'player': ai['username'],
             'ai': True,
@@ -458,7 +459,9 @@ def room_ai_delete_consumer(message):
 
         room_model.player_count -= 1
         room_model.save()
+        cache.set('room:' + room_id, room)
 
+        reply_channel.send(response({}, nonce=nonce))
         event_data = {
             'player': ai_name,
             'ai': True,
