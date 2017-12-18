@@ -13,6 +13,7 @@ export interface NormalCard {
 }
 export interface JokerCard {
   rank: 'JK';
+  suit?: CardSuit;
 }
 export type Card = NormalCard | JokerCard;
 export function cardToId(card: Card): string {

@@ -72,6 +72,28 @@ export interface FriendSelectDone {
   event: 'gameplay-friend-select';
   data: Data.FriendSelectEvent;
 }
+export interface Turn {
+  event: 'gameplay-turn';
+  data: {
+    player: string;
+  };
+}
+export interface Play {
+  event: 'gameplay-play';
+  data: {
+    player: string;
+    card: Data.Card;
+    joker_call: boolean;
+    gan: boolean;
+  };
+}
+export interface RoundEnd {
+  event: 'gameplay-round-end';
+  data: {
+    player: string;
+    score_cards: Data.Card[];
+  };
+}
 export type Event
   = Error
   | Connected
@@ -87,4 +109,7 @@ export type Event
   | FloorCards
   | FriendSelecting
   | FriendSelectDone
+  | Turn
+  | Play
+  | RoundEnd
 ;

@@ -21,7 +21,10 @@ export const FLOOR_CARDS = 'Game: Floor cards';
 export const FRIEND_SELECTING = 'Game: Friend selecting';
 export const FRIEND_SELECT_EVENT = 'Game: Friend select event';
 export const SELECT_CARD = 'Game: Select card';
+export const TURN_EVENT = 'Game: Turn event';
 export const PLAY_CARD = 'Game: Play card';
+export const PLAY_CARD_EVENT = 'Game: Play card event';
+export const ROUND_END = 'Game: Round end';
 
 export const ROOM_INFO = 'Game: Room info';
 export const PLAYER_STATE_CHANGE = 'Game: Player state change';
@@ -199,10 +202,39 @@ export class SelectCard implements Action {
   constructor(public card: WebSocket.Data.Card) {}
 }
 
+export class TurnEvent implements Action {
+  readonly type = TURN_EVENT;
+
+  constructor(public player: string) {}
+}
+
 export class PlayCard implements Action {
   readonly type = PLAY_CARD;
 
-  constructor(public card: WebSocket.Data.Card) {}
+  constructor(public payload: {
+    card: WebSocket.Data.Card,
+    jokerCall?: boolean,
+  }) {}
+}
+
+export class PlayCardEvent implements Action {
+  readonly type = PLAY_CARD_EVENT;
+
+  constructor(
+    public player: string,
+    public card: WebSocket.Data.Card,
+    public jokerCall: boolean,
+    public gan: boolean,
+  ) {}
+}
+
+export class RoundEnd implements Action {
+  readonly type = ROUND_END;
+
+  constructor(
+    public player: string,
+    public scoreCards: WebSocket.Data.Card[],
+  ) {}
 }
 
 export class RoomInfo implements Action {
@@ -235,7 +267,10 @@ export type Actions
   | FriendSelecting
   | FriendSelectEvent
   | SelectCard
+  | TurnEvent
   | PlayCard
+  | PlayCardEvent
+  | RoundEnd
   | RoomInfo
   | PlayerStateChange
   | FriendSelect.Actions

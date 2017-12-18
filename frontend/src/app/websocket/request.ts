@@ -33,10 +33,20 @@ export class FriendSelect {
   constructor(public data: Data.FriendSelectRequest) {}
 }
 
+export class Play {
+  action = 'gameplay-play';
+  constructor(public data: {
+    card: Data.Card,
+    joker_call?: boolean,
+    joker_suit?: Data.CardSuit,
+  }) {}
+}
+
 export type Request
   = RoomJoin
   | RoomLeave
   | RoomReady
   | RoomStart
   | GameplayBid
+  | Play
 ;

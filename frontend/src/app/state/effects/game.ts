@@ -82,6 +82,27 @@ export class GameEffects {
       )
     );
 
+  @Effect()
+  playCard$ =
+    this.actions$.ofType(GameActions.PLAY_CARD)
+    .map((action: GameActions.PlayCard) => {
+      const payload: any = {
+        card: action.payload.card,
+      };
+      if ('jokerCall' in action.payload) {
+        payload.joker_call = action.payload.jokerCall;
+      }
+      // FIXME: joker_suit will be removed
+      if (payload.card.rank === 'JK') {
+        if ('suit' in payload.card) {
+          payload.joker_suit = payload.card.suit;
+        }
+      }
+      return new WebSocketActions.Request(
+        new WebSocket.Requests.Play(payload)
+      );
+    })
+
   constructor(
     private actions$: Actions,
   ) {}

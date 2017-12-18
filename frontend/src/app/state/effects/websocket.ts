@@ -119,6 +119,20 @@ function mapEvent(ev: WebSocketActions.Event): Action | null {
       return new GameActions.FriendSelecting(payload.data.player);
     case 'gameplay-friend-select':
       return new GameActions.FriendSelectEvent(payload.data);
+    case 'gameplay-turn':
+      return new GameActions.TurnEvent(payload.data.player);
+    case 'gameplay-play':
+      return new GameActions.PlayCardEvent(
+        payload.data.player,
+        payload.data.card,
+        payload.data.joker_call,
+        payload.data.gan,
+      );
+    case 'gameplay-round-end':
+      return new GameActions.RoundEnd(
+        payload.data.player,
+        payload.data.score_cards,
+      );
     case 'error':
       // TODO: Emit appropriate error action
       switch (payload.data.type) {
