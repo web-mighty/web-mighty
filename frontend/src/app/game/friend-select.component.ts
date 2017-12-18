@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, ViewChild } from '@angular/core';
 import { OnInit, OnDestroy } from '@angular/core';
 
 import { Observable } from 'rxjs/Observable';
@@ -20,8 +20,13 @@ import * as WebSocket from '../websocket';
 })
 export class FriendSelectComponent implements OnInit, OnDestroy {
   friendDecl: Observable<WebSocket.Data.Friend>;
+  jokerSelected: Observable<boolean>;
 
   cardSelected: Observable<boolean>;
+
+  @ViewChild('jokerCheckbox') jokerCheckbox;
+
+  private jokerSelectedSubscription = null;
 
   readonly options = [
     {
@@ -70,6 +75,15 @@ export class FriendSelectComponent implements OnInit, OnDestroy {
       .filter((game: any) => game.state.friendDecl != null)
       .map((game: any) => game.state.friendDecl);
 
+    this.jokerSelected =
+      this.friendDecl
+      .map(friendDecl => {
+        if (friendDecl.type !== 'card') {
+          return false;
+        }
+        return friendDecl.card.rank === 'JK';
+      });
+
     this.cardSelected =
       this.store.select('game')
       .filter(game => game != null && game.type === 'started')
@@ -82,9 +96,25 @@ export class FriendSelectComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
+    this.jokerSelectedSubscription =
+      this.jokerSelected
+      .subscribe(jokerSelected => {
+        if (this.jokerCheckbox == null) {
+          return;
+        }
+        if (jokerSelected) {
+          this.jokerCheckbox.nativeElement.MaterialCheckbox.check();
+        } else {
+          this.jokerCheckbox.nativeElement.MaterialCheckbox.uncheck();
+        }
+      });
   }
 
   ngOnDestroy() {
+    if (this.jokerSelectedSubscription != null) {
+      this.jokerSelectedSubscription.unsubscribe();
+      this.jokerSelectedSubscription = null;
+    }
   }
 
   changeType(type: WebSocket.Data.FriendType) {

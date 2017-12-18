@@ -15,14 +15,13 @@
     </label>
   </div>
   <div *ngIf="(friendDecl | async).type === 'card'">
-    <label class="mdl-checkbox mdl-js-checkbox">
+    <label #jokerCheckbox class="mdl-checkbox mdl-js-checkbox mdl-js-ripple-effect">
       <input type="checkbox"
              class="mdl-checkbox__input"
-             [checked]="(friendDecl | async).card.rank === 'JK'"
              (click)="toggleJoker()">
       Joker
     </label>
-    <div *ngIf="(friendDecl | async).card.rank !== 'JK'">
+    <div *ngIf="!(jokerSelected | async)">
       <select (change)="changeRank($event.target.value)">
         <option *ngFor="let rank of rankList"
                 [value]="rank.name"

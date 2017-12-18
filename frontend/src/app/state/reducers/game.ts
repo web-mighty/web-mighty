@@ -87,6 +87,7 @@ export type GameState = GameRoomState.State;
 function recommendFriend(
   hand: WebSocket.Data.Card[],
   giruda: WebSocket.Data.Giruda,
+  permitJoker: boolean = true,
 ): WebSocket.Data.Friend {
   const mightySuit = giruda === 'S' ? 'D' : 'S';
 
@@ -110,7 +111,7 @@ function recommendFriend(
       card,
     };
   }
-  if (!hasJoker) {
+  if (!hasJoker && permitJoker) {
     return {
       type: 'card',
       card: { rank: 'JK' },
@@ -167,7 +168,7 @@ function updateFriendDecl(
     case GameActions.FriendSelect.TOGGLE_JOKER:
       if (original.type === 'card') {
         if (original.card.rank === 'JK') {
-          return recommendFriend(hand, giruda);
+          return recommendFriend(hand, giruda, false);
         } else {
           return {
             type: 'card',
