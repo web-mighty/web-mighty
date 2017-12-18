@@ -321,7 +321,10 @@ def room_reset_consumer(message):
 
         try:
             room_model = Room.objects.get(room_id=room_id)
-            room_model.player_count = len(new_room_data['players'])
+            player_count = len(new_room_data['players'])
+            if player_count == 0:
+                room_model.delete()
+            room_model.player_count = player_count
             room_model.save()
         except Room.DoesNotExist:
             pass
