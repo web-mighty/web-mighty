@@ -1160,8 +1160,10 @@ def gameplay_play_consumer(message):
                     'scores': scores,
                     'president': room['game']['president'],
                     'friend': room['game']['friend'],
-                    'bid': room['game']['bid_score'],
-                    'giruda': room['game']['giruda'],
+                    'bid': {
+                        'score': room['game']['bid_score'],
+                        'giruda': room['game']['giruda'],
+                    },
                     'win': 'ruling' if president_win else 'opposing',
                 }
 
