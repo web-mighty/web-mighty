@@ -23,18 +23,19 @@ class AI():
         self.data = {
             'username': '*AI-{}'.format(nicknames[index]),
             'reply': 'gameplay-ai',
-            'ready': True,
             'cards': [],
             'bid': 0,
             'score': 0,
-            'continue': True,
-            'ai': True,
         }
 
     def __getitem__(self, key):
+        if key in ['ai', 'ready', 'continue']:
+            return True
         return self.data[key]
 
     def __setitem__(self, key, item):
+        if key in ['ai', 'ready', 'continue']:
+            return
         self.data[key] = item
 
     def wanted_card(self, cards, giruda, when):
