@@ -643,3 +643,63 @@ class RoomResetTest(ChannelTestCase):
         new_room_data_ = reset_room_data(room_cache)
 
         self.assertEqual(room_cache, new_room_data_)
+
+
+@override_settings(USE_DELAY=False)
+class RoomAITest(ChannelTestCase):
+    def setUp(self):
+        cache.clear()
+
+        create_user(
+            username='skystar',
+            password='doge',
+            nickname='usezmap',
+            email='asdf@asdf.com'
+        )
+
+        Room.objects.create(
+            room_id='test',
+            title='doge room',
+            is_private=False,
+            password='',
+            player_number=5,
+        )
+
+    def test_room_ai(self):
+        client = WSClient()
+        client.login(username='skystar', password='doge')
+        client.send_and_consume('websocket.connect', path='/api/websocket/')
+        client.receive()
+
+        data = {
+            'room_id': 'test',
+        }
+        req = request('room-join', data, nonce='test')
+        client.send_and_consume('websocket.receive', req, path='/api/websocket/')
+
+        client.consume('room-join')
+        client.receive()
+        client.receive()
+
+        nick = ['doge', 'gon', 'eom', 'egger']
+        for i in range(4):
+            req = request('room-ai-add', {}, nonce='test')
+            client.send_and_consume('websocket.receive', req, path='/api/websocket/')
+
+            client.consume('room-ai-add')
+            client.receive()
+            response = client.receive()
+            self.assertEqual(response['event'], 'room-join')
+            self.assertEqual(response['data']['player'], '*AI-' + nick[i])
+            client.receive()
+
+        data = {
+            'ai_name': '*AI-eom',
+        }
+        req = request('room-ai-delete', data, nonce='test')
+        client.send_and_consume('websocket.receive', req, path='/api/websocket/')
+        client.consume('room-ai-delete')
+        client.receive()
+        response = client.receive()
+        self.assertEqual(response['event'], 'room-leave')
+        self.assertEqual(response['data']['player'], '*AI-eom')
