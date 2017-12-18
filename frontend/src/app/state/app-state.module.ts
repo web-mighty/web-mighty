@@ -18,6 +18,7 @@ import { ProfileEffects } from './effects/profile';
 import { RoomEffects } from './effects/room';
 import { WebSocketEffects } from './effects/websocket';
 import { GameEffects } from './effects/game';
+import { HallOfFameEffects } from './effects/hall-of-fame';
 
 @NgModule({
   imports: [
@@ -31,6 +32,7 @@ import { GameEffects } from './effects/game';
       RoomEffects,
       WebSocketEffects,
       GameEffects,
+      HallOfFameEffects,
     ]),
     StoreRouterConnectingModule,
   ],

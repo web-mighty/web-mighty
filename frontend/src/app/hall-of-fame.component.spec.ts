@@ -1,4 +1,7 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { StoreModule } from '@ngrx/store';
+
+import { hallOfFameReducer } from './state/reducers/hall-of-fame';
 
 import { HallOfFameComponent } from './hall-of-fame.component';
 
@@ -8,7 +11,12 @@ describe('HallOfFameComponent', () => {
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ HallOfFameComponent ]
+      declarations: [ HallOfFameComponent ],
+      imports: [
+        StoreModule.forRoot({
+          hallOfFame: hallOfFameReducer,
+        }),
+      ],
     })
     .compileComponents();
   }));

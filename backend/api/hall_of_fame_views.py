@@ -11,7 +11,7 @@ def hall_of_fame(request):
         with cache.lock('lock:' + cache_key):
             data = cache.get(cache_key)
             if data is not None:
-                return JsonResponse(data)
+                return JsonResponse(data, safe=False)
             users = User.objects.annotate(wins=Count('win_histories'), avatar=F('profile__avatar'))
             ranks = users.values('username', 'wins', 'avatar').order_by('-wins')[:10]
             ranks_list = list(ranks)

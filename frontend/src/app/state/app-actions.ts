@@ -4,6 +4,7 @@ import * as ProfileActions from './actions/profile';
 import * as RoomActions from './actions/room';
 import * as WebSocketActions from './actions/websocket';
 import * as GameActions from './actions/game';
+import * as HallOfFameActions from './actions/hall-of-fame';
 import { RouterNavigationAction } from '@ngrx/router-store';
 
 export type AppActions
@@ -13,4 +14,5 @@ export type AppActions
   | RoomActions.Actions
   | WebSocketActions.Actions
   | GameActions.Actions
+  | HallOfFameActions.Actions
   | RouterNavigationAction;
