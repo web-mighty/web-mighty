@@ -262,6 +262,14 @@ def gameplay_bid_consumer(message):
                     'gameplay-friend-selecting',
                     event_data,
                 ))
+                # AI
+                if room['players'][0]['ai'] is True:
+                    ai = room['players'][0]
+                    ret = ai.friend_select(room)
+                    build_ai_message(ai, ret)
+                    ret['room_id'] = room_id
+                    Channel('gameplay-friend-select').send(ret)
+
                 room['game']['floor_cards'] = []
             elif player_number == 6:
                 room['game']['state'] = RoomState.KILL_SELECTING
@@ -272,6 +280,13 @@ def gameplay_bid_consumer(message):
                     'gameplay-killing',
                     event_data,
                 ))
+                # AI
+                if room['players'][0]['ai'] is True:
+                    ai = room['players'][0]
+                    ret = ai.kill(room)
+                    build_ai_message(ai, ret)
+                    ret['room_id'] = room_id
+                    Channel('gameplay-kill').send(ret)
 
             cache.set('room:' + room_id, room)
             return
