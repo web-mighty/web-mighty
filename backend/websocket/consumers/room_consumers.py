@@ -313,7 +313,6 @@ def room_reset_consumer(message):
         cache.set(room_cache_key, new_room_data)
 
         event_data = {
-            'room_id': room_id,
             'players': [
                 {'username': p['username'], 'ready': p['ready']}
                 for p in new_room_data['players']
