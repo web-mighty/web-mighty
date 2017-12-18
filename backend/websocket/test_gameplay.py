@@ -439,7 +439,7 @@ class GameplayTest(ChannelTestCase):
         self.assertIs(room['game']['state'], RoomState.RESULT)
         self.assertEqual(room['players'][0]['username'], 'doge3')
 
-        history = GameHistory.objects.get(id=1)
+        history = GameHistory.objects.all()[0]
         self.assertEqual(history.bid, 13)
         self.assertEqual(history.giruda, 'S')
         self.assertEqual(history.president.username, 'doge0')
