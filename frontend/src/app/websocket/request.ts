@@ -13,8 +13,7 @@ export class RoomLeave {
 export class RoomReady {
   action = 'room-ready';
   data: { ready: boolean };
-  constructor(ready: boolean) {
-    this.data = { ready };
+  constructor(ready: boolean) { this.data = { ready };
   }
 }
 
@@ -42,6 +41,19 @@ export class Play {
   }) {}
 }
 
+export class AiAdd {
+  action = 'room-ai-add';
+  data = {};
+}
+export class AiDelete {
+  action = 'room-ai-delete';
+  data: { username: string };
+
+  constructor(public username: string) {
+    this.data = { username };
+  }
+}
+
 export type Request
   = RoomJoin
   | RoomLeave
@@ -49,4 +61,6 @@ export type Request
   | RoomStart
   | GameplayBid
   | Play
+  | AiAdd
+  | AiDelete
 ;

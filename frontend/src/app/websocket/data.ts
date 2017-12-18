@@ -114,3 +114,12 @@ export interface ChangeBid {
 }
 export type FriendSelectRequest = FloorCards & Friend & ChangeBid;
 export type FriendSelectEvent = Friend & ChangeBid;
+
+export type Party = 'ruling' | 'opposing';
+export interface GameResult {
+  scores: { [username: string]: number };
+  president: string;
+  friend: string;
+  win: Party;
+  bid: BidCore;
+}

@@ -255,7 +255,7 @@ class ApiProfileTest(TestCase):
             content_type='application/json',
         )
 
-        user = User.objects.get(id=1)
+        user = User.objects.all()[0]
 
         self.assertEqual(response.status_code, 204)
         self.assertEqual(user.profile.nickname, 'new_nick')

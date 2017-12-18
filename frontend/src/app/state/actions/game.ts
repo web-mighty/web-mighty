@@ -22,10 +22,12 @@ export const FRIEND_SELECTING = 'Game: Friend selecting';
 export const FRIEND_SELECT_EVENT = 'Game: Friend select event';
 export const SELECT_CARD = 'Game: Select card';
 export const TURN_EVENT = 'Game: Turn event';
+export const FRIEND_REVEALED = 'Game: Friend revealed';
 export const PLAY_CARD = 'Game: Play card';
 export const PLAY_CARD_DONE = 'Game: Play card: Done';
 export const PLAY_CARD_EVENT = 'Game: Play card event';
 export const ROUND_END = 'Game: Round end';
+export const GAME_END = 'Game: Game end';
 
 export const ROOM_INFO = 'Game: Room info';
 export const PLAYER_STATE_CHANGE = 'Game: Player state change';
@@ -124,10 +126,7 @@ export class LeaveRoomDone implements Action {
 export class ResetRoom implements Action {
   readonly type = RESET_ROOM;
 
-  constructor(
-    public roomId: string,
-    public players: WebSocket.Data.RoomPlayer[]
-  ) {}
+  constructor(public players: WebSocket.Data.RoomPlayer[]) {}
 }
 
 export class Ready implements Action {
@@ -142,6 +141,8 @@ export class Start implements Action {
 
 export class Started implements Action {
   readonly type = STARTED;
+
+  constructor(public players: WebSocket.Data.RoomPlayer[]) {}
 }
 
 export class Deal implements Action {
@@ -204,6 +205,12 @@ export class TurnEvent implements Action {
   constructor(public player: string) {}
 }
 
+export class FriendRevealed implements Action {
+  readonly type = FRIEND_REVEALED;
+
+  constructor(public friend: string) {}
+}
+
 export class PlayCard implements Action {
   readonly type = PLAY_CARD;
 
@@ -237,6 +244,12 @@ export class RoundEnd implements Action {
   ) {}
 }
 
+export class GameEnd implements Action {
+  readonly type = GAME_END;
+
+  constructor(public payload: WebSocket.Data.GameResult) {}
+}
+
 export class RoomInfo implements Action {
   readonly type = ROOM_INFO;
 
@@ -247,6 +260,26 @@ export class PlayerStateChange implements Action {
   readonly type = PLAYER_STATE_CHANGE;
 
   constructor(public payload: PlayerState) {}
+}
+
+export namespace AI {
+  export const ADD = 'Game: AI: Add';
+  export const REMOVE = 'Game: AI: Remove';
+
+  export class Add implements Action {
+    readonly type = ADD;
+  }
+
+  export class Remove implements Action {
+    readonly type = REMOVE;
+
+    constructor(public username: string) {}
+  }
+
+  export type Actions
+    = Add
+    | Remove
+  ;
 }
 
 export type Actions
@@ -268,11 +301,14 @@ export type Actions
   | FriendSelectEvent
   | SelectCard
   | TurnEvent
+  | FriendRevealed
   | PlayCard
   | PlayCardDone
   | PlayCardEvent
   | RoundEnd
+  | GameEnd
   | RoomInfo
   | PlayerStateChange
   | FriendSelect.Actions
+  | AI.Actions
 ;

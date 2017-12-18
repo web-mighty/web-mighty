@@ -63,6 +63,8 @@ export namespace GameRoomState {
   }
   export interface Result {
     type: 'result';
+    room: WebSocket.Data.Room;
+    result: WebSocket.Data.GameResult;
   }
   export interface Leaving {
     type: 'leaving';
@@ -222,7 +224,7 @@ const initialState: GameState = {
 function applyPlayerState(
   room: WebSocket.Data.Room,
   update: GameActions.PlayerState
-) {
+): WebSocket.Data.Room {
   if (update.left) {
     const players = room.players.filter(p => p.username !== update.username);
     return {
@@ -236,8 +238,7 @@ function applyPlayerState(
         ...p,
         ready: update.ready,
       };
-    }
-    return p;
+    } return p;
   });
   if (!players.find(p => p.username === update.username)) {
     players.push({
@@ -254,7 +255,7 @@ function applyPlayerState(
 export function gameReducer(
   state: GameState = initialState,
   action: AppActions
-) {
+): GameState {
   switch (action.type) {
     case GameActions.JOIN_ROOM:
       return { type: 'joining', to: action.payload.roomId };
@@ -273,7 +274,7 @@ export function gameReducer(
       }
       return { ...state, room: applyPlayerState(state.room, action.payload) };
     case GameActions.RESET_ROOM:
-      if (state.type !== 'started') {
+      if (state.type !== 'started' && state.type !== 'result') {
         console.error('RESET_ROOM received, but game haven\'t started');
         return state;
       }
@@ -285,14 +286,17 @@ export function gameReducer(
         },
       };
     case GameActions.STARTED:
-      if (state.type !== 'not-started') {
+      if (state.type !== 'not-started' && state.type !== 'result') {
         console.error('STARTED received outside room.');
         return state;
       }
       return {
         type: 'started',
         hand: [],
-        room: state.room,
+        room: {
+          ...state.room,
+          players: action.players,
+        },
         turnOf: state.room.players[0].username,
         state: {
           type: 'bidding',
@@ -524,6 +528,22 @@ export function gameReducer(
         ...state,
         turnOf: action.player,
       };
+    case GameActions.FRIEND_REVEALED:
+      if (state.type !== 'started') {
+        console.error('TURN_EVENT actions received, but game haven\'t started');
+        return state;
+      }
+      if (state.state.type !== 'playing') {
+        console.error('TURN_EVENT actions received, but game state is not in playing');
+        return state;
+      }
+      return {
+        ...state,
+        state: {
+          ...state.state,
+          friend: action.friend,
+        },
+      };
     case GameActions.PLAY_CARD_DONE:
       if (state.type !== 'started') {
         console.error('PLAY_CARD_DONE action received, but game haven\'t started');
@@ -581,6 +601,20 @@ export function gameReducer(
             [action.player]: [...state.state.scoreCards[action.player], ...action.scoreCards],
           },
         },
+      };
+    case GameActions.GAME_END:
+      if (state.type !== 'started') {
+        console.error('ROUND_END actions received, but game haven\'t started');
+        return state;
+      }
+      if (state.state.type !== 'playing') {
+        console.error('ROUND_END actions received, but game state is not in playing');
+        return state;
+      }
+      return {
+        type: 'result',
+        room: state.room,
+        result: action.payload,
       };
     case WebSocketActions.DISCONNECTED:
     case WebSocketActions.DUPLICATE_SESSION:

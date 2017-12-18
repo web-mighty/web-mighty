@@ -61,4 +61,5 @@ export type Actions
   | GetRooms.Failed
   | CreateRoom.Start
   | CreateRoom.Done
-  | CreateRoom.Failed;
+  | CreateRoom.Failed
+;

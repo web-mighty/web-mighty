@@ -10,15 +10,11 @@ export interface Connected {
 }
 export interface RoomJoin {
   event: 'room-join';
-  data: {
-    player: string;
-  };
+  data: Data.PlayerData;
 }
 export interface RoomLeave {
   event: 'room-leave';
-  data: {
-    player: string;
-  };
+  data: Data.PlayerData;
 }
 export interface RoomReady {
   event: 'room-ready';
@@ -30,13 +26,14 @@ export interface RoomReady {
 export interface RoomReset {
   event: 'room-reset';
   data: {
-    room_id: string;
     players: Data.RoomPlayer[];
   };
 }
 export interface RoomStart {
   event: 'room-start';
-  data: {};
+  data: {
+    players: Data.RoomPlayer[];
+  };
 }
 export interface Deal {
   event: 'gameplay-deal';
@@ -44,9 +41,7 @@ export interface Deal {
 }
 export interface Bidding {
   event: 'gameplay-bidding';
-  data: {
-    player: string;
-  };
+  data: Data.PlayerData;
 }
 export interface Bid {
   event: 'gameplay-bid';
@@ -64,9 +59,7 @@ export interface FloorCards {
 }
 export interface FriendSelecting {
   event: 'gameplay-friend-selecting';
-  data: {
-    player: string;
-  };
+  data: Data.PlayerData;
 }
 export interface FriendSelectDone {
   event: 'gameplay-friend-select';
@@ -74,9 +67,11 @@ export interface FriendSelectDone {
 }
 export interface Turn {
   event: 'gameplay-turn';
-  data: {
-    player: string;
-  };
+  data: Data.PlayerData;
+}
+export interface FriendRevealed {
+  event: 'gameplay-friend-revealed';
+  data: Data.PlayerData;
 }
 export interface Play {
   event: 'gameplay-play';
@@ -88,6 +83,10 @@ export interface RoundEnd {
     player: string;
     score_cards: Data.Card[];
   };
+}
+export interface GameEnd {
+  event: 'gameplay-game-end';
+  data: Data.GameResult;
 }
 export type Event
   = Error
@@ -105,6 +104,8 @@ export type Event
   | FriendSelecting
   | FriendSelectDone
   | Turn
+  | FriendRevealed
   | Play
   | RoundEnd
+  | GameEnd
 ;

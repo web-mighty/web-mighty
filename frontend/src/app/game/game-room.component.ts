@@ -63,6 +63,9 @@ export class GameRoomComponent implements OnInit, OnDestroy {
   friendDecl: Observable<WebSocket.Data.Friend>;
   friend: Observable<string | null>;
 
+  gameResult: Observable<WebSocket.Data.GameResult>;
+  resultCalc: Observable<any>;
+
   cardToString(card: WebSocket.Data.Card): string {
     if (card.rank === 'JK') {
       return 'Joker';
@@ -355,6 +358,35 @@ export class GameRoomComponent implements OnInit, OnDestroy {
       this.store.select('game')
       .filter(game => game != null && game.type === 'started' && game.state.type === 'playing')
       .map((game: any) => game.state.friend);
+
+    this.gameResult =
+      this.store.select('game')
+      .filter(game => game != null && game.type === 'result')
+      .map((game: any) => game.result);
+
+    this.resultCalc =
+      this.gameResult
+      .map(result => {
+        const players = Object.keys(result.scores);
+        const ruling = [ result.president ];
+        if (result.friend !== '') ruling.push(result.friend);
+        const opposing = players.filter(x => !ruling.includes(x));
+
+        const playerData =
+          players.map(player => ({
+            username: player,
+            score: result.scores[player],
+            team: ruling.includes(player) ? 'ruling' : 'opposing',
+          }));
+        const {win, bid, president, friend} = result;
+        return {
+          win,
+          bid: this.bidCoreToString(bid),
+          president,
+          friend: friend || '(None)',
+          playerData,
+        };
+      });
   }
 
   ngOnInit() {
@@ -498,5 +530,20 @@ export class GameRoomComponent implements OnInit, OnDestroy {
           this.store.dispatch(new GameActions.SelectCard(card));
         }
       });
+  }
+
+  addAi() {
+    this.store.dispatch(
+      new GameActions.AI.Add()
+    );
+  }
+
+  removeAi(username: string) {
+    if (username[0] !== '*') {
+      return;
+    }
+    this.store.dispatch(
+      new GameActions.AI.Remove(username)
+    );
   }
 }
