@@ -9,6 +9,11 @@ export namespace MightyState {
     type: 'bidding';
     bidHistory: WebSocket.Data.BidEvent[];
   }
+  export interface DealMiss {
+    type: 'deal-miss';
+    player: string;
+    hand: WebSocket.Data.Card[];
+  }
   export interface Elected {
     type: 'elected';
     result: WebSocket.Data.ElectionResult;
@@ -22,11 +27,13 @@ export namespace MightyState {
     president: string;
     friend: string | null;
     friendDecl: WebSocket.Data.Friend;
-    cards: { [username: string]: WebSocket.Data.Card };
+    cards: { [username: string]: WebSocket.Data.CardPlay };
+    scoreCards: { [username: string]: WebSocket.Data.Card[] };
   }
 
   export type State
     = Bidding
+    | DealMiss
     | Elected
     | Playing
   ;
@@ -51,6 +58,9 @@ export namespace GameRoomState {
     turnOf: string;
     state: MightyState.State;
   }
+  export interface Result {
+    type: 'result';
+  }
   export interface Leaving {
     type: 'leaving';
   }
@@ -60,6 +70,7 @@ export namespace GameRoomState {
     | Joining
     | NotStarted
     | Started
+    | Result
     | Leaving
   ;
 }
@@ -478,6 +489,10 @@ export function gameReducer(
           friendDecl = { type: 'round', round: action.payload.round };
           break;
       }
+      const scoreCards = {};
+      for (const player of state.room.players) {
+        scoreCards[player.username] = [];
+      }
       return {
         ...state,
         hand,
@@ -489,9 +504,81 @@ export function gameReducer(
           friend: null,
           friendDecl,
           cards: {},
+          scoreCards,
         },
       };
     }
+    case GameActions.TURN_EVENT:
+      if (state.type !== 'started') {
+        console.error('TURN_EVENT actions received, but game haven\'t started');
+        return state;
+      }
+      if (state.state.type !== 'playing') {
+        console.error('TURN_EVENT actions received, but game state is not in playing');
+        return state;
+      }
+      return {
+        ...state,
+        turnOf: action.player,
+      };
+    case GameActions.PLAY_CARD_DONE:
+      if (state.type !== 'started') {
+        console.error('PLAY_CARD_DONE action received, but game haven\'t started');
+        return state;
+      }
+      if (state.state.type !== 'playing') {
+        console.error('PLAY_CARD_DONE action received, but game state is not in playing');
+        return state;
+      }
+      return {
+        ...state,
+        hand: state.hand.filter(x => {
+          if (x.rank === 'JK' && action.card.rank === 'JK') {
+            return false;
+          }
+          return !(x.rank === action.card.rank && x.suit === action.card.suit);
+        }),
+      };
+    case GameActions.PLAY_CARD_EVENT:
+      if (state.type !== 'started') {
+        console.error('PLAY_CARD_EVENT actions received, but game haven\'t started');
+        return state;
+      }
+      if (state.state.type !== 'playing') {
+        console.error('PLAY_CARD_EVENT actions received, but game state is not in playing');
+        return state;
+      }
+      return {
+        ...state,
+        turnOf: '',
+        state: {
+          ...state.state,
+          cards: {
+            ...state.state.cards,
+            [action.player]: action.card,
+          },
+        },
+      };
+    case GameActions.ROUND_END:
+      if (state.type !== 'started') {
+        console.error('ROUND_END actions received, but game haven\'t started');
+        return state;
+      }
+      if (state.state.type !== 'playing') {
+        console.error('ROUND_END actions received, but game state is not in playing');
+        return state;
+      }
+      return {
+        ...state,
+        state: {
+          ...state.state,
+          cards: {},
+          scoreCards: {
+            ...state.state.scoreCards,
+            [action.player]: [...state.state.scoreCards[action.player], ...action.scoreCards],
+          },
+        },
+      };
     case WebSocketActions.DISCONNECTED:
     case WebSocketActions.DUPLICATE_SESSION:
       return initialState;

@@ -1,6 +1,9 @@
 export interface PlayerCore {
   username: string;
 }
+export interface PlayerData {
+  player: string;
+}
 export interface RoomPlayer extends PlayerCore {
   ready: boolean;
 }
@@ -13,6 +16,7 @@ export interface NormalCard {
 }
 export interface JokerCard {
   rank: 'JK';
+  suit?: CardSuit;
 }
 export type Card = NormalCard | JokerCard;
 export function cardToId(card: Card): string {
@@ -20,6 +24,12 @@ export function cardToId(card: Card): string {
     return 'JK';
   }
   return `${card.suit}${card.rank}`;
+}
+
+export interface CardPlay {
+  card: Card;
+  joker_call?: boolean;
+  gan: boolean;
 }
 
 export type Giruda = 'S' | 'D' | 'C' | 'H' | 'N';

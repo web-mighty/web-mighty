@@ -6,6 +6,8 @@ import { Observable } from 'rxjs/Observable';
 import 'rxjs/add/operator/map';
 import 'rxjs/add/observable/of';
 
+import { State } from '../reducer';
+
 import * as WebSocket from '../../websocket';
 import * as GameActions from '../actions/game';
 import * as RouterActions from '../actions/router';
@@ -73,16 +75,49 @@ export class GameEffects {
   @Effect()
   friendSelect$ =
     this.actions$.ofType(GameActions.FriendSelect.CONFIRM)
-    .map((action: GameActions.FriendSelect.Confirm) =>
-      new WebSocketActions.Request(
-        new WebSocket.Requests.FriendSelect({
-          floor_cards: action.payload.discardCards,
-          ...action.payload.friendDecl,
-        })
-      )
-    );
+    .withLatestFrom(
+      this.store.select('game'),
+      (_, game) => {
+        if (game.type !== 'started') {
+          return null;
+        }
+        if (game.state.type !== 'elected') {
+          return null;
+        }
+        const {friendDecl, selectedCards} = game.state;
+        return new WebSocketActions.Request(
+          new WebSocket.Requests.FriendSelect({
+            floor_cards: selectedCards,
+            ...friendDecl,
+          })
+        );
+      }
+    )
+    .filter(action => action != null);
+
+  @Effect()
+  playCard$ =
+    this.actions$.ofType(GameActions.PLAY_CARD)
+    .map((action: GameActions.PlayCard) => {
+      const payload: any = {
+        card: action.payload.card,
+      };
+      if ('jokerCall' in action.payload) {
+        payload.joker_call = action.payload.jokerCall;
+      }
+      // FIXME: joker_suit will be removed
+      if (payload.card.rank === 'JK') {
+        if ('suit' in payload.card) {
+          payload.joker_suit = payload.card.suit;
+        }
+      }
+      return new WebSocketActions.Request(
+        new WebSocket.Requests.Play(payload)
+      );
+    });
 
   constructor(
     private actions$: Actions,
+    private store: Store<State>,
   ) {}
 }

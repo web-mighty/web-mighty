@@ -63,19 +63,19 @@
           </span>
         </div>
       </div>
-      <div *ngIf="(gameProgressState | async) === 'elected' && (isMyTurn | async)" class="my-hand">
+      <app-card-view *ngIf="(gameProgressState | async) === 'playing'">
+      </app-card-view>
+      <app-card-player
+        *ngIf="(gameProgressState | async) === 'playing'"
+        [card]="(selectedCards | async)[0]">
+      </app-card-player>
+      <div class="my-hand">
         <img
           *ngFor="let card of (hand | async)"
           class="playing-card"
           [src]="cardToFilePath(card)"
           [class.selected]="(selectedCards | async).includes(card)"
           (click)="selectCard(card)">
-      </div>
-      <div *ngIf="(gameProgressState | async) !== 'elected' || !(isMyTurn | async)" class="my-hand">
-        <img
-          *ngFor="let card of (hand | async)"
-          class="playing-card"
-          [src]="cardToFilePath(card)">
       </div>
     </div>
   </div>

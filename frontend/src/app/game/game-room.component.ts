@@ -2,13 +2,16 @@ import { Component } from '@angular/core';
 import { OnInit, OnDestroy } from '@angular/core';
 
 import { Observable } from 'rxjs/Observable';
-import { ReplaySubject } from 'rxjs/ReplaySubject';
+import { Subject } from 'rxjs/Subject';
 import 'rxjs/add/operator/first';
 import 'rxjs/add/operator/filter';
 import 'rxjs/add/operator/map';
 import 'rxjs/add/operator/takeWhile';
 import 'rxjs/add/operator/ignoreElements';
 import 'rxjs/add/operator/withLatestFrom';
+import 'rxjs/add/operator/mergeAll';
+import 'rxjs/add/operator/first';
+import 'rxjs/add/observable/of';
 import 'rxjs/add/observable/combineLatest';
 import 'rxjs/add/observable/concat';
 
@@ -34,7 +37,8 @@ export class GameRoomComponent implements OnInit, OnDestroy {
   private subscription;
   private readyTogglerSubscription;
 
-  private readyToggler = new ReplaySubject(1);
+  private readyToggler = new Subject();
+  private selectedCardObs = new Subject();
 
   roomId: Observable<string>;
   currentScene: Observable<string>;
@@ -154,6 +158,11 @@ export class GameRoomComponent implements OnInit, OnDestroy {
     private store: Store<State>,
     private route: ActivatedRoute,
   ) {
+    const startedGameFilter =
+      this.store.select('game')
+      .filter(game => game != null && game.type === 'started');
+
+
     this.roomId = this.route.paramMap.map(params => params.get('roomId'));
 
     this.currentScene =
@@ -189,18 +198,6 @@ export class GameRoomComponent implements OnInit, OnDestroy {
           return game.hand;
         }
         return null;
-      });
-
-    this.selectedCards =
-      this.store.select('game')
-      .filter(game => game != null && game.type === 'started')
-      .map((game: GameRoomState.Started) => {
-        if (game.state.type === 'elected') {
-          if (game.state.selectedCards != null) {
-            return game.state.selectedCards;
-          }
-        }
-        return [];
       });
 
     this.myUsername =
@@ -281,9 +278,28 @@ export class GameRoomComponent implements OnInit, OnDestroy {
         (turnOf, username) => turnOf === username
       );
 
+    this.selectedCards =
+      Observable
+      .combineLatest(
+        startedGameFilter,
+        this.isMyTurn,
+        (game: GameRoomState.Started, isMyTurn) => {
+          if (game.state.type === 'elected') {
+            if (isMyTurn && game.state.selectedCards != null) {
+              return Observable.of(game.state.selectedCards);
+            }
+          } else if (game.state.type === 'playing') {
+            if (isMyTurn) {
+              return this.selectedCardObs.map(x => [x]);
+            }
+          }
+          return Observable.of([]);
+        }
+      )
+      .mergeAll();
+
     this.bidHistory =
-      this.store.select('game')
-      .filter(game => game != null && game.type === 'started')
+      startedGameFilter
       .map((game: GameRoomState.Started) => {
         if (game.state.type !== 'bidding') {
           return null;
@@ -437,6 +453,27 @@ export class GameRoomComponent implements OnInit, OnDestroy {
   }
 
   selectCard(card: WebSocket.Data.Card) {
-    this.store.dispatch(new GameActions.SelectCard(card));
+    const isPlaying =
+      this.gameProgressState
+      .first()
+      .filter(type => type === 'playing' || type === 'elected')
+      .map(type => type === 'playing');
+    const isMyTurn =
+      this.isMyTurn.first();
+
+    // If this is not my turn, do nothing.
+    // If I'm discarding cards, send an action.
+    // If I'm playing cards, send to selectedCard.
+    this.isMyTurn
+      .first()
+      .filter(isMyTurn => isMyTurn)
+      .mergeMap(() => isPlaying)
+      .subscribe(isPlaying => {
+        if (isPlaying) {
+          this.selectedCardObs.next(card);
+        } else {
+          this.store.dispatch(new GameActions.SelectCard(card));
+        }
+      });
   }
 }
