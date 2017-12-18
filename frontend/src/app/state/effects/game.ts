@@ -46,6 +46,13 @@ export class GameEffects {
     );
 
   @Effect()
+  leaveRoomDone$ =
+    this.actions$.ofType(GameActions.LEAVE_ROOM_DONE)
+    .map(() =>
+      new RouterActions.GoByUrl('lobby')
+    );
+
+  @Effect()
   ready$ =
     this.actions$.ofType(GameActions.READY)
     .map((action: GameActions.Ready) =>
@@ -115,6 +122,15 @@ export class GameEffects {
         new WebSocket.Requests.Play(payload)
       );
     });
+
+  @Effect()
+  continue$ =
+    this.actions$.ofType(GameActions.CONTINUE)
+    .map(() =>
+      new WebSocketActions.Request(
+        new WebSocket.Requests.Continue()
+      )
+    );
 
   @Effect()
   addAi$ =

@@ -65,6 +65,7 @@ export namespace GameRoomState {
     type: 'result';
     room: WebSocket.Data.Room;
     result: WebSocket.Data.GameResult;
+    continueConfirmed: boolean;
   }
   export interface Leaving {
     type: 'leaving';
@@ -615,6 +616,16 @@ export function gameReducer(
         type: 'result',
         room: state.room,
         result: action.payload,
+        continueConfirmed: false,
+      };
+    case GameActions.CONTINUE_DONE:
+      if (state.type !== 'result') {
+        console.error('CONTINUE_DONE actions received, but game hasn\'t ended');
+        return state;
+      }
+      return {
+        ...state,
+        continueConfirmed: true,
       };
     case WebSocketActions.DISCONNECTED:
     case WebSocketActions.DUPLICATE_SESSION:

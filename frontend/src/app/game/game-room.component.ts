@@ -65,6 +65,7 @@ export class GameRoomComponent implements OnInit, OnDestroy {
 
   gameResult: Observable<WebSocket.Data.GameResult>;
   resultCalc: Observable<any>;
+  continueConfirmed: Observable<boolean>;
 
   cardToString(card: WebSocket.Data.Card): string {
     if (card.rank === 'JK') {
@@ -387,6 +388,11 @@ export class GameRoomComponent implements OnInit, OnDestroy {
           playerData,
         };
       });
+
+    this.continueConfirmed =
+      this.store.select('game')
+      .filter(game => game != null && game.type === 'result')
+      .map((game: any) => game.continueConfirmed);
   }
 
   ngOnInit() {
@@ -545,5 +551,13 @@ export class GameRoomComponent implements OnInit, OnDestroy {
     this.store.dispatch(
       new GameActions.AI.Remove(username)
     );
+  }
+
+  continueGame() {
+    this.store.dispatch(new GameActions.Continue());
+  }
+
+  leaveRoom() {
+    this.store.dispatch(new GameActions.LeaveRoom());
   }
 }
