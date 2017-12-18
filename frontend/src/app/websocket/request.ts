@@ -52,10 +52,10 @@ export class AiAdd {
 }
 export class AiDelete {
   action = 'room-ai-delete';
-  data: { username: string };
+  data: { ai_name: string };
 
-  constructor(public username: string) {
-    this.data = { username };
+  constructor(ai_name: string) {
+    this.data = { ai_name };
   }
 }
 

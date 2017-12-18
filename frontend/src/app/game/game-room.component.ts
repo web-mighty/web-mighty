@@ -544,12 +544,9 @@ export class GameRoomComponent implements OnInit, OnDestroy {
     );
   }
 
-  removeAi(username: string) {
-    if (username[0] !== '*') {
-      return;
-    }
+  removeAi(aiName: string) {
     this.store.dispatch(
-      new GameActions.AI.Remove(username)
+      new GameActions.AI.Remove(aiName)
     );
   }
 
