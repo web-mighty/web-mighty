@@ -1,8 +1,8 @@
 .table {
-  position: absolute;
   height: 100%;
-  min-height: 600px;
+  min-height: 500px;
   max-width: 840px;
+  position: absolute;
   left: 50%;
   transform: translate(-50%, 0);
   margin: 0;
@@ -21,25 +21,39 @@
   text-overflow: ellipsis;
   text-align: center;
   padding: 0 16px;
+  margin: 4px;
 }
 .my-hand {
   position: absolute;
   bottom: 48px;
   left: 50%;
   transform: translate(-50%, 0);
-  min-width: 350px;
+  width: 350px;
   display: flex;
   flex-wrap: wrap;
 }
 .playing-card {
   width: 20%;
   height: 50%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.playing-card.shrink.row-one {
+  transform: translate(0, 70%);
+}
+.playing-card.shrink.row-two {
+  z-index: 1;
+}
+.card-image {
+  width: 100%;
 }
 .my-status {
   position: absolute;
   bottom: 0;
   left: 50%;
   transform: translate(-50%, 0);
+  min-width: 375px;
   padding: 0;
 }
 .my-status > div {
@@ -47,10 +61,14 @@
 }
 .others-status {
   position: absolute;
-  top: 96px;
+  top: 48px;
   left: 50%;
   transform: translate(-50%, 0);
+  min-width: 375px;
   padding: 0;
+}
+.others-status > div {
+  padding: 0 16px;
 }
 .ready {
   color: white;
@@ -60,6 +78,25 @@
   color: lightgrey;
   background-color: white;
 }
+.bid-turn {
+  color: white;
+  background-color: rgb(68, 138, 255);
+}
+.bid-wait {
+  color: lightgrey;
+  background-color: white;
+}
+.bid-true {
+  color: green;
+  background-color: white;
+}
+.bid-false {
+  color: red;
+  background-color: white;
+}
+.bid-string {
+  margin: 0 0 0 8px;
+}
 .username {
   width: 130px;
   white-space: nowrap;
@@ -68,4 +105,14 @@
 }
 .start-game-button {
   margin: 0 0 0 4px;
+}
+.selected {
+  filter: invert(100%);
+}
+app-game-bid {
+  position: absolute;
+  bottom: 180px;
+  left: 50%;
+  transform: translate(-50%, 0);
+  z-index: 1;
 }

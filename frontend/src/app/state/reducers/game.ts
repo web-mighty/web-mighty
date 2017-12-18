@@ -5,9 +5,12 @@ import * as WebSocketActions from '../actions/websocket';
 import * as WebSocket from '../../websocket';
 
 export namespace MightyState {
+  export type BidHistory
+    = {[username: string]: WebSocket.Data.BidEvent}
+  ;
   export interface Bidding {
     type: 'bidding';
-    bidHistory: WebSocket.Data.BidEvent[];
+    bidHistory: BidHistory | null;
   }
   export interface DealMiss {
     type: 'deal-miss';
@@ -293,7 +296,7 @@ export function gameReducer(
         turnOf: state.room.players[0].username,
         state: {
           type: 'bidding',
-          bidHistory: [],
+          bidHistory: {},
         },
       };
     case GameActions.DEAL:
@@ -327,7 +330,7 @@ export function gameReducer(
         ...state,
         state: {
           ...state.state,
-          bidHistory: [...state.state.bidHistory, action.bid],
+          bidHistory: {...state.state.bidHistory, [action.bid.player]: action.bid},
         },
       };
     case GameActions.PRESIDENT_ELECTED:

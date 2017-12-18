@@ -10,7 +10,6 @@
       </div>
     </div>
     <ul class="room-list mdl-list">
-      <div *ngFor="let i of [0,1,2,3,4,5,6,7,8,9]">
       <li class="room-list__item mdl-list__item" *ngFor="let room of roomList | async" (click)="joinRoom(room.room_id)">
         <span class="mdl-list__item-primary-content">
           <span class="room-title">{{room.title}}</span>
@@ -22,7 +21,6 @@
           <i class="mdl-list__item-icon material-icons" *ngIf="room.is_private">lock</i>
         </span>
       </li>
-      </div>
     </ul>
   </div>
   <button
