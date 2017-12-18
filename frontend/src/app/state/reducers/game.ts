@@ -503,7 +503,7 @@ export function gameReducer(
         state: {
           type: 'playing',
           bid,
-          president: state.state.result.username,
+          president: state.state.result.player,
           friend: null,
           friendDecl,
           cards: {},
