@@ -1,0 +1,10 @@
+.profile-view {
+  position: absolute;
+  height: 100%;
+  min-height: 600px;
+  max-width: 840px;
+  left: 50%;
+  transform: translate(-50%, 0);
+  margin: 0;
+  padding: 0 0 36px;
+}

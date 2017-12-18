@@ -117,6 +117,7 @@ describe('GameRoomComponent', () => {
 
   it('should do nothing when the user is already joined', async(() => {
     const roomId = v4();
+    store.dispatch(new UserActions.Verified({ username: 'foo' }));
     store.dispatch(new GameActions.JoinRoom({ roomId: roomId }));
     store.dispatch(new GameActions.RoomInfo({
       room_id: roomId,
@@ -156,9 +157,11 @@ describe('GameRoomComponent', () => {
     fixture.detectChanges();
     fixture.whenStable().then(() => {
       fixture.detectChanges();
-      const readyStatus = fixture.debugElement.nativeElement.querySelectorAll('label > input');
-      expect(readyStatus[0].checked).toBe(true);
-      expect(readyStatus[1].checked).toBe(false);
+      const readyStatus = fixture.debugElement.nativeElement.querySelectorAll('.ready-status');
+      expect(readyStatus[0].classList.contains('ready')).toBe(false);
+      expect(readyStatus[0].classList.contains('not-ready')).toBe(true);
+      expect(readyStatus[1].classList.contains('ready')).toBe(true);
+      expect(readyStatus[1].classList.contains('not-ready')).toBe(false);
     });
   }));
 
@@ -188,40 +191,6 @@ describe('GameRoomComponent', () => {
       const ready = filterCallByAction(dispatchSpy, GameActions.Ready);
       expect(ready.length).toBe(1);
       expect(ready[0].ready).toBeTruthy();
-    });
-  }));
-
-  it('should change ready button text', async(() => {
-    const roomId = v4();
-    store.dispatch(new UserActions.Verified({ username: 'foo' }));
-    store.dispatch(new GameActions.JoinRoom({ roomId: roomId }));
-    store.dispatch(new GameActions.RoomInfo({
-      room_id: roomId,
-      title: 'foo',
-      player_number: 5,
-      players: [
-        { username: 'foo', ready: false }
-      ],
-    }));
-    fixture.detectChanges();
-    activatedRoute.setRoomId(roomId);
-    fixture.detectChanges();
-    fixture.whenStable().then(() => {
-      fixture.detectChanges();
-      const readyButton = fixture.debugElement.nativeElement.querySelector('.ready-toggle-button');
-      expect(readyButton.textContent.trim()).toBe('Ready');
-
-      store.dispatch(new GameActions.PlayerStateChange({
-        username: 'foo',
-        left: false,
-        ready: true,
-      }));
-      fixture.detectChanges();
-      return fixture.whenStable();
-    }).then(() => {
-      fixture.detectChanges();
-      const readyButton = fixture.debugElement.nativeElement.querySelector('.ready-toggle-button');
-      expect(readyButton.textContent.trim()).toBe('Not Ready');
     });
   }));
 });

@@ -1,5 +1,5 @@
 <div class="mdl-grid--no-spacing">
-  <div class="lobby mdl-cell mdl-cell--8-col-desktop mdl-cell--12-col-tablet mdl-cell--12-col-phone mdl-shadow--3dp">
+  <div class="lobby mdl-cell mdl-cell--8-col-desktop mdl-cell--8-col-tablet mdl-cell--4-col-phone mdl-shadow--3dp">
     <div class="message">
       <div *ngIf="loading | async" class="spinner mdl-spinner mdl-js-spinner is-active"></div>
       <div class="mdl-color-text--red" *ngIf="error | async">
@@ -10,6 +10,7 @@
       </div>
     </div>
     <ul class="room-list mdl-list">
+      <div *ngFor="let i of [0,1,2,3,4,5,6,7,8,9]">
       <li class="room-list__item mdl-list__item" *ngFor="let room of roomList | async" (click)="joinRoom(room.room_id)">
         <span class="mdl-list__item-primary-content">
           <span class="room-title">{{room.title}}</span>
@@ -21,6 +22,7 @@
           <i class="mdl-list__item-icon material-icons" *ngIf="room.is_private">lock</i>
         </span>
       </li>
+      </div>
     </ul>
   </div>
   <button
