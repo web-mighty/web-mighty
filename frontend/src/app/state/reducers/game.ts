@@ -540,7 +540,10 @@ export function gameReducer(
       }
       return {
         ...state,
-        friend: action.friend,
+        state: {
+          ...state.state,
+          friend: action.friend,
+        },
       };
     case GameActions.PLAY_CARD_DONE:
       if (state.type !== 'started') {

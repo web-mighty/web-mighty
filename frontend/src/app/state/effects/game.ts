@@ -116,6 +116,24 @@ export class GameEffects {
       );
     });
 
+  @Effect()
+  addAi$ =
+    this.actions$.ofType(GameActions.AI.ADD)
+    .map(() =>
+      new WebSocketActions.Request(
+        new WebSocket.Requests.AiAdd()
+      )
+    );
+
+  @Effect()
+  removeAi$ =
+    this.actions$.ofType(GameActions.AI.REMOVE)
+    .map((action: GameActions.AI.Remove) =>
+      new WebSocketActions.Request(
+        new WebSocket.Requests.AiDelete(action.username)
+      )
+    );
+
   constructor(
     private actions$: Actions,
     private store: Store<State>,

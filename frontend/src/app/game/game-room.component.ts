@@ -531,4 +531,19 @@ export class GameRoomComponent implements OnInit, OnDestroy {
         }
       });
   }
+
+  addAi() {
+    this.store.dispatch(
+      new GameActions.AI.Add()
+    );
+  }
+
+  removeAi(username: string) {
+    if (username[0] !== '*') {
+      return;
+    }
+    this.store.dispatch(
+      new GameActions.AI.Remove(username)
+    );
+  }
 }

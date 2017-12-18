@@ -2,11 +2,12 @@
   <div class="table mdl-cell mdl-cell--8-col-desktop mdl-cell--12-col-tablet mdl-cell--12-col-phone mdl-shadow--3dp">
     <div *ngIf="(currentScene | async) === 'joining'" class="mdl-progress mdl-js-progress mdl-progress__indeterminate"></div>
     <div *ngIf="(currentScene | async) === 'not-started'">
-      <h3 class="title-message">
+      <!-- FIXME: This is a cheat code -->
+      <h3 class="title-message" (click)="addAi()">
         {{(roomData | async).title}}
       </h3>
       <div class="my-status mdl-list">
-        <div class="mdl-list__item" *ngFor="let player of [(playerList | async)[0]]">
+        <div class="mdl-list__item" *ngFor="let player of [(playerList | async)[0]]" (click)="removeAi(player.username)">
           <div class="mdl-list__item-primary-content">
             <i [class.ready]="player.ready" [class.not-ready]="!(player.ready)" class="ready-status material-icons mdl-list__item-avatar">check</i>
             <span class="username">{{player.username}}</span>

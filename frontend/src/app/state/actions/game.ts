@@ -262,6 +262,26 @@ export class PlayerStateChange implements Action {
   constructor(public payload: PlayerState) {}
 }
 
+export namespace AI {
+  export const ADD = 'Game: AI: Add';
+  export const REMOVE = 'Game: AI: Remove';
+
+  export class Add implements Action {
+    readonly type = ADD;
+  }
+
+  export class Remove implements Action {
+    readonly type = REMOVE;
+
+    constructor(public username: string) {}
+  }
+
+  export type Actions
+    = Add
+    | Remove
+  ;
+}
+
 export type Actions
   = JoinRoom
   | JoinRoomFailed
@@ -290,4 +310,5 @@ export type Actions
   | RoomInfo
   | PlayerStateChange
   | FriendSelect.Actions
+  | AI.Actions
 ;
