@@ -47,7 +47,6 @@ def gameplay_start_consumer(message):
             })
 
         start_data = {
-            'player_number': player_number,
             'players': start_players,
         }
 
@@ -1190,10 +1189,12 @@ def gameplay_play_consumer(message):
                 history.win_players.add(*win_players)
                 history.lose_players.add(*lose_players)
 
+                room['players'] = room['players'][fi:] + room['players'][:fi]
+                if room['game']['killed_player'].get('username', None) is not None:
+                    room['players'].append(room['game']['killed_player'])
+                    room['game']['killed_player'] = {}
                 room = reset_room_data(room)
                 room['game']['state'] = RoomState.RESULT
-                room['players'] = room['players'][fi:] + room['players'][:fi]
-                # TODO: restore killed player
                 cache.set('room:' + room_id, room)
                 Group(room_id).send(event(
                     'gameplay-game-end',
