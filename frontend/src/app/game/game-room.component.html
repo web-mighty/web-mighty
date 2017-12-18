@@ -36,15 +36,74 @@
     </div>
     <div *ngIf="(currentScene | async) === 'started'">
       <div *ngIf="(gameProgressState | async) === 'bidding'">
-        <h4>Bids</h4>
-        <ul>
-          <li *ngFor="let bidItem of (bidHistory | async)">
-            {{bidItem.player}}: {{bidToString(bidItem)}}
-          </li>
-          <li>
-            {{turnOf | async}}: ...
-          </li>
-        </ul>
+        <h3 class="title-message">
+          Bidding...
+        </h3>
+        <div class="my-status mdl-list">
+          <div class="mdl-list__item" *ngFor="let player of [(playerList | async)[0]]">
+            <div class="mdl-list__item-primary-content">
+              <div *ngIf="(turnOf | async) === player.username">
+                <i class="bid-turn material-icons mdl-list__item-avatar">
+                  forward
+                </i>
+              </div>
+              <div *ngIf="(turnOf | async) !== player.username">
+                <i
+                  *ngIf="!(bidHistory | async).hasOwnProperty(player.username)"
+                  class="bid-wait material-icons mdl-list__item-avatar">
+                  more_horiz
+                </i>
+                <i
+                  *ngIf="(bidHistory | async).hasOwnProperty(player.username) && (bidHistory | async)[player.username].bid"
+                  class="bid-true material-icons mdl-list__item-avatar">
+                  directions_run
+                </i>
+                <i
+                  *ngIf="(bidHistory | async).hasOwnProperty(player.username) && !(bidHistory | async)[player.username].bid"
+                  class="bid-false material-icons mdl-list__item-avatar">
+                  clear
+                </i>
+              </div>
+              <span class="username">{{player.username}}</span>
+            </div>
+            <div *ngIf="(bidHistory | async).hasOwnProperty(player.username)">
+              <span>{{bidToString((bidHistory | async)[player.username])}}</span>
+            </div>
+          </div>
+        </div>
+        <div class="others-status mdl-list">
+          <div class="mdl-list__item" *ngFor="let player of (playerList | async).slice(1)">
+            <div class="mdl-list__item-primary-content">
+              <div *ngIf="(turnOf | async) === player.username">
+                <i class="bid-turn material-icons mdl-list__item-avatar">
+                  forward
+                </i>
+              </div>
+              <div *ngIf="(turnOf | async) !== player.username">
+                <i
+                  *ngIf="!(bidHistory | async).hasOwnProperty(player.username)"
+                  class="bid-wait material-icons mdl-list__item-avatar">
+                  more_horiz
+                </i>
+                <i
+                  *ngIf="(bidHistory | async).hasOwnProperty(player.username) && (bidHistory | async)[player.username].bid"
+                  class="bid-true material-icons mdl-list__item-avatar">
+                  directions_run
+                </i>
+                <i
+                  *ngIf="(bidHistory | async).hasOwnProperty(player.username) && !(bidHistory | async)[player.username].bid"
+                  class="bid-false material-icons mdl-list__item-avatar">
+                  clear
+                </i>
+              </div>
+              <span class="username">{{player.username}}</span>
+            </div>
+            <div *ngIf="(turnOf | async)=== player.username" class="bidding spinner mdl-spinner mdl-js-spinner is-active"></div>
+            <div *ngIf="(bidHistory | async).hasOwnProperty(player.username)" class="bid-string">
+              <span>{{bidToString((bidHistory | async)[player.username])}}</span>
+            </div>
+          </div>
+        </div>
         <app-game-bid *ngIf="isMyTurn | async"></app-game-bid>
       </div>
       <div *ngIf="(gameProgressState | async) === 'elected'">
@@ -70,12 +129,16 @@
         [card]="(selectedCards | async)[0]">
       </app-card-player>
       <div class="my-hand">
-        <img
+        <div
           *ngFor="let card of (hand | async)"
           class="playing-card"
-          [src]="cardToFilePath(card)"
+          [class.shrink]="(gameProgressState | async) === 'bidding' && (isMyTurn | async)"
+          [class.row-one]="i < 5"
+          [class.row-two]="i >= 5"
           [class.selected]="(selectedCards | async).includes(card)"
           (click)="selectCard(card)">
+          <img class="card-image" [src]="cardToFilePath(card)">
+        </div>
       </div>
     </div>
   </div>

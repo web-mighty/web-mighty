@@ -71,14 +71,14 @@ export interface BidMake extends BidCore {
   bid: true;
 }
 export type Bid = BidWithdraw | BidMake;
-export type BidEvent = PlayerCore & Bid;
+export type BidEvent = PlayerData & Bid;
 
 export interface DealMiss {
   player: string;
   cards: Card[];
 }
 
-export type ElectionResult = PlayerCore & BidCore;
+export type ElectionResult = PlayerData & BidCore;
 
 export namespace FriendDecl {
   export interface NoFriend {

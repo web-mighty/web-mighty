@@ -19,7 +19,7 @@ import { ActivatedRoute } from '@angular/router';
 import { Store } from '@ngrx/store';
 
 import { State } from '../state/reducer';
-import { GameRoomState } from '../state/reducers/game';
+import { MightyState, GameRoomState } from '../state/reducers/game';
 import * as RouterActions from '../state/actions/router';
 import * as GameActions from '../state/actions/game';
 
@@ -57,11 +57,34 @@ export class GameRoomComponent implements OnInit, OnDestroy {
   turnOf: Observable<string | null>;
   isMyTurn: Observable<boolean>;
 
-  bidHistory: Observable<WebSocket.Data.BidEvent[] | null>;
+  bidHistory: Observable<MightyState.BidHistory | null>;
 
   bid: Observable<WebSocket.Data.BidCore | null>;
   friendDecl: Observable<WebSocket.Data.Friend>;
   friend: Observable<string | null>;
+
+  cardToString(card: WebSocket.Data.Card): string {
+    if (card.rank === 'JK') {
+      return 'Joker';
+    }
+    let suitIcon;
+    switch (card.suit) {
+      case 'S':
+        suitIcon = '♠';
+        break;
+      case 'D':
+        suitIcon = '♦';
+        break;
+      case 'C':
+        suitIcon = '♣';
+        break;
+      case 'H':
+        suitIcon = '♥';
+        break;
+    }
+
+    return `${card.rank}${suitIcon}`;
+  }
 
   cardToFilePath(card: WebSocket.Data.Card): string {
     if (card.rank === 'JK') {
@@ -136,7 +159,7 @@ export class GameRoomComponent implements OnInit, OnDestroy {
       case 'no':
         return 'None';
       case 'card':
-        return this.cardToFilePath(friendDecl.card);
+        return this.cardToString(friendDecl.card);
       case 'player':
         return friendDecl.player;
       case 'round': {
