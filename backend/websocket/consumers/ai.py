@@ -19,7 +19,7 @@ def _k(giruda):
 
 class AI():
     def __init__(self, index):
-        nicknames = ['doge', 'gon', 'eom', 'egger', 'ha']
+        nicknames = ['doge', 'bitcoin', 'ethereum', 'egger', 'ha']
         self.data = {
             'username': '*AI-{}'.format(nicknames[index]),
             'reply': 'gameplay-ai',

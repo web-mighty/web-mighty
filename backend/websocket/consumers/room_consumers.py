@@ -321,7 +321,10 @@ def room_reset_consumer(message):
 
         try:
             room_model = Room.objects.get(room_id=room_id)
-            room_model.player_count = len(new_room_data['players'])
+            player_count = len(new_room_data['players'])
+            if player_count == 0:
+                room_model.delete()
+            room_model.player_count = player_count
             room_model.save()
         except Room.DoesNotExist:
             pass
@@ -379,8 +382,8 @@ def room_ai_add_consumer(message):
                 reply_error('Room does not exists', nonce=nonce, type='room-ai-add'))
             return
 
-        nicknames = ['doge', 'gon', 'eom', 'egger', 'ha']
-        altered_nicknames = ['doge', 'gon', 'eom', 'egger', 'ha']
+        nicknames = ['doge', 'bitcoin', 'ethereum', 'egger', 'ha']
+        altered_nicknames = ['doge', 'bitcoin', 'ethereum', 'egger', 'ha']
 
         for p in room['players']:
             if p['username'].startswith('*AI-'):

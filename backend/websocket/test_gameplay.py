@@ -105,7 +105,7 @@ class AITest(TestCase):
             self.mock_room['players'].append(ai)
             ais.append(ai)
         self.mock_room['game']['president'] = '*AI-doge'
-        self.mock_room['game']['friend'] = '*AI-gon'
+        self.mock_room['game']['friend'] = '*AI-bitcoin'
         self.mock_room['game']['giruda'] = 'C'
 
         self.mock_room['game']['turn'] = 2
@@ -289,7 +289,7 @@ class GameplayTest(ChannelTestCase):
             player_number=5,
         )
         for i in range(5):
-            nickname = ['doge', 'gon', 'eom', 'egger', 'ha']
+            nickname = ['doge', 'bitcoin', 'ethereum', 'egger', 'ha']
             create_user(
                 username='*AI-{}'.format(nickname[i]),
                 password='doge',
