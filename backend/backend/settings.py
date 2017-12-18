@@ -23,6 +23,12 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
+USE_DELAY = True if os.environ.get('MIGHTY_USE_DELAY', False) == 'true' else False
+DEAL_DELAY = 2000
+DEAL_MISS_DELAY = 3000
+AI_BID_DELAY = 1000
+AI_SELECT_DELAY = 2500
+AI_TURN_DELAY = 1000
 
 ALLOWED_HOSTS = []
 
@@ -40,6 +46,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'anymail',
     'channels',
+    'channels.delay',
 ]
 
 ANYMAIL = {

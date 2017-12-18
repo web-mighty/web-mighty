@@ -1,4 +1,4 @@
-from django.test import TestCase
+from django.test import TestCase, override_settings
 from channels.test import ChannelTestCase, Client
 from django.core.cache import cache
 from websocket.consumers.card import win_card, code_to_card
@@ -10,6 +10,7 @@ from api.models import User, GameHistory, create_user
 import os
 
 
+@override_settings(USE_DELAY=False)
 class AITest(TestCase):
     def setUp(self):
         self.mock_room = new_room_data(
@@ -138,6 +139,7 @@ class AITest(TestCase):
         self.assertEqual(card['suit'], 'C')
 
 
+@override_settings(USE_DELAY=False)
 class GameplayTest(ChannelTestCase):
     def setUp(self):
         cache.clear()
