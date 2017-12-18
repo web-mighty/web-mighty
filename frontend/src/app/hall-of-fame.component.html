@@ -1,3 +1,7 @@
-<p>
-  hall-of-fame works!
-</p>
+<h2>Hall of Fame</h2>
+<h3>Most Wins</h3>
+<ol>
+  <li *ngFor="let info of (wins | async)">
+    {{info.username}}: {{info.wins}} win(s)
+  </li>
+</ol>

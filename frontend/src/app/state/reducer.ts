@@ -4,6 +4,7 @@ import { ProfileState, profileReducer } from './reducers/profile';
 import { RoomState, roomReducer } from './reducers/room';
 import { WebSocketState, websocketReducer } from './reducers/websocket';
 import { GameState, gameReducer } from './reducers/game';
+import { HallOfFameState, hallOfFameReducer } from './reducers/hall-of-fame';
 
 export interface State {
   user: UserState;
@@ -12,6 +13,7 @@ export interface State {
   profile: ProfileState;
   websocket: WebSocketState;
   game: GameState;
+  hallOfFame: HallOfFameState;
 }
 export const reducers = {
   user: userReducer,
@@ -20,4 +22,5 @@ export const reducers = {
   profile: profileReducer,
   websocket: websocketReducer,
   game: gameReducer,
+  hallOfFame: hallOfFameReducer,
 };
