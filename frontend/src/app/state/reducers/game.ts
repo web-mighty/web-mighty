@@ -63,6 +63,8 @@ export namespace GameRoomState {
   }
   export interface Result {
     type: 'result';
+    room: WebSocket.Data.Room;
+    result: WebSocket.Data.GameResult;
   }
   export interface Leaving {
     type: 'leaving';
@@ -273,7 +275,7 @@ export function gameReducer(
       }
       return { ...state, room: applyPlayerState(state.room, action.payload) };
     case GameActions.RESET_ROOM:
-      if (state.type !== 'started') {
+      if (state.type !== 'started' && state.type !== 'result') {
         console.error('RESET_ROOM received, but game haven\'t started');
         return state;
       }
@@ -285,14 +287,17 @@ export function gameReducer(
         },
       };
     case GameActions.STARTED:
-      if (state.type !== 'not-started') {
+      if (state.type !== 'not-started' && state.type !== 'result') {
         console.error('STARTED received outside room.');
         return state;
       }
       return {
         type: 'started',
         hand: [],
-        room: state.room,
+        room: {
+          ...state.room,
+          players: action.players,
+        },
         turnOf: state.room.players[0].username,
         state: {
           type: 'bidding',
@@ -581,6 +586,20 @@ export function gameReducer(
             [action.player]: [...state.state.scoreCards[action.player], ...action.scoreCards],
           },
         },
+      };
+    case GameActions.GAME_END:
+      if (state.type !== 'started') {
+        console.error('ROUND_END actions received, but game haven\'t started');
+        return state;
+      }
+      if (state.state.type !== 'playing') {
+        console.error('ROUND_END actions received, but game state is not in playing');
+        return state;
+      }
+      return {
+        type: 'result',
+        room: state.room,
+        result: action.payload,
       };
     case WebSocketActions.DISCONNECTED:
     case WebSocketActions.DUPLICATE_SESSION:

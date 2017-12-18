@@ -111,9 +111,9 @@ function mapEvent(ev: WebSocketActions.Event): Action | null {
         ready: payload.data.ready,
       });
     case 'room-reset':
-      return new GameActions.ResetRoom(payload.data.room_id, payload.data.players);
+      return new GameActions.ResetRoom(payload.data.players);
     case 'room-start':
-      return new GameActions.Started();
+      return new GameActions.Started(payload.data.players);
     case 'gameplay-deal':
       return new GameActions.Deal(payload.data.cards);
     case 'gameplay-bidding':
@@ -140,6 +140,8 @@ function mapEvent(ev: WebSocketActions.Event): Action | null {
         payload.data.player,
         payload.data.score_cards,
       );
+    case 'gameplay-game-end':
+      return new GameActions.GameEnd(payload.data);
     case 'error':
       // TODO: Emit appropriate error action
       switch (payload.data.type) {

@@ -141,5 +141,20 @@
         </div>
       </div>
     </div>
+    <div *ngIf="(currentScene | async) === 'result'">
+      <p>
+      The game has ended.
+      </p>
+      <div>
+        <span>Bid: {{bidToString((gameResult | async).bid)}}</span>
+        <span>President: {{(gameResult | async).president}}</span>
+        <span>Friend: {{(gameResult | async).friend || '(None)'}}</span>
+      </div>
+      <ul>
+        <li *ngFor="let player of (playerList | async)">
+          {{player.username}}: {{(gameResult | async).scores[player.username]}}
+        </li>
+      </ul>
+    </div>
   </div>
 </div>

@@ -63,6 +63,8 @@ export class GameRoomComponent implements OnInit, OnDestroy {
   friendDecl: Observable<WebSocket.Data.Friend>;
   friend: Observable<string | null>;
 
+  gameResult: Observable<WebSocket.Data.GameResult>;
+
   cardToString(card: WebSocket.Data.Card): string {
     if (card.rank === 'JK') {
       return 'Joker';
@@ -355,6 +357,11 @@ export class GameRoomComponent implements OnInit, OnDestroy {
       this.store.select('game')
       .filter(game => game != null && game.type === 'started' && game.state.type === 'playing')
       .map((game: any) => game.state.friend);
+
+    this.gameResult =
+      this.store.select('game')
+      .filter(game => game != null && game.type === 'result')
+      .map((game: any) => game.result);
   }
 
   ngOnInit() {

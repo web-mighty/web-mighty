@@ -30,13 +30,14 @@ export interface RoomReady {
 export interface RoomReset {
   event: 'room-reset';
   data: {
-    room_id: string;
     players: Data.RoomPlayer[];
   };
 }
 export interface RoomStart {
   event: 'room-start';
-  data: {};
+  data: {
+    players: Data.RoomPlayer[];
+  };
 }
 export interface Deal {
   event: 'gameplay-deal';
@@ -89,6 +90,10 @@ export interface RoundEnd {
     score_cards: Data.Card[];
   };
 }
+export interface GameEnd {
+  event: 'gameplay-game-end';
+  data: Data.GameResult;
+}
 export type Event
   = Error
   | Connected
@@ -107,4 +112,5 @@ export type Event
   | Turn
   | Play
   | RoundEnd
+  | GameEnd
 ;

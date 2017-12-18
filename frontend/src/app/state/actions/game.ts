@@ -26,6 +26,7 @@ export const PLAY_CARD = 'Game: Play card';
 export const PLAY_CARD_DONE = 'Game: Play card: Done';
 export const PLAY_CARD_EVENT = 'Game: Play card event';
 export const ROUND_END = 'Game: Round end';
+export const GAME_END = 'Game: Game end';
 
 export const ROOM_INFO = 'Game: Room info';
 export const PLAYER_STATE_CHANGE = 'Game: Player state change';
@@ -124,10 +125,7 @@ export class LeaveRoomDone implements Action {
 export class ResetRoom implements Action {
   readonly type = RESET_ROOM;
 
-  constructor(
-    public roomId: string,
-    public players: WebSocket.Data.RoomPlayer[]
-  ) {}
+  constructor(public players: WebSocket.Data.RoomPlayer[]) {}
 }
 
 export class Ready implements Action {
@@ -142,6 +140,8 @@ export class Start implements Action {
 
 export class Started implements Action {
   readonly type = STARTED;
+
+  constructor(public players: WebSocket.Data.RoomPlayer[]) {}
 }
 
 export class Deal implements Action {
@@ -237,6 +237,12 @@ export class RoundEnd implements Action {
   ) {}
 }
 
+export class GameEnd implements Action {
+  readonly type = GAME_END;
+
+  constructor(public payload: WebSocket.Data.GameResult) {}
+}
+
 export class RoomInfo implements Action {
   readonly type = ROOM_INFO;
 
@@ -272,6 +278,7 @@ export type Actions
   | PlayCardDone
   | PlayCardEvent
   | RoundEnd
+  | GameEnd
   | RoomInfo
   | PlayerStateChange
   | FriendSelect.Actions

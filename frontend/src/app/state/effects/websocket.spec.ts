@@ -612,12 +612,23 @@ describe('WebSocketEffects', () => {
             players: samplePlayerList,
           },
         },
-        expect: new GameActions.ResetRoom('foo', samplePlayerList),
+        expect: new GameActions.ResetRoom(samplePlayerList),
       },
       {
         name: 'room-start',
-        given: { event: 'room-start', data: {} },
-        expect: new GameActions.Started(),
+        given: {
+          event: 'room-start',
+          data: {
+            players: [
+              { username: 'foo', ready: false },
+              { username: 'doge', ready: false },
+            ],
+          },
+        },
+        expect: new GameActions.Started([
+          { username: 'foo', ready: false },
+          { username: 'doge', ready: false },
+        ]),
       },
       {
         name: 'gameplay-deal',
