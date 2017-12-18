@@ -224,7 +224,7 @@ const initialState: GameState = {
 function applyPlayerState(
   room: WebSocket.Data.Room,
   update: GameActions.PlayerState
-) {
+): WebSocket.Data.Room {
   if (update.left) {
     const players = room.players.filter(p => p.username !== update.username);
     return {
@@ -238,8 +238,7 @@ function applyPlayerState(
         ...p,
         ready: update.ready,
       };
-    }
-    return p;
+    } return p;
   });
   if (!players.find(p => p.username === update.username)) {
     players.push({
@@ -256,7 +255,7 @@ function applyPlayerState(
 export function gameReducer(
   state: GameState = initialState,
   action: AppActions
-) {
+): GameState {
   switch (action.type) {
     case GameActions.JOIN_ROOM:
       return { type: 'joining', to: action.payload.roomId };
