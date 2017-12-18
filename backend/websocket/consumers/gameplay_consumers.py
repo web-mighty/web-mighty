@@ -1249,9 +1249,12 @@ def gameplay_play_consumer(message):
         build_ai_message(ai, ret)
         ret['room_id'] = room_id
         if USE_DELAY:
+            augmented_delay = AI_TURN_DELAY
+            if round_ended:
+                augmented_delay += DEAL_DELAY
             delay = {
                 'channel': 'gameplay-play',
-                'delay': AI_TURN_DELAY,
+                'delay': augmented_delay,
                 'content': ret,
             }
             Channel('asgi.delay').send(delay, immediately=True)
