@@ -382,8 +382,8 @@ def room_ai_add_consumer(message):
                 reply_error('Room does not exists', nonce=nonce, type='room-ai-add'))
             return
 
-        nicknames = ['doge', 'gon', 'eom', 'egger', 'ha']
-        altered_nicknames = ['doge', 'gon', 'eom', 'egger', 'ha']
+        nicknames = ['doge', 'bitcoin', 'ethereum', 'egger', 'ha']
+        altered_nicknames = ['doge', 'bitcoin', 'ethereum', 'egger', 'ha']
 
         for p in room['players']:
             if p['username'].startswith('*AI-'):

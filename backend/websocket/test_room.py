@@ -681,7 +681,7 @@ class RoomAITest(ChannelTestCase):
         client.receive()
         client.receive()
 
-        nick = ['doge', 'gon', 'eom', 'egger']
+        nick = ['doge', 'bitcoin', 'ethereum', 'egger']
         for i in range(4):
             req = request('room-ai-add', {}, nonce='test')
             client.send_and_consume('websocket.receive', req, path='/api/websocket/')
@@ -694,7 +694,7 @@ class RoomAITest(ChannelTestCase):
             client.receive()
 
         data = {
-            'ai_name': '*AI-eom',
+            'ai_name': '*AI-ethereum',
         }
         req = request('room-ai-delete', data, nonce='test')
         client.send_and_consume('websocket.receive', req, path='/api/websocket/')
@@ -702,4 +702,4 @@ class RoomAITest(ChannelTestCase):
         client.receive()
         response = client.receive()
         self.assertEqual(response['event'], 'room-leave')
-        self.assertEqual(response['data']['player'], '*AI-eom')
+        self.assertEqual(response['data']['player'], '*AI-ethereum')
