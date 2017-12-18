@@ -5,6 +5,7 @@ from api.models import Room
 from .consumer_utils import reply_error, response, event, reset_room_data
 from .consumer_utils import new_player_data
 from .state import RoomState
+from websocket.consumers.ai import AI
 
 
 def room_join_consumer(message):
@@ -310,6 +311,14 @@ def room_reset_consumer(message):
 
         new_room_data = reset_room_data(room_cache)
 
+        remove_indexes = []
+        for i, p in enumerate(new_room_data['players']):
+            if p['username'].startswith('*'):
+                remove_indexes.append(i)
+
+        for i in remove_indexes[::-1]:
+            del new_room_data['players'][i]
+
         cache.set(room_cache_key, new_room_data)
 
         event_data = {
@@ -320,3 +329,138 @@ def room_reset_consumer(message):
         }
 
         Group(room_id).send(event('room-reset', event_data))
+
+
+def room_ai_add_consumer(message):
+    data = message.content
+    reply_channel = Channel(data['reply'])
+    nonce = data['nonce']
+    username = data['username']
+
+    player_room_cache_key = 'player-room:' + username
+
+    with cache.lock('lock:' + player_room_cache_key):
+        room_id = cache.get(player_room_cache_key)
+
+        if room_id is None:
+            reply_channel.send(
+                reply_error('You are currently not in the room', nonce=nonce, type='room-ai-add'))
+            return
+
+    room_cache_key = 'room:' + room_id
+    with cache.lock('lock:' + room_cache_key):
+        room = cache.get(room_cache_key)
+
+        if room['game']['state'] is not RoomState.NOT_PLAYING:
+            reply_channel.send(
+                reply_error('You cannot add AI at playing', nonce=nonce, type='room-ai-add'))
+            return
+
+        if len(room['players']) >= room['options']['player_number']:
+            reply_channel.send(
+                reply_error('Room is full', nonce=nonce, type='room-ai-add'))
+            return
+
+        if room['players'][0]['username'] != username:
+            reply_channel.send(
+                reply_error('You are not host', nonce=nonce, type='room-ai-add'))
+            return
+
+        try:
+            room_model = Room.objects.get(room_id=room_id)
+        except Room.DoesNotExist:
+            reply_channel.send(
+                reply_error('Room does not exists', nonce=nonce, type='room-ai-add'))
+            return
+
+        nicknames = ['doge', 'gon', 'eom', 'egger', 'ha']
+        altered_nicknames = ['doge', 'gon', 'eom', 'egger', 'ha']
+
+        for p in room['players']:
+            if p['username'].startswith('*AI-'):
+                altered_nicknames.remove(p[4:])
+
+        ind = nicknames.index(altered_nicknames[0])
+
+        ai = AI(ind)
+        room['players'].append(ai)
+        room_model.player_count += 1
+        room_model.save()
+        cache.set('room:' + room_id, room)
+
+        event_data = {
+            'player': ai['username'],
+            'ai': True,
+        }
+        Group(room_id).send(event('room-join', event_data))
+
+        event_data = {
+            'player': ai['username'],
+            'ready': True,
+        }
+        Group(room_id).send(event('room-ready', event_data))
+
+
+def room_ai_delete_consumer(message):
+    data = message.content
+    reply_channel = Channel(data['reply'])
+    nonce = data['nonce']
+    username = data['username']
+    ai_name = data.get('ai_name', None)
+
+    if ai_name is None:
+        reply_channel.send(
+            reply_error('No ai_name', nonce=nonce, type='room-ai-delete'))
+        return
+
+    player_room_cache_key = 'player-room:' + username
+
+    with cache.lock('lock:' + player_room_cache_key):
+        room_id = cache.get(player_room_cache_key)
+
+        if room_id is None:
+            reply_channel.send(
+                reply_error('You are currently not in the room', nonce=nonce, type='room-ai-delete'))
+            return
+
+    room_cache_key = 'room:' + room_id
+    with cache.lock('lock:' + room_cache_key):
+        room = cache.get(room_cache_key)
+
+        if room['game']['state'] is not RoomState.NOT_PLAYING:
+            reply_channel.send(
+                reply_error('You cannot delete AI at playing', nonce=nonce, type='room-ai-delete'))
+            return
+
+        if room['players'][0]['username'] != username:
+            reply_channel.send(
+                reply_error('You are not host', nonce=nonce, type='room-ai-delete'))
+            return
+
+        found = False
+        for i, p in enumerate(room['players']):
+            if p['username'] == ai_name:
+                del room['players'][i]
+                found = True
+                break
+
+        if not found:
+            reply_channel.send(
+                reply_error('AI not found', nonce=nonce, type='room-ai-delete'))
+            return
+
+        try:
+            room_model = Room.objects.get(room_id=room_id)
+        except Room.DoesNotExist:
+            reply_channel.send(
+                reply_error('Room does not exists', nonce=nonce, type='room-ai-add'))
+            return
+
+        room_model.player_count -= 1
+        room_model.save()
+
+        event_data = {
+            'player': ai_name,
+            'ai': True,
+        }
+        Group(room_id).send(event('room-leave', event_data))
