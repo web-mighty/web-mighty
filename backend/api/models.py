@@ -11,7 +11,7 @@ import os
 
 
 class Room(models.Model):
-    room_id = models.CharField(max_length=40, unique=True)
+    room_id = models.CharField(max_length=40, unique=True, db_index=True)
     title = models.CharField(max_length=100)
     is_private = models.BooleanField()
     password = models.CharField(max_length=120)
