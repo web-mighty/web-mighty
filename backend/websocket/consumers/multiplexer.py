@@ -22,7 +22,6 @@ available_channels = [
     'room-leave',
     'room-ready',
     'room-start',
-    'room-reset',
     'gameplay-start',
     'gameplay-bid',
     'gameplay-deal-miss',
