@@ -7,6 +7,7 @@ import { User } from './user';
 import { Room } from './room';
 
 // Actions
+import * as RouterActions from './state/actions/router';
 import * as UserActions from './state/actions/user';
 import * as RoomActions from './state/actions/room';
 import * as GameActions from './state/actions/game';
@@ -73,13 +74,17 @@ export class LobbyComponent implements OnInit {
 
   joinRoom(id: string) {
     // TODO: Ask password
-    this.store.dispatch(new GameActions.JoinRoom({
-      roomId: id,
-    }));
-    this.store.dispatch(new UserActions.RedirectWithSignInState({
-      when: 'not-signed-in',
-      goTo: 'sign_in',
-    }));
+    this.store.select('user', 'authUser')
+      .first()
+      .subscribe(authUser => {
+        if (authUser === null) {
+          this.store.dispatch(new RouterActions.GoByUrl('sign_in'));
+        } else {
+          this.store.dispatch(new GameActions.JoinRoom({
+            roomId: id,
+          }));
+        }
+      });
   }
 
   range(n: number) {
