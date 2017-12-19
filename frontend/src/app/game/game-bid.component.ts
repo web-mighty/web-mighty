@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, ViewChild } from '@angular/core';
 
 import { Store } from '@ngrx/store';
 
@@ -15,6 +15,12 @@ import * as WebSocket from '../websocket';
 export class GameBidComponent {
   bidGiruda: WebSocket.Data.Giruda;
   bidScore = 13;
+
+  @ViewChild('girudaS') girudaS;
+  @ViewChild('girudaD') girudaD;
+  @ViewChild('girudaC') girudaC;
+  @ViewChild('girudaH') girudaH;
+  @ViewChild('girudaN') girudaN;
 
   constructor(private store: Store<State>) {}
 
@@ -34,5 +40,22 @@ export class GameBidComponent {
         giruda: this.bidGiruda
       })
     );
+  }
+
+  changeGiruda(giruda: WebSocket.Data.Giruda) {
+    this.bidGiruda = giruda;
+
+    const girudaMap = {
+      'S': this.girudaS,
+      'D': this.girudaD,
+      'C': this.girudaC,
+      'H': this.girudaH,
+      'N': this.girudaN,
+    };
+    const girudaList = ['S', 'D', 'C', 'H', 'N'].filter(x => x !== giruda);
+    for (const uncheckGiruda of girudaList) {
+      girudaMap[uncheckGiruda].nativeElement.MaterialIconToggle.uncheck();
+    }
+    girudaMap[giruda].nativeElement.MaterialIconToggle.check();
   }
 }
