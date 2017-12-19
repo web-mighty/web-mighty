@@ -182,11 +182,14 @@ class AI():
         ret = {
             'card': play_card,
         }
+        suits = ['S', 'D', 'H', 'C']
         if play_card['rank'] == 'JK':
             if is_president or is_friend:
-                ret['joker_suit'] = giruda
+                if giruda != 'N':
+                    ret['joker_suit'] = giruda
+                else:
+                    ret['joker_suit'] = random.choice(suits)
             else:
-                suits = ['S', 'D', 'H', 'C']
                 suits.remove(giruda)
                 ret['joker_suit'] = random.choice(suits)
         return ret
