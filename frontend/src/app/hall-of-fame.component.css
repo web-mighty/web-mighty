@@ -1,0 +1,15 @@
+.hall-of-fame {
+  position: absolute;
+  min-height: 100%;
+  max-width: 840px;
+  left: 50%;
+  transform: translate(-50%, 0);
+  margin: 0;
+  text-align: center;
+}
+.title {
+  margin: 16px;
+}
+.ranking-table {
+  width: 100%;
+}
