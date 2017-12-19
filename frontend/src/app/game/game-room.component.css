@@ -74,6 +74,9 @@
 .others-status > div {
   padding: 0 16px;
 }
+.add-ai {
+  border: 1px solid rgba(0, 0, 0, 0.12);
+}
 .ready {
   color: white;
   background-color: rgb(68, 138, 255);
