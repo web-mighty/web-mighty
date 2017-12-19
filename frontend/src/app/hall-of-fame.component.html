@@ -1,7 +1,19 @@
-<h2>Hall of Fame</h2>
-<h3>Most Wins</h3>
-<ol>
-  <li *ngFor="let info of (wins | async)">
-    {{info.username}}: {{info.wins}} win(s)
-  </li>
-</ol>
+<div class="mdl-grid--no-spacing">
+  <div class="hall-of-fame mdl-cell mdl-cell--8-col-desktop mdl-cell--8-col-tablet mdl-cell--4-col-phone mdl-shadow--3dp">
+    <h3 class="title">Hall of Fame</h3>
+    <table class="ranking-table mdl-data-table mdl-js-data-table">
+      <thead>
+        <th>Ranking</th>
+        <th class="mdl-data-table__cell--non-numeric">Username</th>
+        <th class="mdl-data-table__header--sorted-descending">Total wins</th>
+      </thead>
+      <tbody>
+        <tr *ngFor="let info of (wins | async); let rank = index;">
+          <td>{{rank}}</td>
+          <td class="mdl-data-table__cell--non-numeric">{{info.username}}</td>
+          <td>{{info.wins}}</td>
+        </tr>
+      <tbody>
+    </table>
+  </div>
+</div>
