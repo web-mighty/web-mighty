@@ -1,32 +1,29 @@
-<div class="bid-menu">
+<div app-mdl class="bid-menu">
   <div class="bid-giruda">
     <label #girudaS class="mdl-icon-toggle mdl-js-icon-toggle mdl-js-ripple-effect">
       <input type="checkbox" class="mdl-icon-toggle__input" (click)="changeGiruda('S')" checked>
-      <span  class="mdl-icon-toggle__label black-suit">♠</span>
+      <img *ngIf="bidGiruda === 'S'" [src]="suitIconPath('spades')" class="mdl-icon-toggle__label">
+      <img *ngIf="bidGiruda !== 'S'" [src]="suitDisabledIconPath('spades')" class="mdl-icon-toggle__label">
     </label>
     <label #girudaD class="mdl-icon-toggle mdl-js-icon-toggle mdl-js-ripple-effect">
       <input type="checkbox" class="mdl-icon-toggle__input" (click)="changeGiruda('D')">
-      <span class="mdl-icon-toggle__label red-suit">♦</span>
+      <img *ngIf="bidGiruda === 'D'" [src]="suitIconPath('diamonds')" class="mdl-icon-toggle__label">
+      <img *ngIf="bidGiruda !== 'D'" [src]="suitDisabledIconPath('diamonds')" class="mdl-icon-toggle__label">
     </label>
     <label #girudaC class="mdl-icon-toggle mdl-js-icon-toggle mdl-js-ripple-effect">
       <input type="checkbox" class="mdl-icon-toggle__input" (click)="changeGiruda('C')">
-      <span class="mdl-icon-toggle__label black-suit">♣</span>
+      <img *ngIf="bidGiruda === 'C'" [src]="suitIconPath('clubs')" class="mdl-icon-toggle__label">
+      <img *ngIf="bidGiruda !== 'C'" [src]="suitDisabledIconPath('clubs')" class="mdl-icon-toggle__label">
     </label>
     <label #girudaH class="mdl-icon-toggle mdl-js-icon-toggle mdl-js-ripple-effect">
       <input type="checkbox" class="mdl-icon-toggle__input" (click)="changeGiruda('H')">
-      <span class="mdl-icon-toggle__label red-suit">♥</span>
+      <img *ngIf="bidGiruda === 'H'" [src]="suitIconPath('hearts')" class="mdl-icon-toggle__label">
+      <img *ngIf="bidGiruda !== 'H'" [src]="suitDisabledIconPath('hearts')" class="mdl-icon-toggle__label">
     </label>
     <label #girudaN class="mdl-icon-toggle mdl-js-icon-toggle mdl-js-ripple-effect">
       <input type="checkbox" class="mdl-icon-toggle__input" (click)="changeGiruda('N')">
       <span class="mdl-icon-toggle__label no-giruda">NO</span>
     </label>
-  </div>
-  <div class="bid-score">
-    <h6 class="bid-score-text">{{bidScore}}</h6>
-    <p class="bid-score-slider">
-      <input class="mdl-slider mdl-js-slider" type="range"
-        min="12" max="20" [(ngModel)]="bidScore">
-    </p>
   </div>
   <div class="bid-buttons">
     <button
@@ -34,6 +31,15 @@
       (click)="pass()">
       Pass
     </button>
+    <div class="bid-score">
+      <button class="mdl-button mdl-js-button mdl-button--icon" (click)="scoreDecrease()">
+        <i class="material-icons">remove</i>
+      </button>
+      <h6 class="bid-score-text">{{bidScore}}</h6>
+      <button class="mdl-button mdl-js-button mdl-button--icon" (click)="scoreIncrease()">
+        <i class="material-icons">add</i>
+      </button>
+    </div>
     <button
       class="bid-button mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent"
       (click)="bid()">
