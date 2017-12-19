@@ -284,7 +284,7 @@ export namespace AI {
   export class Remove implements Action {
     readonly type = REMOVE;
 
-    constructor(public username: string) {}
+    constructor(public aiName: string) {}
   }
 
   export type Actions

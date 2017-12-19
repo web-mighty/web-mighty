@@ -146,7 +146,7 @@ export class GameEffects {
     this.actions$.ofType(GameActions.AI.REMOVE)
     .map((action: GameActions.AI.Remove) =>
       new WebSocketActions.Request(
-        new WebSocket.Requests.AiDelete(action.username)
+        new WebSocket.Requests.AiDelete(action.aiName)
       )
     );
 
