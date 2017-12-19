@@ -120,6 +120,9 @@
       </div>
       <div *ngIf="(gameProgressState | async) === 'elected'">
         <app-friend-select *ngIf="isMyTurn | async"></app-friend-select>
+        <h5 *ngIf="isMyTurn | async" class="message">
+          Bid: {{bidCoreToString(bid | async)}}
+        </h5>
         <h5 *ngIf="!(isMyTurn | async)" class="message">
           Bid: {{bidCoreToString(bid | async)}}<br>
           {{(bid | async).player}} has been elected!<br>

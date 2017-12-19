@@ -25,6 +25,12 @@ export class CardViewComponent {
   turnOf: Observable<string>;
   isMyTurn: Observable<boolean>;
 
+  president: Observable<string>;
+  friend: Observable<string | null>;
+
+  isJokerCall: Observable<boolean>;
+  jokerSuit: Observable<WebSocket.Data.CardSuit | null>;
+
   constructor(
     private store: Store<any>,
   ) {
@@ -51,6 +57,24 @@ export class CardViewComponent {
         this.store.select('user', 'authUser', 'username'),
         (turnOf, username) => turnOf === username
       );
+    this.president = this.store.select('game', 'state', 'president');
+    this.friend = this.store.select('game', 'state', 'friend');
+    this.isJokerCall = this.cards.map(cards => {
+      if (cards === null) {
+        return false;
+      }
+      return Object.values(cards).find(card => card.joker_call) != null;
+    });
+    this.jokerSuit = this.cards.map(cards => {
+      if (cards === null) {
+        return null;
+      }
+      const jokerCard = Object.values(cards).find(card => card.card.rank === 'JK');
+      if (jokerCard == null) {
+        return null;
+      }
+      return jokerCard.card.suit;
+    });
   }
 
   cardToFilePath(card: WebSocket.Data.Card): string {
@@ -91,5 +115,22 @@ export class CardViewComponent {
     }
 
     return `assets/img/cards/${rankString}_of_${suitString}.svg`;
+  }
+
+  suitToIcon(suit: WebSocket.Data.CardSuit): string {
+    switch (suit) {
+      case 'S':
+        return '♠';
+      case 'D':
+        return '♦';
+      case 'C':
+        return '♣';
+      case 'H':
+        return '♥';
+    }
+  }
+
+  isBlackSuit(suit: WebSocket.Data.CardSuit) {
+    return suit === 'S' || suit === 'C';
   }
 }

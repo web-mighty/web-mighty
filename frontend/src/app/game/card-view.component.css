@@ -1,3 +1,14 @@
+.joker-message {
+  width: 350px;
+  position: absolute;
+  top: 35%;
+  left: 50%;
+  transform: translate(-50%, -50%) translate(0, -80px);
+  text-align: center;
+}
+.black-suit {
+  color: black;
+}
 .card-status {
   display: flex;
   flex-direction: column;
