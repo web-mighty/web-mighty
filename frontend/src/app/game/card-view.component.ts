@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, Input } from '@angular/core';
 
 import { Observable } from 'rxjs/Observable';
 import 'rxjs/add/operator/map';
@@ -16,11 +16,20 @@ import * as WebSocket from '../websocket';
   styleUrls: ['./card-view.component.css'],
 })
 export class CardViewComponent {
+  @Input()
+  playerList: WebSocket.Data.RoomPlayer[];
+
   players: Observable<string[]>;
   playedPlayers: Observable<string[] | null>;
   cards: Observable<{ [username: string]: WebSocket.Data.CardPlay } | null>;
   turnOf: Observable<string>;
   isMyTurn: Observable<boolean>;
+
+  president: Observable<string>;
+  friend: Observable<string | null>;
+
+  isJokerCall: Observable<boolean>;
+  jokerSuit: Observable<WebSocket.Data.CardSuit | null>;
 
   constructor(
     private store: Store<any>,
@@ -48,25 +57,80 @@ export class CardViewComponent {
         this.store.select('user', 'authUser', 'username'),
         (turnOf, username) => turnOf === username
       );
+    this.president = this.store.select('game', 'state', 'president');
+    this.friend = this.store.select('game', 'state', 'friend');
+    this.isJokerCall = this.cards.map(cards => {
+      if (cards === null) {
+        return false;
+      }
+      return Object.values(cards).find(card => card.joker_call) != null;
+    });
+    this.jokerSuit = this.cards.map(cards => {
+      if (cards === null) {
+        return null;
+      }
+      const jokerCard = Object.values(cards).find(card => card.card.rank === 'JK');
+      if (jokerCard == null) {
+        return null;
+      }
+      return jokerCard.card.suit;
+    });
   }
 
-  cardToString(card: WebSocket.Data.Card): string {
+  cardToFilePath(card: WebSocket.Data.Card): string {
     if (card.rank === 'JK') {
-      return 'Joker';
+      return 'assets/img/cards/joker.svg';
     }
-    return `${card.suit}${card.rank}`;
+    let rankString;
+    let suitString;
+    switch (card.rank) {
+      case 'A':
+        rankString = 'ace';
+        break;
+      case 'K':
+        rankString = 'king';
+        break;
+      case 'Q':
+        rankString = 'queen';
+        break;
+      case 'J':
+        rankString = 'jack';
+        break;
+      default:
+        rankString = card.rank;
+    }
+    switch (card.suit) {
+      case 'S':
+        suitString = 'spades';
+        break;
+      case 'D':
+        suitString = 'diamonds';
+        break;
+      case 'C':
+        suitString = 'clubs';
+        break;
+      case 'H':
+        suitString = 'hearts';
+        break;
+    }
+
+    return `assets/img/cards/${rankString}_of_${suitString}.svg`;
   }
 
-  cardPlayToString(card: WebSocket.Data.CardPlay): string {
-    let result = '';
-    if (card.gan) result += '** ';
-    result += this.cardToString(card.card);
-    if (card.card.rank === 'JK' && 'suit' in card.card) {
-      result += ` (${card.card.suit})`;
+  suitToIcon(suit: WebSocket.Data.CardSuit): string {
+    switch (suit) {
+      case 'S':
+        return '♠';
+      case 'D':
+        return '♦';
+      case 'C':
+        return '♣';
+      case 'H':
+        return '♥';
     }
-    if (card.joker_call) {
-      result += ' (Joker Call)';
-    }
-    return result;
+  }
+
+  isBlackSuit(suit: WebSocket.Data.CardSuit) {
+    return suit === 'S' || suit === 'C';
   }
 }

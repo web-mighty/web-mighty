@@ -1,0 +1,10 @@
+.card-player {
+  height: 100%;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  padding: 0 16px;
+}
+.play-button {
+  margin: 0 0 0 4px;
+}

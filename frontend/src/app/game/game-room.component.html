@@ -26,23 +26,23 @@
         </div>
       </div>
       <div class="others-status mdl-list">
-        <button
-          *ngIf="isHost | async"
-          class="mdl-list__item mdl-button mdl-js-button mdl-js-ripple-effect"
-          (click)="addAi()">
-          Add an AI
-        </button>
         <div class="mdl-list__item" *ngFor="let player of (playerList | async).slice(1)">
           <div class="mdl-list__item-primary-content">
             <i [class.ready]="player.ready" [class.not-ready]="!(player.ready)" class="ready-status material-icons mdl-list__item-avatar">check</i>
             <span class="username">{{player.username}}</span>
           </div>
           <button
-            *ngIf="player.username[0] === '*'"
+            *ngIf="(isHost | async) && player.username[0] === '*'"
             class="mdl-list__item-secondary-action mdl-button mdl-js-button mdl-button--icon"
             (click)="removeAi(player.username)">
             <i class="material-icons">remove</i>
           </button>
+        </div>
+        <div class="add-ai mdl-list__item" *ngIf="(isHost | async) && (playerList | async).length < 5" (click)="addAi()">
+          <div class="mdl-list__item-primary-content">
+            <i class="material-icons mdl-list__item-avatar">add</i>
+            <span>Add an AI</span>
+          </div>
         </div>
       </div>
     </div>
@@ -119,22 +119,26 @@
         <app-game-bid *ngIf="isMyTurn | async"></app-game-bid>
       </div>
       <div *ngIf="(gameProgressState | async) === 'elected'">
-        {{(bid | async).player}} has been elected!
         <app-friend-select *ngIf="isMyTurn | async"></app-friend-select>
-        <div *ngIf="!(isMyTurn | async)">Waiting for the president...</div>
-      </div>
-      <div>
-        <div *ngIf="(gameProgressState | async) !== 'bidding'">
+        <h5 *ngIf="isMyTurn | async" class="message">
           Bid: {{bidCoreToString(bid | async)}}
-        </div>
-        <div *ngIf="(gameProgressState | async) === 'playing'">
-          Friend: {{friendDeclToString(friendDecl | async)}}
-          <span *ngIf="(friendDecl | async).type !== 'player' && (friend | async)">
-            ({{friend | async}})
-          </span>
-        </div>
+        </h5>
+        <h5 *ngIf="!(isMyTurn | async)" class="message">
+          Bid: {{bidCoreToString(bid | async)}}<br>
+          {{(bid | async).player}} has been elected!<br>
+          Waiting for the president...
+        </h5>
       </div>
-      <app-card-view *ngIf="(gameProgressState | async) === 'playing'">
+      <h5 class="message" *ngIf="(gameProgressState | async) === 'playing'">
+        Bid: {{bidCoreToString(bid | async)}}<br>
+        Friend: {{friendDeclToString(friendDecl | async)}}
+        <span *ngIf="(friendDecl | async).type !== 'player' && (friend | async)">
+          ({{friend | async}})
+        </span>
+      </h5>
+      <app-card-view
+        *ngIf="(gameProgressState | async) === 'playing'"
+          [playerList]="playerList | async">
       </app-card-view>
       <app-card-player
         *ngIf="(gameProgressState | async) === 'playing'"
@@ -142,7 +146,7 @@
       </app-card-player>
       <div class="my-hand">
         <div
-          *ngFor="let card of (hand | async)"
+          *ngFor="let card of (hand | async); let i = index"
           class="playing-card"
           [class.shrink]="(gameProgressState | async) === 'bidding' && (isMyTurn | async)"
           [class.row-one]="i < 5"

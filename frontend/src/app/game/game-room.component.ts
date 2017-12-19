@@ -61,7 +61,6 @@ export class GameRoomComponent implements OnInit, OnDestroy {
 
   bid: Observable<WebSocket.Data.BidCore | null>;
   friendDecl: Observable<WebSocket.Data.Friend>;
-  friend: Observable<string | null>;
 
   gameResult: Observable<WebSocket.Data.GameResult>;
   resultCalc: Observable<any>;
@@ -354,11 +353,6 @@ export class GameRoomComponent implements OnInit, OnDestroy {
       this.store.select('game')
       .filter(game => game != null && game.type === 'started' && game.state.type === 'playing')
       .map((game: any) => game.state.friendDecl);
-
-    this.friend =
-      this.store.select('game')
-      .filter(game => game != null && game.type === 'started' && game.state.type === 'playing')
-      .map((game: any) => game.state.friend);
 
     this.gameResult =
       this.store.select('game')

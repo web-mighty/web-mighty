@@ -7,49 +7,31 @@ import * as GameActions from '../state/actions/game';
 
 import * as WebSocket from '../websocket';
 
-function parseBid(bid: string): WebSocket.Data.BidCore {
-  const giruda: any = bid[0];
-  const score: any = bid.substr(1);
-  console.log(giruda, score);
-  if (!['S', 'D', 'C', 'H', 'N'].includes(giruda)) {
-    return null;
-  }
-  if (!/^[0-9]+$/.test(score)) {
-    return null;
-  }
-  return {
-    score: Number(score),
-    giruda,
-  };
-}
-
 @Component({
   selector: 'app-game-bid',
-  templateUrl: './game-bid.component.html'
+  templateUrl: './game-bid.component.html',
+  styleUrls: ['./game-bid.component.css']
 })
 export class GameBidComponent {
-  bidString: string;
+  bidGiruda: WebSocket.Data.Giruda;
+  bidScore = 13;
 
   constructor(private store: Store<State>) {}
 
-  confirmBid() {
-    if (this.bidString === 'pass') {
-      this.store.dispatch(
-        new GameActions.Bid({
-          bid: false,
-        })
-      );
-      return;
-    }
+  pass() {
+    this.store.dispatch(
+      new GameActions.Bid({
+        bid: false,
+      })
+    );
+  }
 
-    const bid = parseBid(this.bidString);
-    if (bid === null) {
-      return;
-    }
+  bid() {
     this.store.dispatch(
       new GameActions.Bid({
         bid: true,
-        ...bid
+        score: this.bidScore,
+        giruda: this.bidGiruda
       })
     );
   }
