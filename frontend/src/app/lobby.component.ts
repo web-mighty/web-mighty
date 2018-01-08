@@ -23,7 +23,6 @@ export class LobbyComponent implements OnInit {
   error: Observable<string | null>;
   leaving: Observable<boolean>;
   loading: Observable<boolean>;
-  lockImgPath = 'assets/img/lock.svg';
 
   constructor(private store: Store<State>) {
     this.roomList = this.store.select('room', 'roomList');

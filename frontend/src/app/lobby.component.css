@@ -15,11 +15,6 @@
   transform: translate(-50%, -50%);
   text-align: center;
 }
-.no-games-message {
-  color: grey;
-}
-.spinner {
-}
 .room-list__item {
   border: 1px solid rgba(0, 0, 0, 0.12);
 }

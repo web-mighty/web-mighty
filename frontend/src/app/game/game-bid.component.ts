@@ -13,7 +13,7 @@ import * as WebSocket from '../websocket';
   styleUrls: ['./game-bid.component.css']
 })
 export class GameBidComponent {
-  bidGiruda: WebSocket.Data.Giruda;
+  bidGiruda: WebSocket.Data.Giruda = 'S';
   bidScore = 13;
 
   @ViewChild('girudaS') girudaS;
@@ -57,5 +57,23 @@ export class GameBidComponent {
       girudaMap[uncheckGiruda].nativeElement.MaterialIconToggle.uncheck();
     }
     girudaMap[giruda].nativeElement.MaterialIconToggle.check();
+  }
+
+  suitIconPath(suit: string) {
+    return `assets/img/suits/${suit}_icon.svg`;
+  }
+  suitDisabledIconPath(suit: string) {
+    return `assets/img/suits/${suit}_disabled_icon.svg`;
+  }
+
+  scoreDecrease() {
+    if (this.bidScore > 12) {
+      this.bidScore--;
+    }
+  }
+  scoreIncrease() {
+    if (this.bidScore < 20) {
+      this.bidScore++;
+    }
   }
 }

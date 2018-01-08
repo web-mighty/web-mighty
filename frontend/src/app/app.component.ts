@@ -15,6 +15,7 @@ import { MenuBarComponent } from './menu-bar.component';
 })
 export class AppComponent {
   isDuplicate: Observable<boolean>;
+  githubLogoPath = 'assets/img/github_logo.png';
 
   constructor(private store: Store<State>) {
     this.isDuplicate =

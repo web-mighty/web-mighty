@@ -9,7 +9,7 @@
       </thead>
       <tbody>
         <tr *ngFor="let info of (wins | async); let rank = index;">
-          <td>{{rank}}</td>
+          <td>{{rank + 1}}</td>
           <td class="mdl-data-table__cell--non-numeric">{{info.username}}</td>
           <td>{{info.wins}}</td>
         </tr>

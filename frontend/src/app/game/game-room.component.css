@@ -1,6 +1,6 @@
 .table {
   height: 100%;
-  min-height: 600px;
+  min-height: 500px;
   max-width: 840px;
   min-width: 375px;
   position: absolute;
@@ -117,9 +117,9 @@
   filter: invert(100%);
 }
 app-game-bid {
-  height: 175px;
+  height: 75px;
   width: 350px;
-  padding: 4px 16px;
+  padding: 8px 16px;
   position: absolute;
   bottom: 180px;
   left: 50%;

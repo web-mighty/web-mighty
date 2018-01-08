@@ -5,7 +5,7 @@
       <div class="mdl-color-text--red" *ngIf="error | async">
         <h4>{{error | async}}</h4>
       </div>
-      <div class="no-games-message" *ngIf="!(error | async) && (roomList | async).length === 0">
+      <div class="no-games-message mdl-color-text--grey-500" *ngIf="!(error | async) && (roomList | async).length === 0">
         <h4>No games available!<br>Press "+" to create new game.</h4>
       </div>
     </div>
