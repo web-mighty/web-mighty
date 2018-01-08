@@ -2,6 +2,9 @@
   height: 52px;
   padding: 16px;
 }
+.mdl-logo {
+  height: 24px;
+}
 @media screen and (max-width: 840px) {
   .mdl-mini-footer {
     display: none;

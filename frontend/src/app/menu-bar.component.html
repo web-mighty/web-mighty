@@ -3,7 +3,7 @@
     <div class="mdl-layout-spacer"></div>
     <!-- Logo -->
     <span class="mdl-layout-title clickable" (click)="gotoLobby()">
-      <img [src]="showDoge ? dogeLogoPath : longLogoPath" height="56px">
+      <img [src]="showDoge ? dogeLogoPath : longLogoPath" id="logo-large">
     </span>
     <div class="mdl-layout-spacer"></div>
   </div>
@@ -41,7 +41,7 @@
   <div class="mdl-layout__header-row logo-header-small">
     <!-- Logo -->
     <span class="mdl-layout-title clickable" (click)="gotoLobby()">
-      <img id="logo-small" src={{logoPath}}>
+      <img id="logo-small" [src]="logoPath">
     </span>
     <div class="mdl-layout-spacer"></div>
 
