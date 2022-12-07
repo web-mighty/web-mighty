@@ -4,7 +4,7 @@ asgiref==1.1.2
 attrs==17.2.0
 autobahn==17.10.1
 Automat==0.6.0
-certifi==2017.11.5
+certifi==2022.12.7
 cffi==1.11.2
 channels==1.1.8
 chardet==3.0.4
